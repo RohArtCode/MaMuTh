@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chord: 000001000000(0064)</title>
+<script src="https://cdn.jsdelivr.net/combine/npm/tone@14.7.58,npm/@magenta/music@1.23.1/es6/core.js,npm/focus-visible@5,npm/html-midi-player@1.4.0"></script>
 <style>
     body {
         background-color: #F1F0B;/* #C2DCAB;*/
@@ -35,6 +36,39 @@
 </style>
 </head>
 <body>
+
+
+<script>
+    let audioContext;
+
+    function playMIDI(midiFile) {
+        if (!audioContext) {
+            // AudioContext wird nur bei der ersten Interaktion erstellt
+            audioContext = new AudioContext();
+        }
+
+        // AudioContext muss nach einer Benutzergeste gestartet werden
+        if (audioContext.state === 'suspended') {
+            audioContext.resume();
+        }
+
+        fetch(midiFile)
+            .then(response => response.arrayBuffer())
+            .then(data => {
+                audioContext.decodeAudioData(data, buffer => {
+                    const source = audioContext.createBufferSource();
+                    source.buffer = buffer;
+                    source.connect(audioContext.destination);
+                    source.start(0);
+                });
+            });
+    }
+</script>
+
+
+
+
+
 <map name="CCis">
 <area href="2112.htm" shape="rect" coords="1,110,25,148">
 <area href="1088.htm" shape="rect" coords="17,1,25,100">
@@ -69,12 +103,12 @@
 
 <table border="0" cellpadding="0" cellspacing="0" width="380">
 <tr> 
-<td colspan=2><b><font size="2"><a href="../0000.htm">PocketChords </a>(c) Roger 
+<td colspan=2><b><font size="2"><a href="0000.htm">PocketChords </a>(c) Roger 
 Hübbers 2004-24 </font></b>  </td>
 </tr>
 <tr> 
 <td colspan=2><small> <b>0064</b>: .Qt5 der Mazzolaklasse 
-<a href=2048.htm>2</a> &nbsp [<font size="1">24 Skalen</font>] </small>  </td>
+<a href=../Hewitt/HTML/Hewitt800.html>2</a> &nbsp [<font size="1">24 Skalen</font>] </small>  </td>
 </tr><hr><tr>
 <td > <small> Ein Ton (Tonumfang: 1 Halbt.)</small> </td>
 <td style="display: flex; justify-content: space-between;"> <small>Tonzirkel</small> <small>Quintzirkel</small></td>
@@ -123,7 +157,13 @@ Hübbers 2004-24 </font></b>  </td>
 <a href="2048.htm"> .2t0</a> &nbsp [<font size="1">12 Skalen</font>]</small></td>
 </tr>
 <tr>
-<td colspan=2><a href="../midi/0064.mid"> <img border="0" src="../gif/Score/Scale/0064.gif"  height="56"> </a></td>
+
+<td colspan="2">
+    <a href="javascript:void(0);" onclick="playMIDI('../midi/0064.mid');">
+        <img border="0" src="../gif/Score/Scale/0064.gif" height="56">
+    </a>
+</td>
+
 </tr>
 <tr> 
 <td colspan=2> Hewitt-Klasse und Stufennamen:</td>
