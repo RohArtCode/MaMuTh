@@ -33,6 +33,80 @@
         overflow-x: auto;
     }
 </style>
+<script src="https://surikov.github.io/webaudiofont/npm/dist/WebAudioFontPlayer.js"></script>
+    <script src="https://surikov.github.io/webaudiofontdata/sound/0000_JCLive_sf2_file.js"></script>
+    <script>
+        var selectedPreset = _tone_0000_JCLive_sf2_file;
+        var AudioContextFunc = window.AudioContext || window.webkitAudioContext;
+        var audioContext = new AudioContextFunc();
+        var player = new WebAudioFontPlayer();
+        player.loader.decodeAfterLoading(audioContext, '_tone_0000_JCLive_sf2_file');
+
+        // Funktion zum Konvertieren einer 12-stelligen Binärzahl in Noten
+        function binaryToNotes(binary, baseNote = 60) {
+			const notes = [];
+			for (let i = 0; i < 12; i++) {  // 12 Halbtöne in einer Oktave
+				if (binary & (1 << (11 - i))) {    // Prüft, ob das Bit an Position 11 - i gesetzt ist
+					notes.push(baseNote + i);
+				}
+			}
+			return notes;
+		}
+
+        // Funktion zum Konvertieren eines Piano-Roll-Strings in Noten
+        function pianoRollToNotes(pianoRoll, baseNote = 60) {
+            const notes = [];
+            for (let i = 0; i < pianoRoll.length; i++) {
+                if (pianoRoll[i] === '1') {
+                    notes.push(baseNote + i);
+                }
+            }
+            return notes;
+        }
+
+        // Hauptfunktion zur Verarbeitung der Eingaben
+        function processInput(input) {
+            if (Array.isArray(input)) {
+                // Wenn das Input ein Array ist, gehen wir davon aus, dass es direkt Noten enthält
+                return input;
+            } else if (typeof input === 'string') {
+                // Wenn das Input ein String ist, behandeln wir es als Piano-Roll
+                return pianoRollToNotes(input);
+            } else if (typeof input === 'number' && input >= 0 && input <= 4095) {
+                // Wenn das Input eine Zahl zwischen 0 und 4095 ist, behandeln wir es als binären Integer
+                return binaryToNotes(input);
+            } else {
+                throw new Error("Ungültiges Eingabeformat. Erlaubt sind Arrays, Strings oder Zahlen zwischen 0 und 4095.");
+            }
+        }
+
+        // Funktion zum Spielen eines Akkords
+        function playChord(input) {
+            const notes = processInput(input);
+            player.queueChord(audioContext, audioContext.destination, selectedPreset, 0, notes, 4.5);
+        }
+
+        // Funktion zum Spielen einer Skala mit Verzögerung zwischen den Tönen
+        function playScale(input) {
+            const notes = processInput(input);
+            notes.forEach((note, index) => {
+                player.queueWaveTable(audioContext, audioContext.destination, selectedPreset, audioContext.currentTime + index * 0.5, note, 0.5);
+            });
+        }
+// Funktion zum Spielen einer Skala und danach des Akkords
+function playScaleChord(input) {
+    const notes = processInput(input);
+
+    // Skala abspielen
+    playScale(notes);
+
+    // Berechne die Verzögerung für den Akkord basierend auf der Dauer der Skala
+    const scaleDuration = (notes.length+1) * 0.5; // 0.5 Sekunden pro Ton
+
+    // Akkord mit Verzögerung abspielen
+    setTimeout(() => playChord(notes), scaleDuration * 1000); // Konvertierung zu Millisekunden
+}
+    </script>
 </head>
 <body>
 <map name="CCis">
@@ -142,39 +216,42 @@ Hübbers 2004-24 </font></b>  </td>
 </td>
 <table border="0" cellpadding="0" cellspacing="5" width="230">
 <tr>
-<td colspan=2><a href="../midi/2725.mid"> <img border="0" src="../gif/Score/Scale/2725.gif"  height="56"> </a></td>
+<td colspan=2><a href="../midi/2725.mid"> <img border="0" src="../gif/Score/Scale/2725.gif"  height="56" style="vertical-align: middle;"> </a>
+<a href="#" onclick="playChord(2725)" style="margin-left: 10px; vertical-align: middle;"> <small>⏵Chord</small></a><br>
+<a href="#" onclick="playScale(2725)" style="margin-left: 10px; vertical-align: middle;"><small>⏵Scale</small></a>
+</td>
 </tr>
 <tr> 
 <td colspan=2><b>Skalenname Hewitt-Klasse und Modi</b></td>
 </tr>
 <tr> 
 <td valign=top> <b><a href=3410.htm> <small>Hewitt</small> </a><b> </td> <td><small>großer Tredezimakkord</small> </td>
-<td><img border="0" src="../gif/Kreise/3410.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/3410.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/3410.gif" height="24" onclick="playChord(3410)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/3410.gif" height="24"  onclick="playScale(3410)" style="cursor: pointer;"></td>
 </tr><tr> 
 <td valign=top> <b><a href=2725.htm> C  </a><b> </td> <td><small>NN</small> </td>
-<td><img border="0" src="../gif/Kreise/2725.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/2725.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/2725.gif" height="24" onclick="playChord(2725)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/2725.gif" height="24"  onclick="playScale(2725)" style="cursor: pointer;"></td>
 </tr><tr> 
 <td valign=top> <b><a href=2710.htm> D  </a><b> </td> <td><small>großer Tredezimakkord</small> </td>
-<td><img border="0" src="../gif/Kreise/2710.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/2710.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/2710.gif" height="24" onclick="playChord(2710)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/2710.gif" height="24"  onclick="playScale(2710)" style="cursor: pointer;"></td>
 </tr><tr> 
 <td valign=top> <b><a href=2650.htm> E  </a><b> </td> <td><small>NN</small> </td>
-<td><img border="0" src="../gif/Kreise/2650.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/2650.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/2650.gif" height="24" onclick="playChord(2650)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/2650.gif" height="24"  onclick="playScale(2650)" style="cursor: pointer;"></td>
 </tr><tr> 
 <td valign=top> <b><a href=2410.htm> F# </a><b> </td> <td><small>0 7  11 b13</small> </td>
-<td><img border="0" src="../gif/Kreise/2410.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/2410.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/2410.gif" height="24" onclick="playChord(2410)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/2410.gif" height="24"  onclick="playScale(2410)" style="cursor: pointer;"></td>
 </tr><tr> 
 <td valign=top> <b><a href=2900.htm> A  </a><b> </td> <td><small>NN</small> </td>
-<td><img border="0" src="../gif/Kreise/2900.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/2900.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/2900.gif" height="24" onclick="playChord(2900)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/2900.gif" height="24"  onclick="playScale(2900)" style="cursor: pointer;"></td>
 </tr><tr> 
 <td valign=top> <b><a href=3410.htm> B  </a><b> </td> <td><small>NN</small> </td>
-<td><img border="0" src="../gif/Kreise/3410.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/3410.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/3410.gif" height="24" onclick="playChord(3410)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/3410.gif" height="24"  onclick="playScale(3410)" style="cursor: pointer;"></td>
 </tr>
 </table>
 <table border="0" cellpadding="0" cellspacing="5" width="380">
@@ -291,100 +368,100 @@ Hübbers 2004-24 </font></b>  </td>
 </tr>
 <tr><td colspan=4><b>Halbtonverwandte Skalen</b> <br><small>(ein Ton um Halbton verändert)</small></td></tr><tr> 
 <td valign=top>C ↗C#</td> <td><small><a href="1701.htm">C# NN<br><font size=1> Rang:Grundton 52:D</font></a></small></td>
-<td><img border="0" src="../gif/Kreise/1701.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/1701.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/1701.gif" height="24" onclick="playChord(1701)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/1701.gif" height="24" onclick="playScale(1701)" style="cursor: pointer;"></td>
 </tr><tr> 
 <td valign=top>D ↗D#</td> <td><small><a href="2469.htm">C b5 j7 #9  13<br><font size=1> Rang:Grundton 48:D , B</font></a></small></td>
-<td><img border="0" src="../gif/Kreise/2469.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/2469.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/2469.gif" height="24" onclick="playChord(2469)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/2469.gif" height="24" onclick="playScale(2469)" style="cursor: pointer;"></td>
 </tr><tr> 
 <td valign=top>D ↘C#</td> <td><small><a href="3237.htm">C Raga Hamsanandi<br><font size=1> Rang:Grundton 50:A</font></a></small></td>
-<td><img border="0" src="../gif/Kreise/3237.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/3237.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/3237.gif" height="24" onclick="playChord(3237)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/3237.gif" height="24" onclick="playScale(3237)" style="cursor: pointer;"></td>
 </tr><tr> 
 <td valign=top>E ↗F </td> <td><small><a href="2661.htm">C NN<br><font size=1> Rang:Grundton 51:D</font></a></small></td>
-<td><img border="0" src="../gif/Kreise/2661.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/2661.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/2661.gif" height="24" onclick="playChord(2661)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/2661.gif" height="24" onclick="playScale(2661)" style="cursor: pointer;"></td>
 </tr><tr> 
 <td valign=top>E ↘D#</td> <td><small><a href="2853.htm">C NN<br><font size=1> Rang:Grundton 52:D</font></a></small></td>
-<td><img border="0" src="../gif/Kreise/2853.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/2853.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/2853.gif" height="24" onclick="playChord(2853)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/2853.gif" height="24" onclick="playScale(2853)" style="cursor: pointer;"></td>
 </tr><tr> 
 <td valign=top>F#↗G </td> <td><small><a href="2709.htm">C Lydian Hexatonic<br><font size=1> Rang:Grundton 52:C</font></a></small></td>
-<td><img border="0" src="../gif/Kreise/2709.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/2709.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/2709.gif" height="24" onclick="playChord(2709)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/2709.gif" height="24" onclick="playScale(2709)" style="cursor: pointer;"></td>
 </tr><tr> 
 <td valign=top>F#↘F </td> <td><small><a href="2757.htm">C NN<br><font size=1> Rang:Grundton 51:F</font></a></small></td>
-<td><img border="0" src="../gif/Kreise/2757.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/2757.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/2757.gif" height="24" onclick="playChord(2757)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/2757.gif" height="24" onclick="playScale(2757)" style="cursor: pointer;"></td>
 </tr><tr> 
 <td valign=top>A ↗A#</td> <td><small><a href="2723.htm">C b5 j7 9  #13<br><font size=1> Rang:Grundton 51:C</font></a></small></td>
-<td><img border="0" src="../gif/Kreise/2723.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/2723.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/2723.gif" height="24" onclick="playChord(2723)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/2723.gif" height="24" onclick="playScale(2723)" style="cursor: pointer;"></td>
 </tr><tr> 
 <td valign=top>A ↘G#</td> <td><small><a href="2729.htm">C NN<br><font size=1> Rang:Grundton 52:D</font></a></small></td>
-<td><img border="0" src="../gif/Kreise/2729.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/2729.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/2729.gif" height="24" onclick="playChord(2729)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/2729.gif" height="24" onclick="playScale(2729)" style="cursor: pointer;"></td>
 </tr><tr> 
 <td valign=top>B ↘A#</td> <td><small><a href="2726.htm">C akustischer Tredezimakkord<br><font size=1> Rang:Grundton 52:C</font></a></small></td>
-<td><img border="0" src="../gif/Kreise/2726.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/2726.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/2726.gif" height="24" onclick="playChord(2726)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/2726.gif" height="24" onclick="playScale(2726)" style="cursor: pointer;"></td>
 </tr><tr><td colspan=4><b>enthält folgende Skalen</b> <small>(ein Ton entfernt)</small></td></tr><tr> 
 <td valign=top>ohne C </td> <td><small><a href="0677.htm">D Dur-Pentatonik<br><font size=1> Rang:Grundton 47:D</font></a></small></td>
-<td><img border="0" src="../gif/Kreise/0677.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/0677.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/0677.gif" height="24" onclick="playChord(0677)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/0677.gif" height="24" onclick="playScale(0677)" style="cursor: pointer;"></td>
 </tr><tr> 
 <td valign=top>ohne D </td> <td><small><a href="2213.htm">C Raga Hindol (Sunada Vinodini)<br><font size=1> Rang:Grundton 44:D</font></a></small></td>
-<td><img border="0" src="../gif/Kreise/2213.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/2213.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/2213.gif" height="24" onclick="playChord(2213)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/2213.gif" height="24" onclick="playScale(2213)" style="cursor: pointer;"></td>
 </tr><tr> 
 <td valign=top>ohne E </td> <td><small><a href="2597.htm">C NN<br><font size=1> Rang:Grundton 48:D</font></a></small></td>
-<td><img border="0" src="../gif/Kreise/2597.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/2597.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/2597.gif" height="24" onclick="playChord(2597)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/2597.gif" height="24" onclick="playScale(2597)" style="cursor: pointer;"></td>
 </tr><tr> 
 <td valign=top>ohne F#</td> <td><small><a href="2693.htm">C Raga Neroshta<br><font size=1> Rang:Grundton 46:D</font></a></small></td>
-<td><img border="0" src="../gif/Kreise/2693.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/2693.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/2693.gif" height="24" onclick="playChord(2693)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/2693.gif" height="24" onclick="playScale(2693)" style="cursor: pointer;"></td>
 </tr><tr> 
 <td valign=top>ohne A </td> <td><small><a href="2721.htm">C Raga Kumurdaki (Kumudki)<br><font size=1> Rang:Grundton 45:D</font></a></small></td>
-<td><img border="0" src="../gif/Kreise/2721.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/2721.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/2721.gif" height="24" onclick="playChord(2721)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/2721.gif" height="24" onclick="playScale(2721)" style="cursor: pointer;"></td>
 </tr><tr> 
 <td valign=top>ohne B </td> <td><small><a href="2724.htm">C Kung tiao<br><font size=1> Rang:Grundton 50:D</font></a></small></td>
-<td><img border="0" src="../gif/Kreise/2724.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/2724.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/2724.gif" height="24" onclick="playChord(2724)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/2724.gif" height="24" onclick="playScale(2724)" style="cursor: pointer;"></td>
 </tr><tr><td colspan=4><b>in folgende Skalen enthalten</b> <small>(ein Ton ergänzt)</small></td></tr><tr> 
 <td valign=top>mit C#</td> <td><small><a href="3749.htm">C NN<br><font size=1> Rang:Grundton 61:D</font></a></small></td>
-<td><img border="0" src="../gif/Kreise/3749.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/3749.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/3749.gif" height="24" onclick="playChord(3749)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/3749.gif" height="24" onclick="playScale(3749)" style="cursor: pointer;"></td>
 </tr><tr> 
 <td valign=top>mit D#</td> <td><small><a href="2981.htm">C 0 j7 9 b11 13<br><font size=1> Rang:Grundton 60:D</font></a></small></td>
-<td><img border="0" src="../gif/Kreise/2981.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/2981.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/2981.gif" height="24" onclick="playChord(2981)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/2981.gif" height="24" onclick="playScale(2981)" style="cursor: pointer;"></td>
 </tr><tr> 
 <td valign=top>mit F </td> <td><small><a href="2789.htm">C ionisch b5<br><font size=1> Rang:Grundton 59:D</font></a></small></td>
-<td><img border="0" src="../gif/Kreise/2789.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/2789.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/2789.gif" height="24" onclick="playChord(2789)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/2789.gif" height="24" onclick="playScale(2789)" style="cursor: pointer;"></td>
 </tr><tr> 
 <td valign=top>mit G </td> <td><small><a href="2741.htm">C Lydian<br><font size=1> Rang:Grundton 59:C</font></a></small></td>
-<td><img border="0" src="../gif/Kreise/2741.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/2741.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/2741.gif" height="24" onclick="playChord(2741)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/2741.gif" height="24" onclick="playScale(2741)" style="cursor: pointer;"></td>
 </tr><tr> 
 <td valign=top>mit G#</td> <td><small><a href="2733.htm">C NN<br><font size=1> Rang:Grundton 63:D</font></a></small></td>
-<td><img border="0" src="../gif/Kreise/2733.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/2733.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/2733.gif" height="24" onclick="playChord(2733)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/2733.gif" height="24" onclick="playScale(2733)" style="cursor: pointer;"></td>
 </tr><tr> 
 <td valign=top>mit A#</td> <td><small><a href="2727.htm">C NN<br><font size=1> Rang:Grundton 57:C , D</font></a></small></td>
-<td><img border="0" src="../gif/Kreise/2727.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/2727.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/2727.gif" height="24" onclick="playChord(2727)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/2727.gif" height="24" onclick="playScale(2727)" style="cursor: pointer;"></td>
 </tr><tr><td colspan=4><b>Tritonus auflösen</b> <small>(falls vorhanden)</small></td></tr><tr> 
 <td valign=top><font size=1>C -F#>B -G </font></td> <td><small><a href="0661.htm">D Major complement<br><font size=1> Rang:Grundton 47:G</font></a></small></td>
-<td><img border="0" src="../gif/Kreise/0661.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/0661.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/0661.gif" height="24" onclick="playChord(0661)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/0661.gif" height="24" onclick="playScale(0661)" style="cursor: pointer;"></td>
 </tr><tr> 
 <td valign=top><font size=1>F#-C >F -C#</font></td> <td><small><a href="1733.htm">C# m #5 7 b9 b11<br><font size=1> Rang:Grundton 51:G</font></a></small></td>
-<td><img border="0" src="../gif/Kreise/1733.gif" height="24"></td>
-<td><img border="0" src="../gif/Score/Scale/1733.gif" height="24"></td>
+<td><img border="0" src="../gif/Kreise/1733.gif" height="24" onclick="playChord(1733)" style="cursor: pointer;"></td>
+<td><img border="0" src="../gif/Score/Scale/1733.gif" height="24" onclick="playScale(1733)" style="cursor: pointer;"></td>
 </tr>
 </table>
 </body>

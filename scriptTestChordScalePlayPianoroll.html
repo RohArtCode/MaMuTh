@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Flexible Akkorde und Skalen abspielen</title>
+    <script src="https://surikov.github.io/webaudiofont/npm/dist/WebAudioFontPlayer.js"></script>
+    <script src="https://surikov.github.io/webaudiofontdata/sound/0000_JCLive_sf2_file.js"></script>
+    <script>
+        var selectedPreset = _tone_0000_JCLive_sf2_file;
+        var AudioContextFunc = window.AudioContext || window.webkitAudioContext;
+        var audioContext = new AudioContextFunc();
+        var player = new WebAudioFontPlayer();
+        player.loader.decodeAfterLoading(audioContext, '_tone_0000_JCLive_sf2_file');
+
+        // Funktion zum Konvertieren einer 12-stelligen Binärzahl in Noten
+        function binaryToNotes(binary, baseNote = 60) {
+			const notes = [];
+			for (let i = 0; i < 12; i++) {  // 12 Halbtöne in einer Oktave
+				if (binary & (1 << (11 - i))) {    // Prüft, ob das Bit an Position 11 - i gesetzt ist
+					notes.push(baseNote + i);
+				}
+			}
+			return notes;
+		}
+
+        // Funktion zum Konvertieren eines Piano-Roll-Strings in Noten
+        function pianoRollToNotes(pianoRoll, baseNote = 60) {
+            const notes = [];
+            for (let i = 0; i < pianoRoll.length; i++) {
+                if (pianoRoll[i] === '1') {
+                    notes.push(baseNote + i);
+                }
+            }
+            return notes;
+        }
+
+        // Hauptfunktion zur Verarbeitung der Eingaben
+        function processInput(input) {
+            if (Array.isArray(input)) {
+                // Wenn das Input ein Array ist, gehen wir davon aus, dass es direkt Noten enthält
+                return input;
+            } else if (typeof input === 'string') {
+                // Wenn das Input ein String ist, behandeln wir es als Piano-Roll
+                return pianoRollToNotes(input);
+            } else if (typeof input === 'number' && input >= 0 && input <= 4095) {
+                // Wenn das Input eine Zahl zwischen 0 und 4095 ist, behandeln wir es als binären Integer
+                return binaryToNotes(input);
+            } else {
+                throw new Error("Ungültiges Eingabeformat. Erlaubt sind Arrays, Strings oder Zahlen zwischen 0 und 4095.");
+            }
+        }
+
+        // Funktion zum Spielen eines Akkords
+        function playChord(input) {
+            const notes = processInput(input);
+            player.queueChord(audioContext, audioContext.destination, selectedPreset, 0, notes, 4.5);
+        }
+
+        // Funktion zum Spielen einer Skala mit Verzögerung zwischen den Tönen
+        function playScale(input) {
+            const notes = processInput(input);
+            notes.forEach((note, index) => {
+                player.queueWaveTable(audioContext, audioContext.destination, selectedPreset, audioContext.currentTime + index * 1.5, note, 1.5);
+            });
+        }
+    </script>
+</head>
+<body>
+    <h2>Flexible Akkorde und Skalen abspielen</h2>
+    
+    <!-- Links zum Abspielen von Akkorden und Skalen mit verschiedenen Eingabeformaten -->
+    <p><a href="#" onclick="playChord([60, 64, 67])">Akkord C-Dur (Array)</a></p>
+    <p><a href="#" onclick="playChord('100010010000')">Akkord CEG (Piano-Roll-String)</a></p>
+    <p><a href="#" onclick="playChord(0b100010010000)">Akkord CEG (Binär)</a></p>
+    <p><a href="#" onclick="playChord(2192)">Akkord CEG ( (Integerzahl 2192)</a></p>
+    
+    <p><a href="#" onclick="playScale([60, 62, 64, 65, 67, 69, 71, 72])">Tonleiter C-Dur (Array)</a></p>
+    <p><a href="#" onclick="playScale('101010101010')">Tonleiter abwechselnd (Piano-Roll-String)</a></p>
+    <p><a href="#" onclick="playScale(0b101010101010)">Tonleiter abwechselnd (Binär)</a></p>
+
+    <hr/>
+    <p><a href="https://github.com/surikov/webaudiofont">source</a></p>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>WebAudioFont Akkorde und Skalen spielen</title>
+    <script src="https://surikov.github.io/webaudiofont/npm/dist/WebAudioFontPlayer.js"></script>
+    <script src="https://surikov.github.io/webaudiofontdata/sound/0000_JCLive_sf2_file.js"></script>
+    <script>
+        var selectedPreset = _tone_0000_JCLive_sf2_file;
+        var AudioContextFunc = window.AudioContext || window.webkitAudioContext;
+        var audioContext = new AudioContextFunc();
+        var player = new WebAudioFontPlayer();
+        player.loader.decodeAfterLoading(audioContext, '_tone_0000_JCLive_sf2_file');
+
+        // Funktion zum Spielen eines Akkords
+        function playChord(notes) {
+            player.queueChord(audioContext, audioContext.destination, selectedPreset, 0, notes, 4.5);
+        }
+
+        // Funktion zum Spielen einer Tonleiter mit Verzögerung zwischen den Tönen
+        function playScale(notes) {
+            notes.forEach((note, index) => {
+                player.queueWaveTable(audioContext, audioContext.destination, selectedPreset, audioContext.currentTime + index * 0.5, note, 0.5);
+            });
+        }
+    </script>
+</head>
+<body>
+    <h2>WebAudioFont Akkorde und Skalen abspielen</h2>
+    
+    <!-- Links zum Abspielen von Akkorden und Skalen -->
+    <p><a href="#" onclick="playChord([60, 64, 67])">Akkord C-Dur spielen</a></p>
+    <p><a href="#" onclick="playChord([65, 69, 72])">Akkord F-Dur spielen</a></p>
+    
+    <p><a href="#" onclick="playScale([60, 62, 64, 65, 67, 69, 71, 72])">Tonleiter C-Dur spielen</a></p>
+    <p><a href="#" onclick="playScale([65, 67, 69, 71, 72, 74, 76, 77])">Tonleiter F-Dur spielen</a></p>
+
+    <hr/>
+    <p><a href="https://github.com/surikov/webaudiofont">source</a></p>
+</body>
+</html>
