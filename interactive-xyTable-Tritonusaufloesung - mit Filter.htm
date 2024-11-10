@@ -28,18 +28,8 @@
     <label for="yAxis">Spalte für y-Achse:</label>
     <select id="yAxis"></select>
 
-    <!-- Vier Attribute für die Anzeige auswählen -->
-    <label for="valueColumn1">Anzeigeattribut 1:</label>
-    <select id="valueColumn1"></select>
-
-    <label for="valueColumn2">Anzeigeattribut 2:</label>
-    <select id="valueColumn2"></select>
-
-    <label for="valueColumn3">Anzeigeattribut 3:</label>
-    <select id="valueColumn3"></select>
-
-    <label for="valueColumn4">Anzeigeattribut 4:</label>
-    <select id="valueColumn4"></select>
+    <label for="valueColumn">Spalte für Darstellung:</label>
+    <select id="valueColumn"></select>
 
     <!-- Filteroptionen für zwei zusätzliche Attribute -->
     <label for="filterColumn1">Filterspalte 1:</label>
@@ -57,10 +47,6 @@
     <div id="matrixContainer"></div>
 
     <script>
-     
-
-
-
         // Beispiel-Daten, die durch eine echte Tabelle ersetzt werden können
 const data = [
 { "Hew Rep PCL": "2048","Hew Rep Name": "C Prim","Hewit Name PCL": "1","Hewitt Name": "C Prim","Betrag von": "1","tritonus auf": "no tritonus","Tritonus": "","Auflösung": "","nach PCL": "","nach Rep PCL": "","nach Name PCL": "","nach Name": "","Betrag nach": "","Betrag Delta": "","Oberton vorher": "","Oberton nachher": "","OT Rank vorher": "12:C   11:F","OT Rank nachher": "","Verbesserung": "","Anz. Tritonus vorher": "0","Anz. Tritonus nachher": "","Delta": "" },
@@ -1197,60 +1183,41 @@ const data = [
 
 
 
-                const columns = Object.keys(data[0]);
+        // Spalten aus den Daten auslesen
+        const columns = Object.keys(data[0]);
 
         function populateDropdowns() {
             const xAxisSelect = document.getElementById('xAxis');
             const yAxisSelect = document.getElementById('yAxis');
-            const valueColumnSelects = [
-                document.getElementById('valueColumn1'),
-                document.getElementById('valueColumn2'),
-                document.getElementById('valueColumn3'),
-                document.getElementById('valueColumn4')
-            ];
+            const valueColumnSelect = document.getElementById('valueColumn');
             const filterColumn1Select = document.getElementById('filterColumn1');
             const filterColumn2Select = document.getElementById('filterColumn2');
 
             columns.forEach(column => {
                 const option1 = new Option(column, column);
                 const option2 = new Option(column, column);
+                const option3 = new Option(column, column);
+                const option4 = new Option(column, column);
+                const option5 = new Option(column, column);
+
                 xAxisSelect.add(option1);
                 yAxisSelect.add(option2);
-                
-                valueColumnSelects.forEach(select => select.add(new Option(column, column)));
-
-                filterColumn1Select.add(new Option(column, column));
-                filterColumn2Select.add(new Option(column, column));
-            });
-        }
-
-        function sortValues(values) {
-            return values.sort((a, b) => {
-                const numA = parseFloat(a);
-                const numB = parseFloat(b);
-                if (!isNaN(numA) && !isNaN(numB)) {
-                    return numA - numB;
-                } else {
-                    return a.localeCompare(b);
-                }
+                valueColumnSelect.add(option3);
+                filterColumn1Select.add(option4);
+                filterColumn2Select.add(option5);
             });
         }
 
         function generateMatrix() {
             const xAxis = document.getElementById('xAxis').value;
             const yAxis = document.getElementById('yAxis').value;
-            const valueColumns = [
-                document.getElementById('valueColumn1').value,
-                document.getElementById('valueColumn2').value,
-                document.getElementById('valueColumn3').value,
-                document.getElementById('valueColumn4').value
-            ].filter(v => v); // Nur ausgewählte Attribute
-
+            const valueColumn = document.getElementById('valueColumn').value;
             const filterColumn1 = document.getElementById('filterColumn1').value;
             const filterValue1 = document.getElementById('filterValue1').value;
             const filterColumn2 = document.getElementById('filterColumn2').value;
             const filterValue2 = document.getElementById('filterValue2').value;
 
+            // Daten basierend auf Filterkriterien filtern
             const filteredData = data.filter(row => {
                 let match = true;
                 if (filterValue1) match = match && row[filterColumn1] == filterValue1;
@@ -1258,9 +1225,11 @@ const data = [
                 return match;
             });
 
-            const xValues = sortValues([...new Set(filteredData.map(row => row[xAxis]))]);
-            const yValues = sortValues([...new Set(filteredData.map(row => row[yAxis]))]);
+            // Einzigartige Werte der ausgewählten Spalten für x- und y-Achse finden
+            const xValues = [...new Set(filteredData.map(row => row[xAxis]))].sort();
+            const yValues = [...new Set(filteredData.map(row => row[yAxis]))].sort();
             
+            // Matrix generieren
             let html = '<table><thead><tr><th></th>';
             xValues.forEach(xVal => {
                 html += `<th>${xVal}</th>`;
@@ -1270,21 +1239,11 @@ const data = [
             yValues.forEach(yVal => {
                 html += `<tr><th>${yVal}</th>`;
                 xValues.forEach(xVal => {
-                    const cellData = filteredData
+                    const cellValues = filteredData
                         .filter(row => row[xAxis] === xVal && row[yAxis] === yVal)
-                        .map(row => {
-                            return valueColumns.map(col => {
-                                let value = row[col];
-                                if (col.includes("PCL") && value) {
-                                    const linkValue = value.toString().padStart(4, '0');
-                                    return `<a href="../MaMuTh/HTML/${linkValue}.htm">${value}</a>`;
-                                }
-                                return value;
-                            }).join(" | ");
-                        })
+                        .map(row => row[valueColumn])
                         .join(', ');
-
-                    html += `<td>${cellData || ''}</td>`;
+                    html += `<td>${cellValues || ''}</td>`;
                 });
                 html += '</tr>';
             });
@@ -1293,6 +1252,7 @@ const data = [
             document.getElementById('matrixContainer').innerHTML = html;
         }
 
+        // Dropdowns initialisieren
         populateDropdowns();
     </script>
 </body>
