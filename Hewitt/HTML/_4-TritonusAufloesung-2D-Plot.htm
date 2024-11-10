@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>X-Y Diagramm</title>
+  <style>
+    /* Diagramm auf volle Fenstergröße einstellen */
+    .diagram-container {
+      width: 100vw;
+      height: 100vh;
+      overflow: auto; /* Ermöglicht Scrollen */
+      position: relative;
+    }
+
+    .diagram {
+      position: relative;
+      width: 2000px; /* Setzt eine größere Breite, um Platz zu bieten */
+      height: 2000px; /* Setzt eine größere Höhe, um Platz zu bieten */
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    .point {
+      position: absolute;
+      text-align: center;
+      transform: translate(-50%, -50%);
+      max-width: 450px; /* Begrenzung der Breite für Punktinhalte */
+      word-wrap: break-word;
+    }
+
+    .clip {
+      width: 150px;
+      height: 150px;
+      margin: 5px;
+    }
+
+    .name {
+      font-weight: bold;
+      font-size: 0.75em; /* Kleinere Schriftgröße */
+      margin-bottom: 5px;
+      white-space: normal;
+    }
+
+    .description {
+      font-size: 0.9em;
+      color: #555;
+    }
+
+    .image-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .text-container {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 5px;
+      font-size: 0.8em;
+    }
+  </style>
+</head>
+<body>
+
+<div class="diagram-container">
+  <div class="diagram" id="diagram"></div>
+</div>
+
+<script>
+  // Beispiel-JSON-Daten
+  const data = [
+{ "Betrag von": "4","Hew Rep Name": "C vermindeter Septimakkord","Hew Rep PCL": "2340","nach PCL": "277","nach Name": "C 7/#5","Oberton Rang vorher": "34","Oberton Rang nachher": "36" },
+{ "Betrag von": "4","Hew Rep Name": "C vermindeter Septimakkord","Hew Rep PCL": "2340","nach PCL": "2594","nach Name": "C 7/#5","Oberton Rang vorher": "34","Oberton Rang nachher": "36" },
+{ "Betrag von": "4","Hew Rep Name": "C vermindeter Septimakkord","Hew Rep PCL": "2340","nach PCL": "1348","nach Name": "C 7/#5","Oberton Rang vorher": "34","Oberton Rang nachher": "36" },
+{ "Betrag von": "4","Hew Rep Name": "C vermindeter Septimakkord","Hew Rep PCL": "2340","nach PCL": "2216","nach Name": "C 7/#5","Oberton Rang vorher": "34","Oberton Rang nachher": "36" },
+{ "Betrag von": "4","Hew Rep Name": "C dreifach vermindeter Septimakkord","Hew Rep PCL": "2596","nach PCL": "533","nach Name": "C m7/#5","Oberton Rang vorher": "42","Oberton Rang nachher": "41" },
+{ "Betrag von": "4","Hew Rep Name": "C dreifach vermindeter Septimakkord","Hew Rep PCL": "2596","nach PCL": "1604","nach Name": "C m j7","Oberton Rang vorher": "42","Oberton Rang nachher": "35" },
+{ "Betrag von": "4","Hew Rep Name": "C Messiaen's truncated mode 6","Hew Rep PCL": "2600","nach PCL": "537","nach Name": "C m j7/b5","Oberton Rang vorher": "38","Oberton Rang nachher": "37" },
+{ "Betrag von": "4","Hew Rep Name": "C Messiaen's truncated mode 6","Hew Rep PCL": "2600","nach PCL": "3108","nach Name": "C m add #11","Oberton Rang vorher": "38","Oberton Rang nachher": "35" },
+{ "Betrag von": "4","Hew Rep Name": "C Messiaen's truncated mode 6","Hew Rep PCL": "2600","nach PCL": "1608","nach Name": "C m j7/b5","Oberton Rang vorher": "38","Oberton Rang nachher": "37" },
+{ "Betrag von": "4","Hew Rep Name": "C Messiaen's truncated mode 6","Hew Rep PCL": "2600","nach PCL": "2352","nach Name": "C m add #11","Oberton Rang vorher": "38","Oberton Rang nachher": "35" },
+{ "Betrag von": "4","Hew Rep Name": "C NN","Hew Rep PCL": "2632","nach PCL": "3140","nach Name": "C j7/#5","Oberton Rang vorher": "38","Oberton Rang nachher": "34" },
+{ "Betrag von": "4","Hew Rep Name": "C NN","Hew Rep PCL": "2632","nach PCL": "2384","nach Name": "C m   11","Oberton Rang vorher": "38","Oberton Rang nachher": "40" },
+{ "Betrag von": "4","Hew Rep Name": "C NN","Hew Rep PCL": "2696","nach PCL": "3204","nach Name": "C m j7/#5","Oberton Rang vorher": "36","Oberton Rang nachher": "36" },
+{ "Betrag von": "4","Hew Rep Name": "C NN","Hew Rep PCL": "2696","nach PCL": "2448","nach Name": "C m j7/#5","Oberton Rang vorher": "36","Oberton Rang nachher": "36" },
+{ "Betrag von": "4","Hew Rep Name": "C Lydian-Tetrachord","Hew Rep PCL": "2720","nach PCL": "657","nach Name": "C m7","Oberton Rang vorher": "39","Oberton Rang nachher": "39" },
+{ "Betrag von": "4","Hew Rep Name": "C Lydian-Tetrachord","Hew Rep PCL": "2720","nach PCL": "1728","nach Name": "C Spanish-Tetrachord","Oberton Rang vorher": "39","Oberton Rang nachher": "33" },
+{ "Betrag von": "4","Hew Rep Name": "C 5 7 b9","Hew Rep PCL": "3090","nach PCL": "2594","nach Name": "C 7/#5","Oberton Rang vorher": "36","Oberton Rang nachher": "36" },
+{ "Betrag von": "4","Hew Rep Name": "C NN","Hew Rep PCL": "3092","nach PCL": "2596","nach Name": "C 7","Oberton Rang vorher": "34","Oberton Rang nachher": "42" },
+{ "Betrag von": "4","Hew Rep Name": "C b5 7 b7 (om3)","Hew Rep PCL": "3106","nach PCL": "1043","nach Name": "C Hungarian major-Tetrachord","Oberton Rang vorher": "40","Oberton Rang nachher": "34" },
+{ "Betrag von": "4","Hew Rep Name": "C NN","Hew Rep PCL": "3108","nach PCL": "1045","nach Name": "C Lydian-Tetrachord","Oberton Rang vorher": "35","Oberton Rang nachher": "39" },
+{ "Betrag von": "4","Hew Rep Name": "C NN","Hew Rep PCL": "3112","nach PCL": "1049","nach Name": "C Hungarian Spanish-Tetrachord","Oberton Rang vorher": "38","Oberton Rang nachher": "39" },
+{ "Betrag von": "4","Hew Rep Name": "C sus4 add b9","Hew Rep PCL": "3152","nach PCL": "2656","nach Name": "C großer dreifach verminderter Septakkord","Oberton Rang vorher": "34","Oberton Rang nachher": "34" },
+{ "Betrag von": "4","Hew Rep Name": "C Double Fourth Tetramirror","Hew Rep PCL": "3168","nach PCL": "1105","nach Name": "C 7/b5","Oberton Rang vorher": "35","Oberton Rang nachher": "38" },
+{ "Betrag von": "4","Hew Rep Name": "C NN","Hew Rep PCL": "3202","nach PCL": "3329","nach Name": "C m j7 b9 (om5)","Oberton Rang vorher": "37","Oberton Rang nachher": "34" },
+{ "Betrag von": "4","Hew Rep Name": "C NN","Hew Rep PCL": "3202","nach PCL": "3140","nach Name": "C j7/#5","Oberton Rang vorher": "37","Oberton Rang nachher": "34" },
+{ "Betrag von": "4","Hew Rep Name": "C add b9","Hew Rep PCL": "3216","nach PCL": "2720","nach Name": "C Lydian-Tetrachord","Oberton Rang vorher": "37","Oberton Rang nachher": "39" },
+{ "Betrag von": "4","Hew Rep Name": "C Hungarian Spanish-Tetrachord","Hew Rep PCL": "3232","nach PCL": "1169","nach Name": "C m6","Oberton Rang vorher": "39","Oberton Rang nachher": "38" },
+{ "Betrag von": "4","Hew Rep Name": "C NN","Hew Rep PCL": "3332","nach PCL": "3586","nach Name": "C Dorian b4-Tetrachord","Oberton Rang vorher": "34","Oberton Rang nachher": "33" },
+{ "Betrag von": "4","Hew Rep Name": "C NN","Hew Rep PCL": "3332","nach PCL": "3208","nach Name": "C m j7","Oberton Rang vorher": "34","Oberton Rang nachher": "35" },
+{ "Betrag von": "4","Hew Rep Name": "C m b9","Hew Rep PCL": "3344","nach PCL": "2848","nach Name": "C Hungarian minor-Tetrachord","Oberton Rang vorher": "37","Oberton Rang nachher": "37" },
+{ "Betrag von": "4","Hew Rep Name": "C Hungarian phrygian-Tetrachord","Hew Rep PCL": "3360","nach PCL": "1297","nach Name": "C 7/#5","Oberton Rang vorher": "36","Oberton Rang nachher": "36" },
+{ "Betrag von": "4","Hew Rep Name": "C NN","Hew Rep PCL": "3592","nach PCL": "3344","nach Name": "C Chopin Akkord","Oberton Rang vorher": "33","Oberton Rang nachher": "37" },
+{ "Betrag von": "4","Hew Rep Name": "C Firebird I-Tetrachord","Hew Rep PCL": "3616","nach PCL": "1553","nach Name": "C m #5  9","Oberton Rang vorher": "36","Oberton Rang nachher": "40" }
+];
+
+
+  const diagram = document.getElementById('diagram');
+
+  // Minimum und Maximum für x und y berechnen
+  const xValues = data.map(item => parseFloat(item["Oberton Rang vorher"]));
+  const yValues = data.map(item => parseFloat(item["Oberton Rang nachher"]));
+  const xMin = Math.min(...xValues);
+  const xMax = Math.max(...xValues);
+  const yMin = Math.min(...yValues);
+  const yMax = Math.max(...yValues);
+
+  // Normalisierungsfunktion
+  function normalize(value, min, max, size) {
+  const margin = 0.1 * size; // 10% Rand auf jeder Seite
+  const effectiveSize = size * 0.8; // Verfügbare Größe ohne Rand (80% von size)
+  return margin + ((value - min) / (max - min)) * effectiveSize;
+}
+
+  function to12BitBinary(number) {
+    if (number < 0 || number > 4095) {
+      throw new Error("Die Zahl muss zwischen 0 und 4095 liegen.");
+    }
+    return number.toString(2).padStart(12, '0');
+  }
+
+  // Datenpunkte hinzufügen
+  data.forEach(item => {
+    const point = document.createElement('div');
+    point.classList.add('point');
+
+    // x und y normalisieren und in Diagrammgröße umrechnen
+    const normalizedX = normalize(parseFloat(item["Oberton Rang vorher"]), xMin, xMax, 2000); // passt zur Diagrammgröße
+    const normalizedY = normalize(parseFloat(item["Oberton Rang nachher"]), yMin, yMax, 4000); // passt zur Diagrammgröße
+    point.style.left = `${normalizedX}px`;
+    point.style.top = `${4000 - normalizedY}px`; // Y-Richtung umdrehen, damit 0 unten ist
+
+    // Text oberhalb der Bilder: "Hew Rep Name --> nach Name"
+    const nameText = document.createElement('div');
+    nameText.classList.add('text-container');
+    nameText.textContent = `${item["Hew Rep Name"]} --> ${item["nach Name"]}`;
+    point.appendChild(nameText);
+
+    // Container für die Bilder nebeneinander
+    const imageContainer = document.createElement('div');
+    imageContainer.classList.add('image-container');
+
+    // Erstes Bild hinzufügen
+    const img1 = document.createElement('img');
+    img1.classList.add('clip');
+    img1.alt = 'clip';
+    img1.src = `../svg/${parseFloat(item["Betrag von"])}_Circle_${to12BitBinary(parseFloat(item["Hew Rep PCL"]))}.svg`;
+    imageContainer.appendChild(img1);
+
+    // Zweites Bild hinzufügen
+    const img2 = document.createElement('img');
+    img2.classList.add('clip');
+    img2.alt = 'clip';
+    img2.src = `../svg/${parseFloat(item["Betrag von"])}_Circle_${to12BitBinary(parseFloat(item["nach PCL"]))}.svg`;
+    imageContainer.appendChild(img2);
+
+    // Bilder-Container zum Punkt hinzufügen
+    point.appendChild(imageContainer);
+
+    // Beschreibung unterhalb der Bilder mit Link: "Hew Rep PCL (Oberton Rang vorher) --> nach PCL (Oberton Rang nachher)"
+    const description = document.createElement('div');
+    description.classList.add('description');
+
+    // Link für "Hew Rep PCL"
+    const link = document.createElement('a');
+    link.href = `../../HTML/${item["Hew Rep PCL"]}.htm`;
+    link.textContent = item["Hew Rep PCL"];
+
+    description.appendChild(link);
+    description.appendChild(document.createTextNode(` (${item["Oberton Rang vorher"]}) --> ${item["nach PCL"]} (${item["Oberton Rang nachher"]})`));
+    point.appendChild(description);
+
+    diagram.appendChild(point);
+  });
+</script>
+
+</body>
+</html>

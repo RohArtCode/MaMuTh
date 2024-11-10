@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>X-Y Diagramm</title>
+  <style>
+    /* Diagramm auf volle Fenstergröße einstellen */
+    .diagram-container {
+      width: 100vw;
+      height: 100vh;
+      overflow: auto; /* Ermöglicht Scrollen */
+      position: relative;
+    }
+
+    .diagram {
+      position: relative;
+      width: 2000px; /* Setzt eine größere Breite, um Platz zu bieten */
+      height: 2000px; /* Setzt eine größere Höhe, um Platz zu bieten */
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    .point {
+      position: absolute;
+      text-align: center;
+      transform: translate(-50%, -50%);
+      max-width: 450px; /* Begrenzung der Breite für Punktinhalte */
+      word-wrap: break-word;
+    }
+
+    .clip {
+      width: 150px;
+      height: 150px;
+      margin: 5px;
+    }
+
+    .name {
+      font-weight: bold;
+      font-size: 0.75em; /* Kleinere Schriftgröße */
+      margin-bottom: 5px;
+      white-space: normal;
+    }
+
+    .description {
+      font-size: 0.9em;
+      color: #555;
+    }
+
+    .image-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .text-container {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 5px;
+      font-size: 0.8em;
+    }
+  </style>
+</head>
+<body>
+
+<div class="diagram-container">
+  <div class="diagram" id="diagram"></div>
+</div>
+
+<script>
+  // Beispiel-JSON-Daten
+  const data = [
+{ "Betrag von": "3","Hew Rep Name": "C dim","Hew Rep PCL": "2336","nach PCL": "273","nach Name": "C +","Oberton Rang vorher": "30","Oberton Rang nachher": "24" },
+{ "Betrag von": "3","Hew Rep Name": "C dim","Hew Rep PCL": "2336","nach PCL": "1344","nach Name": "C Ganzton Dreiklang","Oberton Rang vorher": "30","Oberton Rang nachher": "30" },
+{ "Betrag von": "3","Hew Rep Name": "C NN","Hew Rep PCL": "2568","nach PCL": "3076","nach Name": "C Doppelterz Dreiklang","Oberton Rang vorher": "29","Oberton Rang nachher": "25" },
+{ "Betrag von": "3","Hew Rep Name": "C NN","Hew Rep PCL": "2568","nach PCL": "2320","nach Name": "C m","Oberton Rang vorher": "29","Oberton Rang nachher": "28" },
+{ "Betrag von": "3","Hew Rep Name": "C doppelt vermindert Dreiklang","Hew Rep PCL": "2592","nach PCL": "529","nach Name": "C dur-Dreiklang","Oberton Rang vorher": "31","Oberton Rang nachher": "33" },
+{ "Betrag von": "3","Hew Rep Name": "C doppelt vermindert Dreiklang","Hew Rep PCL": "2592","nach PCL": "1600","nach Name": "C unvollständiger großer Moll-Septakkord","Oberton Rang vorher": "31","Oberton Rang nachher": "27" },
+{ "Betrag von": "3","Hew Rep Name": "C 5 add b9","Hew Rep PCL": "3088","nach PCL": "2592","nach Name": "C Italienischer Sextakkord","Oberton Rang vorher": "27","Oberton Rang nachher": "31" },
+{ "Betrag von": "3","Hew Rep Name": "C NN","Hew Rep PCL": "3104","nach PCL": "1041","nach Name": "C dur-verminderter Dreiklang","Oberton Rang vorher": "30","Oberton Rang nachher": "29" }
+];
+
+
+  const diagram = document.getElementById('diagram');
+
+  // Minimum und Maximum für x und y berechnen
+  const xValues = data.map(item => parseFloat(item["Oberton Rang vorher"]));
+  const yValues = data.map(item => parseFloat(item["Oberton Rang nachher"]));
+  const xMin = Math.min(...xValues);
+  const xMax = Math.max(...xValues);
+  const yMin = Math.min(...yValues);
+  const yMax = Math.max(...yValues);
+
+  // Normalisierungsfunktion
+  function normalize(value, min, max, size) {
+  const margin = 0.1 * size; // 10% Rand auf jeder Seite
+  const effectiveSize = size * 0.8; // Verfügbare Größe ohne Rand (80% von size)
+  return margin + ((value - min) / (max - min)) * effectiveSize;
+}
+
+  function to12BitBinary(number) {
+    if (number < 0 || number > 4095) {
+      throw new Error("Die Zahl muss zwischen 0 und 4095 liegen.");
+    }
+    return number.toString(2).padStart(12, '0');
+  }
+
+  // Datenpunkte hinzufügen
+  data.forEach(item => {
+    const point = document.createElement('div');
+    point.classList.add('point');
+
+    // x und y normalisieren und in Diagrammgröße umrechnen
+    const normalizedX = normalize(parseFloat(item["Oberton Rang vorher"]), xMin, xMax, 2000); // passt zur Diagrammgröße
+    const normalizedY = normalize(parseFloat(item["Oberton Rang nachher"]), yMin, yMax, 2000); // passt zur Diagrammgröße
+    point.style.left = `${normalizedX}px`;
+    point.style.top = `${2000 - normalizedY}px`; // Y-Richtung umdrehen, damit 0 unten ist
+
+    // Text oberhalb der Bilder: "Hew Rep Name --> nach Name"
+    const nameText = document.createElement('div');
+    nameText.classList.add('text-container');
+    nameText.textContent = `${item["Hew Rep Name"]} --> ${item["nach Name"]}`;
+    point.appendChild(nameText);
+
+    // Container für die Bilder nebeneinander
+    const imageContainer = document.createElement('div');
+    imageContainer.classList.add('image-container');
+
+    // Erstes Bild hinzufügen
+    const img1 = document.createElement('img');
+    img1.classList.add('clip');
+    img1.alt = 'clip';
+    img1.src = `../svg/${parseFloat(item["Betrag von"])}_Circle_${to12BitBinary(parseFloat(item["Hew Rep PCL"]))}.svg`;
+    imageContainer.appendChild(img1);
+
+    // Zweites Bild hinzufügen
+    const img2 = document.createElement('img');
+    img2.classList.add('clip');
+    img2.alt = 'clip';
+    img2.src = `../svg/${parseFloat(item["Betrag von"])}_Circle_${to12BitBinary(parseFloat(item["nach PCL"]))}.svg`;
+    imageContainer.appendChild(img2);
+
+    // Bilder-Container zum Punkt hinzufügen
+    point.appendChild(imageContainer);
+
+    // Beschreibung unterhalb der Bilder mit Link: "Hew Rep PCL (Oberton Rang vorher) --> nach PCL (Oberton Rang nachher)"
+    const description = document.createElement('div');
+    description.classList.add('description');
+
+    // Link für "Hew Rep PCL"
+    const link = document.createElement('a');
+    link.href = `../../HTML/${item["Hew Rep PCL"]}.htm`;
+    link.textContent = item["Hew Rep PCL"];
+
+    description.appendChild(link);
+    description.appendChild(document.createTextNode(` (${item["Oberton Rang vorher"]}) --> ${item["nach PCL"]} (${item["Oberton Rang nachher"]})`));
+    point.appendChild(description);
+
+    diagram.appendChild(point);
+  });
+</script>
+
+</body>
+</html>
