@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>X-Y Diagramm</title>
+  <style>
+    .diagram {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border: 1px solid #ccc;
+      margin: 0 auto;
+    }
+
+    .point {
+      position: absolute;
+      text-align: center;
+      transform: translate(-50%, -50%);
+    }
+
+    .clip {
+      width: 50px;
+      height: 50px;
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="diagram" id="diagram"></div>
+
+<script>
+  // Beispiel-JSON-Daten
+const data = [
+{ "Hew Rep Name": "C dim","Hew Rep PCL": "2336","nach PCL": "273","Oberton Rang vorher": "30","Oberton Rang nachher": "24" },
+{ "Hew Rep Name": "C dim","Hew Rep PCL": "2336","nach PCL": "1344","Oberton Rang vorher": "30","Oberton Rang nachher": "30" },
+{ "Hew Rep Name": "C NN","Hew Rep PCL": "2568","nach PCL": "3076","Oberton Rang vorher": "29","Oberton Rang nachher": "25" },
+{ "Hew Rep Name": "C NN","Hew Rep PCL": "2568","nach PCL": "2320","Oberton Rang vorher": "29","Oberton Rang nachher": "28" },
+{ "Hew Rep Name": "C doppelt vermindert Dreiklang","Hew Rep PCL": "2592","nach PCL": "529","Oberton Rang vorher": "31","Oberton Rang nachher": "33" },
+{ "Hew Rep Name": "C doppelt vermindert Dreiklang","Hew Rep PCL": "2592","nach PCL": "1600","Oberton Rang vorher": "31","Oberton Rang nachher": "27" },
+{ "Hew Rep Name": "C 5 add b9","Hew Rep PCL": "3088","nach PCL": "2592","Oberton Rang vorher": "27","Oberton Rang nachher": "31" },
+{ "Hew Rep Name": "C NN","Hew Rep PCL": "3104","nach PCL": "1041","Oberton Rang vorher": "30","Oberton Rang nachher": "29" },
+    // Weitere Datenpunkte hier hinzufügen
+  ];
+
+  const diagram = document.getElementById('diagram');
+
+  // Minimum und Maximum für x und y berechnen
+  const xValues = data.map(item => parseFloat(item["Oberton Rang vorher"]));
+  const yValues = data.map(item => parseFloat(item["Oberton Rang nachher"]));
+  const xMin = Math.min(...xValues);
+  const xMax = Math.max(...xValues);
+  const yMin = Math.min(...yValues);
+  const yMax = Math.max(...yValues);
+
+  // Normalisierungsfunktion
+  function normalize(value, min, max, size) {
+    return ((value - min) / (max - min)) * size;
+  }
+
+  // Datenpunkte hinzufügen
+  data.forEach(item => {
+    const point = document.createElement('div');
+    point.classList.add('point');
+
+    // x und y normalisieren und in Diagrammgröße umrechnen (600x600)
+    const normalizedX = normalize(parseFloat(item["Oberton Rang vorher"]), xMin, xMax, 600);
+    const normalizedY = normalize(parseFloat(item["Oberton Rang nachher"]), yMin, yMax, 600);
+    point.style.left = `${normalizedX}px`;
+    point.style.top = `${600 - normalizedY}px`; // Y-Richtung umdrehen, damit 0 unten ist
+
+    // Name hinzufügen
+    const name = document.createElement('div');
+    name.textContent = item.Name;
+    point.appendChild(name);
+
+    // Erstes Bild hinzufügen
+    const img1 = document.createElement('img');
+    img1.classList.add('clip');
+    img1.alt = 'clip';
+    img1.src = `../svg/${item.id1}_Circle_${item.id2}.svg`;
+    point.appendChild(img1);
+
+    // Zweites Bild hinzufügen
+    const img2 = document.createElement('img');
+    img2.classList.add('clip');
+    img2.alt = 'clip';
+    img2.src = `../svg/${item.id1}_Overtone_${item.id2}.svg`;
+    point.appendChild(img2);
+
+    diagram.appendChild(point);
+  });
+</script>
+
+</body>
+</html>

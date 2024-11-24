@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X-Y Matrix Darstellung</title>
+    <link rel="stylesheet" href="css/InterActTblStyles.css">
+</head>
+<body>
+    <h1>X-Y Matrix Darstellung</h1>
+    <p style="font-size: 10px; text-align: left;">
+      <a href="../Inhalt.html" style="text-decoration: none; color: gray;">zurück zum Inhaltsverzeichnis</a>
+    </p>
+
+    <div class="form-container">
+        <div class="form-item">
+            <label for="xAxis">Spalten:</label>
+            <select id="xAxis" onchange="updateURL()"></select>
+        </div>
+        <div class="form-item">
+            <label for="yAxis">Zeilen:</label>
+            <select id="yAxis" onchange="updateURL()"></select>
+        </div>
+        <div class="form-item">
+            <label for="valueColumn1">Anzeigeattribut 1:</label>
+            <select id="valueColumn1" onchange="updateURL()"></select>
+        </div>
+        <div class="form-item">
+            <label for="valueColumn2">Anzeigeattribut 2:</label>
+            <select id="valueColumn2" onchange="updateURL()"></select>
+        </div>
+        <div class="form-item">
+            <label for="valueColumn3">Anzeigeattribut 3:</label>
+            <select id="valueColumn3" onchange="updateURL()"></select>
+        </div>
+        <div class="form-item">
+            <label for="valueColumn4">Anzeigeattribut 4:</label>
+            <select id="valueColumn4" onchange="updateURL()"></select>
+        </div>
+        <div class="form-item">
+            <label for="filterColumn1">Filterspalte 1:</label>
+            <select id="filterColumn1" onchange="updateURL()"></select>
+        </div>
+        <div class="form-item">
+            <label for="filterValue1">Filterwert 1:</label>
+            <input type="text" id="filterValue1" oninput="updateURL()">
+        </div>
+        <div class="form-item">
+            <label for="filterColumn2">Filterspalte 2:</label>
+            <select id="filterColumn2" onchange="updateURL()"></select>
+        </div>
+        <div class="form-item">
+            <label for="filterValue2">Filterwert 2:</label>
+            <input type="text" id="filterValue2" oninput="updateURL()">
+        </div>
+    </div>
+
+    <button onclick="generateMatrix()">Matrix generieren</button>
+
+    <div id="matrixContainer"></div>
+<script src="dist/tablefilter/tablefilter.js"></script>
+<script src="https://surikov.github.io/webaudiofont/npm/dist/WebAudioFontPlayer.js"></script>
+<script src="https://surikov.github.io/webaudiofontdata/sound/0000_JCLive_sf2_file.js"></script>
+<script src="js/PlayScript.js"></script>
+    <script>
+    const data = [
+        { "Betrag von": "3","Hew Rep Name": "C dim","Hew Rep PCL": "2336","nach PCL": "273","nach Name": "C +","Oberton Rang vorher": "30","Oberton Rang nachher": "24" },
+        { "Betrag von": "3","Hew Rep Name": "C dim","Hew Rep PCL": "2336","nach PCL": "1344","nach Name": "C Ganzton Dreiklang","Oberton Rang vorher": "30","Oberton Rang nachher": "30" }
+    ];
+
+        const columns = Object.keys(data[0]);
+
+        function populateDropdowns() {
+            const xAxisSelect = document.getElementById('xAxis');
+            const yAxisSelect = document.getElementById('yAxis');
+            const valueColumnSelects = [
+                document.getElementById('valueColumn1'),
+                document.getElementById('valueColumn2'),
+                document.getElementById('valueColumn3'),
+                document.getElementById('valueColumn4')
+            ];
+            const filterColumn1Select = document.getElementById('filterColumn1');
+            const filterColumn2Select = document.getElementById('filterColumn2');
+
+            columns.forEach(column => {
+                xAxisSelect.add(new Option(column, column));
+                yAxisSelect.add(new Option(column, column));
+                valueColumnSelects.forEach(select => select.add(new Option(column, column)));
+                filterColumn1Select.add(new Option(column, column));
+                filterColumn2Select.add(new Option(column, column));
+            });
+        }
+
+        function setDropdownValuesFromParams() {
+            const params = new URLSearchParams(window.location.search);
+            document.getElementById('xAxis').value = params.get('xAxis') || '';
+            document.getElementById('yAxis').value = params.get('yAxis') || '';
+            document.getElementById('valueColumn1').value = params.get('valueColumn1') || '';
+            document.getElementById('valueColumn2').value = params.get('valueColumn2') || '';
+            document.getElementById('valueColumn3').value = params.get('valueColumn3') || '';
+            document.getElementById('valueColumn4').value = params.get('valueColumn4') || '';
+            document.getElementById('filterColumn1').value = params.get('filterColumn1') || '';
+            document.getElementById('filterValue1').value = params.get('filterValue1') || '';
+            document.getElementById('filterColumn2').value = params.get('filterColumn2') || '';
+            document.getElementById('filterValue2').value = params.get('filterValue2') || '';
+        }
+
+        function updateURL() {
+            const params = new URLSearchParams();
+            params.set('xAxis', document.getElementById('xAxis').value);
+            params.set('yAxis', document.getElementById('yAxis').value);
+            params.set('valueColumn1', document.getElementById('valueColumn1').value);
+            params.set('valueColumn2', document.getElementById('valueColumn2').value);
+            params.set('valueColumn3', document.getElementById('valueColumn3').value);
+            params.set('valueColumn4', document.getElementById('valueColumn4').value);
+            params.set('filterColumn1', document.getElementById('filterColumn1').value);
+            params.set('filterValue1', document.getElementById('filterValue1').value);
+            params.set('filterColumn2', document.getElementById('filterColumn2').value);
+            params.set('filterValue2', document.getElementById('filterValue2').value);
+
+            const newUrl = `${window.location.pathname}?${params.toString()}`;
+            history.replaceState(null, '', newUrl);
+        }
+
+        function generateMatrix() {
+            const xAxis = document.getElementById('xAxis').value;
+            const yAxis = document.getElementById('yAxis').value;
+            const valueColumns = [
+                document.getElementById('valueColumn1').value,
+                document.getElementById('valueColumn2').value,
+                document.getElementById('valueColumn3').value,
+                document.getElementById('valueColumn4').value
+            ].filter(v => v);
+
+            const filterColumn1 = document.getElementById('filterColumn1').value;
+            const filterValue1 = document.getElementById('filterValue1').value;
+            const filterColumn2 = document.getElementById('filterColumn2').value;
+            const filterValue2 = document.getElementById('filterValue2').value;
+
+            const filteredData = data.filter(row => {
+                let match = true;
+                if (filterValue1) match = match && row[filterColumn1] == filterValue1;
+                if (filterValue2) match = match && row[filterColumn2] == filterValue2;
+                return match;
+            });
+
+            if (filteredData.length === 0) {
+                document.getElementById('matrixContainer').innerHTML = '<p>Keine Daten gefunden</p>';
+                return;
+            }
+
+            const xValues = [...new Set(filteredData.map(row => row[xAxis]))].sort();
+            const yValues = [...new Set(filteredData.map(row => row[yAxis]))].sort();
+
+            let html = '<table><thead><tr><th></th>';
+            xValues.forEach(xVal => html += `<th>${xVal}</th>`);
+            html += '</tr></thead><tbody>';
+
+            yValues.forEach(yVal => {
+                html += `<tr><th>${yVal}</th>`;
+                xValues.forEach(xVal => {
+                    const cellData = filteredData
+                        .filter(row => row[xAxis] === xVal && row[yAxis] === yVal)
+                        .map(row => valueColumns.map(col => {
+                            if (col.includes("PCL")) {
+                                const pclValue = row[col].toString().padStart(4, '0');
+                                const filePath = `../../Pocket/HTML/${pclValue}.htm`;
+                                return `
+                                    <img border="0" src="../../Pocket/gif/Kreise/${pclValue}.gif" height="24" onclick="playChord(1${pclValue})" style="cursor: pointer;">
+                                    <img border="0" src="../../Pocket/gif/Score/Scale/${pclValue}.gif" height="24" onclick="playScale(1${pclValue})" style="cursor: pointer;">
+                                    <br>
+                                    <a href="${filePath}" style="font-size: 10px; color: gray;" target="_blank">${pclValue}</a>
+                                `;
+                            } else {
+                                return row[col] || '';
+                            }
+                        }).join(' | '))
+                        .join(', ');
+                    html += `<td>${cellData || ''}</td>`;
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+
+            document.getElementById('matrixContainer').innerHTML = html;
+        }
+
+        populateDropdowns();
+        setDropdownValuesFromParams();
+    </script>
+</body>
+</html>

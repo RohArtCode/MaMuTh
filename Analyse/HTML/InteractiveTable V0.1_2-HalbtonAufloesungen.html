@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X-Y Matrix Darstellung</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 5px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>X-Y Matrix Darstellung</h1>
+
+    <label for="xAxis">Spalte für x-Achse:</label>
+    <select id="xAxis" onchange="updateURL()"></select>
+
+    <label for="yAxis">Spalte für y-Achse:</label>
+    <select id="yAxis" onchange="updateURL()"></select>
+
+    <label for="valueColumn1">Anzeigeattribut 1:</label>
+    <select id="valueColumn1" onchange="updateURL()"></select>
+
+    <label for="valueColumn2">Anzeigeattribut 2:</label>
+    <select id="valueColumn2" onchange="updateURL()"></select>
+
+    <label for="valueColumn3">Anzeigeattribut 3:</label>
+    <select id="valueColumn3" onchange="updateURL()"></select>
+
+    <label for="valueColumn4">Anzeigeattribut 4:</label>
+    <select id="valueColumn4" onchange="updateURL()"></select>
+
+    <label for="filterColumn1">Filterspalte 1:</label>
+    <select id="filterColumn1" onchange="updateURL()"></select>
+    <label for="filterValue1">Filterwert 1:</label>
+    <input type="text" id="filterValue1" oninput="updateURL()">
+
+    <label for="filterColumn2">Filterspalte 2:</label>
+    <select id="filterColumn2" onchange="updateURL()"></select>
+    <label for="filterValue2">Filterwert 2:</label>
+    <input type="text" id="filterValue2" oninput="updateURL()">
+
+    <button onclick="generateMatrix()">Matrix generieren</button>
+
+    <div id="matrixContainer"></div>
+
+    <script>
+ 
+
+        // Beispiel-Daten, die durch eine echte Tabelle ersetzt werden können
+
+const data = [
+{ "Hew Rep PCL": "2080","Hew Rep Name": "C Tritonus","Hewit Name PCL": "2080","Hewitt Name": "C Tritonus","Betrag von": "2","von nr": "0","von": "C ","nach": "B ","nach PCL": "33","nach Rep PCL": "2112","nach Name PCL": "2112","nach Name": "C Quart","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "19:C , D , F#, G#  15:F , B","Oberton nachher": "23:B   19:E","Oberton Rang vorher": "19","Oberton Rang nachher": "23","Oberton Rang Verbesserung": "4","": "" },
+{ "Hew Rep PCL": "2080","Hew Rep Name": "C Tritonus","Hewit Name PCL": "2080","Hewitt Name": "C Tritonus","Betrag von": "2","von nr": "0","von": "C ","nach": "C#","nach PCL": "1056","nach Rep PCL": "2112","nach Name PCL": "2112","nach Name": "C Quart","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "19:C , D , F#, G#  15:F , B","Oberton nachher": "23:F#  19:B","Oberton Rang vorher": "19","Oberton Rang nachher": "23","Oberton Rang Verbesserung": "4","": "" },
+{ "Hew Rep PCL": "2080","Hew Rep Name": "C Tritonus","Hewit Name PCL": "2080","Hewitt Name": "C Tritonus","Betrag von": "2","von nr": "6","von": "F#","nach": "F ","nach PCL": "2112","nach Rep PCL": "2112","nach Name PCL": "2112","nach Name": "C Quart","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "19:C , D , F#, G#  15:F , B","Oberton nachher": "23:F   19:A#","Oberton Rang vorher": "19","Oberton Rang nachher": "23","Oberton Rang Verbesserung": "4","": "" },
+{ "Hew Rep PCL": "2080","Hew Rep Name": "C Tritonus","Hewit Name PCL": "2080","Hewitt Name": "C Tritonus","Betrag von": "2","von nr": "6","von": "F#","nach": "G ","nach PCL": "2064","nach Rep PCL": "2112","nach Name PCL": "2112","nach Name": "C Quart","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "19:C , D , F#, G#  15:F , B","Oberton nachher": "23:C   19:F","Oberton Rang vorher": "19","Oberton Rang nachher": "23","Oberton Rang Verbesserung": "4","": "" },
+{ "Hew Rep PCL": "2112","Hew Rep Name": "C Quart","Hewit Name PCL": "2112","Hewitt Name": "C Quart","Betrag von": "2","von nr": "0","von": "C ","nach": "B ","nach PCL": "65","nach Rep PCL": "2080","nach Name PCL": "2080","nach Name": "C Tritonus","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "23:F   19:A#","Oberton nachher": "19:C#, F , G , B   15:E , A#","Oberton Rang vorher": "23","Oberton Rang nachher": "19","Oberton Rang Verbesserung": "-4","": "" },
+{ "Hew Rep PCL": "2112","Hew Rep Name": "C Quart","Hewit Name PCL": "2112","Hewitt Name": "C Quart","Betrag von": "2","von nr": "0","von": "C ","nach": "C#","nach PCL": "1088","nach Rep PCL": "2176","nach Name PCL": "2176","nach Name": "C gr.Terz","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "23:F   19:A#","Oberton nachher": "22:C#  17:D#","Oberton Rang vorher": "23","Oberton Rang nachher": "22","Oberton Rang Verbesserung": "-1","": "" },
+{ "Hew Rep PCL": "2112","Hew Rep Name": "C Quart","Hewit Name PCL": "2112","Hewitt Name": "C Quart","Betrag von": "2","von nr": "5","von": "F ","nach": "E ","nach PCL": "2176","nach Rep PCL": "2176","nach Name PCL": "2176","nach Name": "C gr.Terz","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "23:F   19:A#","Oberton nachher": "22:C   17:D","Oberton Rang vorher": "23","Oberton Rang nachher": "22","Oberton Rang Verbesserung": "-1","": "" },
+{ "Hew Rep PCL": "2112","Hew Rep Name": "C Quart","Hewit Name PCL": "2112","Hewitt Name": "C Quart","Betrag von": "2","von nr": "5","von": "F ","nach": "F#","nach PCL": "2080","nach Rep PCL": "2080","nach Name PCL": "2080","nach Name": "C Tritonus","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "23:F   19:A#","Oberton nachher": "19:C , D , F#, G#  15:F , B","Oberton Rang vorher": "23","Oberton Rang nachher": "19","Oberton Rang Verbesserung": "-4","": "" },
+{ "Hew Rep PCL": "2176","Hew Rep Name": "C gr.Terz","Hewit Name PCL": "2176","Hewitt Name": "C gr.Terz","Betrag von": "2","von nr": "0","von": "C ","nach": "B ","nach PCL": "129","nach Rep PCL": "2112","nach Name PCL": "2112","nach Name": "C Quart","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "22:C   17:D","Oberton nachher": "23:E   19:A","Oberton Rang vorher": "22","Oberton Rang nachher": "23","Oberton Rang Verbesserung": "1","": "" },
+{ "Hew Rep PCL": "2176","Hew Rep Name": "C gr.Terz","Hewit Name PCL": "2176","Hewitt Name": "C gr.Terz","Betrag von": "2","von nr": "0","von": "C ","nach": "C#","nach PCL": "1152","nach Rep PCL": "2304","nach Name PCL": "2304","nach Name": "C kl.Terz","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "22:C   17:D","Oberton nachher": "21:A   20:F#","Oberton Rang vorher": "22","Oberton Rang nachher": "21","Oberton Rang Verbesserung": "-1","": "" },
+{ "Hew Rep PCL": "2176","Hew Rep Name": "C gr.Terz","Hewit Name PCL": "2176","Hewitt Name": "C gr.Terz","Betrag von": "2","von nr": "4","von": "E ","nach": "D#","nach PCL": "2304","nach Rep PCL": "2304","nach Name PCL": "2304","nach Name": "C kl.Terz","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "22:C   17:D","Oberton nachher": "21:G#  20:F","Oberton Rang vorher": "22","Oberton Rang nachher": "21","Oberton Rang Verbesserung": "-1","": "" },
+{ "Hew Rep PCL": "2176","Hew Rep Name": "C gr.Terz","Hewit Name PCL": "2176","Hewitt Name": "C gr.Terz","Betrag von": "2","von nr": "4","von": "E ","nach": "F ","nach PCL": "2112","nach Rep PCL": "2112","nach Name PCL": "2112","nach Name": "C Quart","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "22:C   17:D","Oberton nachher": "23:F   19:A#","Oberton Rang vorher": "22","Oberton Rang nachher": "23","Oberton Rang Verbesserung": "1","": "" },
+{ "Hew Rep PCL": "2304","Hew Rep Name": "C kl.Terz","Hewit Name PCL": "2304","Hewitt Name": "C kl.Terz","Betrag von": "2","von nr": "0","von": "C ","nach": "B ","nach PCL": "257","nach Rep PCL": "2176","nach Name PCL": "2176","nach Name": "C gr.Terz","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "21:G#  20:F","Oberton nachher": "22:B   17:C#","Oberton Rang vorher": "21","Oberton Rang nachher": "22","Oberton Rang Verbesserung": "1","": "" },
+{ "Hew Rep PCL": "2304","Hew Rep Name": "C kl.Terz","Hewit Name PCL": "2304","Hewitt Name": "C kl.Terz","Betrag von": "2","von nr": "0","von": "C ","nach": "C#","nach PCL": "1280","nach Rep PCL": "2560","nach Name PCL": "2560","nach Name": "C gr.Sek.","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "21:G#  20:F","Oberton nachher": "21:D#  20:C#","Oberton Rang vorher": "21","Oberton Rang nachher": "21","Oberton Rang Verbesserung": "0","": "" },
+{ "Hew Rep PCL": "2304","Hew Rep Name": "C kl.Terz","Hewit Name PCL": "2304","Hewitt Name": "C kl.Terz","Betrag von": "2","von nr": "3","von": "D#","nach": "D ","nach PCL": "2560","nach Rep PCL": "2560","nach Name PCL": "2560","nach Name": "C gr.Sek.","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "21:G#  20:F","Oberton nachher": "21:D   20:C","Oberton Rang vorher": "21","Oberton Rang nachher": "21","Oberton Rang Verbesserung": "0","": "" },
+{ "Hew Rep PCL": "2304","Hew Rep Name": "C kl.Terz","Hewit Name PCL": "2304","Hewitt Name": "C kl.Terz","Betrag von": "2","von nr": "3","von": "D#","nach": "E ","nach PCL": "2176","nach Rep PCL": "2176","nach Name PCL": "2176","nach Name": "C gr.Terz","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "21:G#  20:F","Oberton nachher": "22:C   17:D","Oberton Rang vorher": "21","Oberton Rang nachher": "22","Oberton Rang Verbesserung": "1","": "" },
+{ "Hew Rep PCL": "2560","Hew Rep Name": "C gr.Sek.","Hewit Name PCL": "2560","Hewitt Name": "C gr.Sek.","Betrag von": "2","von nr": "0","von": "C ","nach": "B ","nach PCL": "513","nach Rep PCL": "2304","nach Name PCL": "2304","nach Name": "C kl.Terz","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "21:D   20:C","Oberton nachher": "21:G   20:E","Oberton Rang vorher": "21","Oberton Rang nachher": "21","Oberton Rang Verbesserung": "0","": "" },
+{ "Hew Rep PCL": "2560","Hew Rep Name": "C gr.Sek.","Hewit Name PCL": "2560","Hewitt Name": "C gr.Sek.","Betrag von": "2","von nr": "0","von": "C ","nach": "C#","nach PCL": "1536","nach Rep PCL": "3072","nach Name PCL": "3072","nach Name": "C kl.Sek.","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "21:D   20:C","Oberton nachher": "18:G   17:D","Oberton Rang vorher": "21","Oberton Rang nachher": "18","Oberton Rang Verbesserung": "-3","": "" },
+{ "Hew Rep PCL": "2560","Hew Rep Name": "C gr.Sek.","Hewit Name PCL": "2560","Hewitt Name": "C gr.Sek.","Betrag von": "2","von nr": "2","von": "D ","nach": "C#","nach PCL": "3072","nach Rep PCL": "3072","nach Name PCL": "3072","nach Name": "C kl.Sek.","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "21:D   20:C","Oberton nachher": "18:F#  17:C#","Oberton Rang vorher": "21","Oberton Rang nachher": "18","Oberton Rang Verbesserung": "-3","": "" },
+{ "Hew Rep PCL": "2560","Hew Rep Name": "C gr.Sek.","Hewit Name PCL": "2560","Hewitt Name": "C gr.Sek.","Betrag von": "2","von nr": "2","von": "D ","nach": "D#","nach PCL": "2304","nach Rep PCL": "2304","nach Name PCL": "2304","nach Name": "C kl.Terz","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "21:D   20:C","Oberton nachher": "21:G#  20:F","Oberton Rang vorher": "21","Oberton Rang nachher": "21","Oberton Rang Verbesserung": "0","": "" },
+{ "Hew Rep PCL": "3072","Hew Rep Name": "C kl.Sek.","Hewit Name PCL": "3072","Hewitt Name": "C kl.Sek.","Betrag von": "2","von nr": "0","von": "C ","nach": "B ","nach PCL": "1025","nach Rep PCL": "2560","nach Name PCL": "2560","nach Name": "C gr.Sek.","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "18:F#  17:C#","Oberton nachher": "21:C#  20:B","Oberton Rang vorher": "18","Oberton Rang nachher": "21","Oberton Rang Verbesserung": "3","": "" },
+{ "Hew Rep PCL": "3072","Hew Rep Name": "C kl.Sek.","Hewit Name PCL": "3072","Hewitt Name": "C kl.Sek.","Betrag von": "2","von nr": "1","von": "C#","nach": "D ","nach PCL": "2560","nach Rep PCL": "2560","nach Name PCL": "2560","nach Name": "C gr.Sek.","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "18:F#  17:C#","Oberton nachher": "21:D   20:C","Oberton Rang vorher": "18","Oberton Rang nachher": "21","Oberton Rang Verbesserung": "3","": "" }
+];
+
+
+  const columns = Object.keys(data[0]);
+
+        function populateDropdowns() {
+            const xAxisSelect = document.getElementById('xAxis');
+            const yAxisSelect = document.getElementById('yAxis');
+            const valueColumnSelects = [
+                document.getElementById('valueColumn1'),
+                document.getElementById('valueColumn2'),
+                document.getElementById('valueColumn3'),
+                document.getElementById('valueColumn4')
+            ];
+            const filterColumn1Select = document.getElementById('filterColumn1');
+            const filterColumn2Select = document.getElementById('filterColumn2');
+
+            columns.forEach(column => {
+                xAxisSelect.add(new Option(column, column));
+                yAxisSelect.add(new Option(column, column));
+                valueColumnSelects.forEach(select => select.add(new Option(column, column)));
+                filterColumn1Select.add(new Option(column, column));
+                filterColumn2Select.add(new Option(column, column));
+            });
+        }
+
+        function setDropdownValuesFromParams() {
+            const params = new URLSearchParams(window.location.search);
+            document.getElementById('xAxis').value = params.get('xAxis') || '';
+            document.getElementById('yAxis').value = params.get('yAxis') || '';
+            document.getElementById('valueColumn1').value = params.get('valueColumn1') || '';
+            document.getElementById('valueColumn2').value = params.get('valueColumn2') || '';
+            document.getElementById('valueColumn3').value = params.get('valueColumn3') || '';
+            document.getElementById('valueColumn4').value = params.get('valueColumn4') || '';
+            document.getElementById('filterColumn1').value = params.get('filterColumn1') || '';
+            document.getElementById('filterValue1').value = params.get('filterValue1') || '';
+            document.getElementById('filterColumn2').value = params.get('filterColumn2') || '';
+            document.getElementById('filterValue2').value = params.get('filterValue2') || '';
+        }
+
+        function updateURL() {
+            const params = new URLSearchParams();
+            params.set('xAxis', document.getElementById('xAxis').value);
+            params.set('yAxis', document.getElementById('yAxis').value);
+            params.set('valueColumn1', document.getElementById('valueColumn1').value);
+            params.set('valueColumn2', document.getElementById('valueColumn2').value);
+            params.set('valueColumn3', document.getElementById('valueColumn3').value);
+            params.set('valueColumn4', document.getElementById('valueColumn4').value);
+            params.set('filterColumn1', document.getElementById('filterColumn1').value);
+            params.set('filterValue1', document.getElementById('filterValue1').value);
+            params.set('filterColumn2', document.getElementById('filterColumn2').value);
+            params.set('filterValue2', document.getElementById('filterValue2').value);
+
+            const newUrl = `${window.location.pathname}?${params.toString()}`;
+            history.replaceState(null, '', newUrl);
+        }
+
+        function generateMatrix() {
+            const xAxis = document.getElementById('xAxis').value;
+            const yAxis = document.getElementById('yAxis').value;
+            const valueColumns = [
+                document.getElementById('valueColumn1').value,
+                document.getElementById('valueColumn2').value,
+                document.getElementById('valueColumn3').value,
+                document.getElementById('valueColumn4').value
+            ].filter(v => v);
+
+            const filterColumn1 = document.getElementById('filterColumn1').value;
+            const filterValue1 = document.getElementById('filterValue1').value;
+            const filterColumn2 = document.getElementById('filterColumn2').value;
+            const filterValue2 = document.getElementById('filterValue2').value;
+
+            const filteredData = data.filter(row => {
+                let match = true;
+                if (filterValue1) match = match && row[filterColumn1] == filterValue1;
+                if (filterValue2) match = match && row[filterColumn2] == filterValue2;
+                return match;
+            });
+
+            const xValues = [...new Set(filteredData.map(row => row[xAxis]))].sort();
+            const yValues = [...new Set(filteredData.map(row => row[yAxis]))].sort();
+
+            let html = '<table><thead><tr><th></th>';
+            xValues.forEach(xVal => html += `<th>${xVal}</th>`);
+            html += '</tr></thead><tbody>';
+
+            yValues.forEach(yVal => {
+                html += `<tr><th>${yVal}</th>`;
+                xValues.forEach(xVal => {
+                    const cellData = filteredData
+                        .filter(row => row[xAxis] === xVal && row[yAxis] === yVal)
+                        .map(row => valueColumns.map(col => row[col] || '').join(' | '))
+                        .join(', ');
+                    html += `<td>${cellData || ''}</td>`;
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+
+            document.getElementById('matrixContainer').innerHTML = html;
+        }
+
+        populateDropdowns();
+        setDropdownValuesFromParams();
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X-Y Matrix Darstellung</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 5px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>X-Y Matrix Darstellung</h1>
+
+    <label for="xAxis">Spalte für x-Achse:</label>
+    <select id="xAxis" onchange="updateURL()"></select>
+
+    <label for="yAxis">Spalte für y-Achse:</label>
+    <select id="yAxis" onchange="updateURL()"></select>
+
+    <label for="valueColumn1">Anzeigeattribut 1:</label>
+    <select id="valueColumn1" onchange="updateURL()"></select>
+
+    <label for="valueColumn2">Anzeigeattribut 2:</label>
+    <select id="valueColumn2" onchange="updateURL()"></select>
+
+    <label for="valueColumn3">Anzeigeattribut 3:</label>
+    <select id="valueColumn3" onchange="updateURL()"></select>
+
+    <label for="valueColumn4">Anzeigeattribut 4:</label>
+    <select id="valueColumn4" onchange="updateURL()"></select>
+
+    <label for="filterColumn1">Filterspalte 1:</label>
+    <select id="filterColumn1" onchange="updateURL()"></select>
+    <label for="filterValue1">Filterwert 1:</label>
+    <input type="text" id="filterValue1" oninput="updateURL()">
+
+    <label for="filterColumn2">Filterspalte 2:</label>
+    <select id="filterColumn2" onchange="updateURL()"></select>
+    <label for="filterValue2">Filterwert 2:</label>
+    <input type="text" id="filterValue2" oninput="updateURL()">
+
+    <button onclick="generateMatrix()">Matrix generieren</button>
+
+    <div id="matrixContainer"></div>
+
+    <script>
+ 
+
+        // Beispiel-Daten, die durch eine echte Tabelle ersetzt werden können
+
+const data = [
+{ "Betrag von": "5","Hew Rep Name": "C Kung tiao","Hew Rep PCL": "2724","nach PCL": "661","nach Name": "C Dur-Pentatonik","Oberton Rang vorher": "50","Oberton Rang nachher": "47" },
+{ "Betrag von": "5","Hew Rep Name": "C Kung tiao","Hew Rep PCL": "2724","nach PCL": "1732","nach Name": "C m j7 9","Oberton Rang vorher": "50","Oberton Rang nachher": "41" },
+{ "Betrag von": "5","Hew Rep Name": "C + 9 #11","Hew Rep PCL": "2728","nach PCL": "665","nach Name": "C Scriabin","Oberton Rang vorher": "46","Oberton Rang nachher": "45" },
+{ "Betrag von": "5","Hew Rep Name": "C + 9 #11","Hew Rep PCL": "2728","nach PCL": "3236","nach Name": "C b5 07 b9","Oberton Rang vorher": "46","Oberton Rang nachher": "43" },
+{ "Betrag von": "5","Hew Rep Name": "C + 9 #11","Hew Rep PCL": "2728","nach PCL": "1736","nach Name": "C m  b9 b11","Oberton Rang vorher": "46","Oberton Rang nachher": "41" },
+{ "Betrag von": "5","Hew Rep Name": "C + 9 #11","Hew Rep PCL": "2728","nach PCL": "2480","nach Name": "C m #5 j7 9","Oberton Rang vorher": "46","Oberton Rang nachher": "43" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3114","nach PCL": "1051","nach Name": "C 0  b9 b11","Oberton Rang vorher": "48","Oberton Rang nachher": "45" },
+{ "Betrag von": "5","Hew Rep Name": "C Raga Vibhavari (Revati)","Hew Rep PCL": "3154","nach PCL": "2658","nach Name": "C + 7 #9","Oberton Rang vorher": "44","Oberton Rang nachher": "42" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3156","nach PCL": "2660","nach Name": "C Scriabin","Oberton Rang vorher": "42","Oberton Rang nachher": "45" },
+{ "Betrag von": "5","Hew Rep Name": "C Iwato","Hew Rep PCL": "3170","nach PCL": "1107","nach Name": "C b5 7 #9","Oberton Rang vorher": "45","Oberton Rang nachher": "44" },
+{ "Betrag von": "5","Hew Rep Name": "C + 7 b9","Hew Rep PCL": "3210","nach PCL": "3337","nach Name": "C NN","Oberton Rang vorher": "45","Oberton Rang nachher": "45" },
+{ "Betrag von": "5","Hew Rep Name": "C + 7 b9","Hew Rep PCL": "3210","nach PCL": "3148","nach Name": "C + j7 #9","Oberton Rang vorher": "45","Oberton Rang nachher": "39" },
+{ "Betrag von": "5","Hew Rep Name": "C kleiner Dur-Nonenakkord","Hew Rep PCL": "3218","nach PCL": "3345","nach Name": "C m j7 b9","Oberton Rang vorher": "46","Oberton Rang nachher": "41" },
+{ "Betrag von": "5","Hew Rep Name": "C kleiner Dur-Nonenakkord","Hew Rep PCL": "3218","nach PCL": "2722","nach Name": "C b5 7 9","Oberton Rang vorher": "46","Oberton Rang nachher": "46" },
+{ "Betrag von": "5","Hew Rep Name": "C kleiner Dur-Nonenakkord","Hew Rep PCL": "3218","nach PCL": "3156","nach Name": "C + 7 #9","Oberton Rang vorher": "46","Oberton Rang nachher": "42" },
+{ "Betrag von": "5","Hew Rep Name": "C Scriabin","Hew Rep PCL": "3220","nach PCL": "2724","nach Name": "C akustischer Nonenakkord","Oberton Rang vorher": "45","Oberton Rang nachher": "50" },
+{ "Betrag von": "5","Hew Rep Name": "C Raga Reva","Hew Rep PCL": "3224","nach PCL": "2728","nach Name": "C b5 7 9","Oberton Rang vorher": "39","Oberton Rang nachher": "46" },
+{ "Betrag von": "5","Hew Rep Name": "C b5 7 b9","Hew Rep PCL": "3234","nach PCL": "1171","nach Name": "C m 07  #11","Oberton Rang vorher": "49","Oberton Rang nachher": "42" },
+{ "Betrag von": "5","Hew Rep Name": "C b5 7 b9","Hew Rep PCL": "3234","nach PCL": "3361","nach Name": "C 0 j7 b9","Oberton Rang vorher": "49","Oberton Rang nachher": "45" },
+{ "Betrag von": "5","Hew Rep Name": "C b5 7 b9","Hew Rep PCL": "3234","nach PCL": "3172","nach Name": "C + 07 #9","Oberton Rang vorher": "49","Oberton Rang nachher": "39" },
+{ "Betrag von": "5","Hew Rep Name": "C b5 07 b9","Hew Rep PCL": "3236","nach PCL": "1173","nach Name": "C akustischer Nonenakkord","Oberton Rang vorher": "43","Oberton Rang nachher": "50" },
+{ "Betrag von": "5","Hew Rep Name": "C + add b9 #11","Hew Rep PCL": "3240","nach PCL": "1177","nach Name": "C b5 07 b9","Oberton Rang vorher": "47","Oberton Rang nachher": "43" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3266","nach PCL": "3393","nach Name": "C 7b6 +#11 (om3)","Oberton Rang vorher": "42","Oberton Rang nachher": "44" },
+{ "Betrag von": "5","Hew Rep Name": "C m #5 07 b9","Hew Rep PCL": "3340","nach PCL": "3594","nach Name": "C b5  9 11","Oberton Rang vorher": "39","Oberton Rang nachher": "42" },
+{ "Betrag von": "5","Hew Rep Name": "C Pelog","Hew Rep PCL": "3346","nach PCL": "2850","nach Name": "C m j7   13","Oberton Rang vorher": "48","Oberton Rang nachher": "45" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3348","nach PCL": "3602","nach Name": "C sus2 7 b9","Oberton Rang vorher": "44","Oberton Rang nachher": "44" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3348","nach PCL": "2852","nach Name": "C kleiner Dur-Nonenakkord","Oberton Rang vorher": "44","Oberton Rang nachher": "46" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3348","nach PCL": "3224","nach Name": "C + 07 #9","Oberton Rang vorher": "44","Oberton Rang nachher": "39" },
+{ "Betrag von": "5","Hew Rep Name": "C Raga Bhupalam","Hew Rep PCL": "3352","nach PCL": "2856","nach Name": "C 7  #11","Oberton Rang vorher": "43","Oberton Rang nachher": "49" },
+{ "Betrag von": "5","Hew Rep Name": "C dim 7 b9","Hew Rep PCL": "3362","nach PCL": "1299","nach Name": "C + j7 9","Oberton Rang vorher": "46","Oberton Rang nachher": "43" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3364","nach PCL": "1301","nach Name": "C b5 7 9","Oberton Rang vorher": "42","Oberton Rang nachher": "46" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3364","nach PCL": "3618","nach Name": "C #11 b13","Oberton Rang vorher": "42","Oberton Rang nachher": "41" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3364","nach PCL": "3240","nach Name": "C + 7  11","Oberton Rang vorher": "42","Oberton Rang nachher": "47" },
+{ "Betrag von": "5","Hew Rep Name": "C Raga Chhaya Todi","Hew Rep PCL": "3368","nach PCL": "1305","nach Name": "C + 7  11","Oberton Rang vorher": "44","Oberton Rang nachher": "47" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3396","nach PCL": "3650","nach Name": "C m  9 b11","Oberton Rang vorher": "43","Oberton Rang nachher": "44" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3396","nach PCL": "3272","nach Name": "C j7 #9","Oberton Rang vorher": "43","Oberton Rang nachher": "41" },
+{ "Betrag von": "5","Hew Rep Name": "C m b9 11","Hew Rep PCL": "3408","nach PCL": "2912","nach Name": "C 0  9 11","Oberton Rang vorher": "45","Oberton Rang nachher": "43" },
+{ "Betrag von": "5","Hew Rep Name": "C dim b9 11","Hew Rep PCL": "3424","nach PCL": "1361","nach Name": "C b5 7 9","Oberton Rang vorher": "41","Oberton Rang nachher": "46" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3458","nach PCL": "3396","nach Name": "C + j7 9","Oberton Rang vorher": "43","Oberton Rang nachher": "43" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3460","nach PCL": "3714","nach Name": "C 0  9 b11","Oberton Rang vorher": "43","Oberton Rang nachher": "43" },
+{ "Betrag von": "5","Hew Rep Name": "C m  b9 b11","Hew Rep PCL": "3472","nach PCL": "2976","nach Name": "C 0  9 b11","Oberton Rang vorher": "41","Oberton Rang nachher": "43" },
+{ "Betrag von": "5","Hew Rep Name": "C 0  b9 b11","Hew Rep PCL": "3488","nach PCL": "1425","nach Name": "C m j7   13","Oberton Rang vorher": "45","Oberton Rang nachher": "45" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3594","nach PCL": "3346","nach Name": "C 0   11 b13","Oberton Rang vorher": "42","Oberton Rang nachher": "48" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3596","nach PCL": "3348","nach Name": "C b5 7 #9","Oberton Rang vorher": "44","Oberton Rang nachher": "44" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3618","nach PCL": "1555","nach Name": "C m #5 j7 9","Oberton Rang vorher": "41","Oberton Rang nachher": "43" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3620","nach PCL": "1557","nach Name": "C add 9 #11","Oberton Rang vorher": "47","Oberton Rang nachher": "48" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3624","nach PCL": "1561","nach Name": "C 0 j7  11","Oberton Rang vorher": "43","Oberton Rang nachher": "44" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3624","nach PCL": "3376","nach Name": "C m b9 #11","Oberton Rang vorher": "43","Oberton Rang nachher": "40" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3656","nach PCL": "3408","nach Name": "C m b9 11","Oberton Rang vorher": "42","Oberton Rang nachher": "45" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3680","nach PCL": "1617","nach Name": "C 7  #11","Oberton Rang vorher": "39","Oberton Rang nachher": "49" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3714","nach PCL": "3841","nach Name": "C F�nfton Cluster","Oberton Rang vorher": "43","Oberton Rang nachher": "38" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3714","nach PCL": "3652","nach Name": "C + j7 b9","Oberton Rang vorher": "43","Oberton Rang nachher": "40" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3720","nach PCL": "3472","nach Name": "C m  b9 b11","Oberton Rang vorher": "41","Oberton Rang nachher": "41" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3744","nach PCL": "1681","nach Name": "C m 7   13","Oberton Rang vorher": "44","Oberton Rang nachher": "46" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3844","nach PCL": "3720","nach Name": "C m j7 b9","Oberton Rang vorher": "41","Oberton Rang nachher": "41" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3872","nach PCL": "1809","nach Name": "C #11 b13","Oberton Rang vorher": "40","Oberton Rang nachher": "41" }
+];
+
+
+  const columns = Object.keys(data[0]);
+
+        function populateDropdowns() {
+            const xAxisSelect = document.getElementById('xAxis');
+            const yAxisSelect = document.getElementById('yAxis');
+            const valueColumnSelects = [
+                document.getElementById('valueColumn1'),
+                document.getElementById('valueColumn2'),
+                document.getElementById('valueColumn3'),
+                document.getElementById('valueColumn4')
+            ];
+            const filterColumn1Select = document.getElementById('filterColumn1');
+            const filterColumn2Select = document.getElementById('filterColumn2');
+
+            columns.forEach(column => {
+                xAxisSelect.add(new Option(column, column));
+                yAxisSelect.add(new Option(column, column));
+                valueColumnSelects.forEach(select => select.add(new Option(column, column)));
+                filterColumn1Select.add(new Option(column, column));
+                filterColumn2Select.add(new Option(column, column));
+            });
+        }
+
+        function setDropdownValuesFromParams() {
+            const params = new URLSearchParams(window.location.search);
+            document.getElementById('xAxis').value = params.get('xAxis') || '';
+            document.getElementById('yAxis').value = params.get('yAxis') || '';
+            document.getElementById('valueColumn1').value = params.get('valueColumn1') || '';
+            document.getElementById('valueColumn2').value = params.get('valueColumn2') || '';
+            document.getElementById('valueColumn3').value = params.get('valueColumn3') || '';
+            document.getElementById('valueColumn4').value = params.get('valueColumn4') || '';
+            document.getElementById('filterColumn1').value = params.get('filterColumn1') || '';
+            document.getElementById('filterValue1').value = params.get('filterValue1') || '';
+            document.getElementById('filterColumn2').value = params.get('filterColumn2') || '';
+            document.getElementById('filterValue2').value = params.get('filterValue2') || '';
+        }
+
+        function updateURL() {
+            const params = new URLSearchParams();
+            params.set('xAxis', document.getElementById('xAxis').value);
+            params.set('yAxis', document.getElementById('yAxis').value);
+            params.set('valueColumn1', document.getElementById('valueColumn1').value);
+            params.set('valueColumn2', document.getElementById('valueColumn2').value);
+            params.set('valueColumn3', document.getElementById('valueColumn3').value);
+            params.set('valueColumn4', document.getElementById('valueColumn4').value);
+            params.set('filterColumn1', document.getElementById('filterColumn1').value);
+            params.set('filterValue1', document.getElementById('filterValue1').value);
+            params.set('filterColumn2', document.getElementById('filterColumn2').value);
+            params.set('filterValue2', document.getElementById('filterValue2').value);
+
+            const newUrl = `${window.location.pathname}?${params.toString()}`;
+            history.replaceState(null, '', newUrl);
+        }
+
+        function generateMatrix() {
+            const xAxis = document.getElementById('xAxis').value;
+            const yAxis = document.getElementById('yAxis').value;
+            const valueColumns = [
+                document.getElementById('valueColumn1').value,
+                document.getElementById('valueColumn2').value,
+                document.getElementById('valueColumn3').value,
+                document.getElementById('valueColumn4').value
+            ].filter(v => v);
+
+            const filterColumn1 = document.getElementById('filterColumn1').value;
+            const filterValue1 = document.getElementById('filterValue1').value;
+            const filterColumn2 = document.getElementById('filterColumn2').value;
+            const filterValue2 = document.getElementById('filterValue2').value;
+
+            const filteredData = data.filter(row => {
+                let match = true;
+                if (filterValue1) match = match && row[filterColumn1] == filterValue1;
+                if (filterValue2) match = match && row[filterColumn2] == filterValue2;
+                return match;
+            });
+
+            const xValues = [...new Set(filteredData.map(row => row[xAxis]))].sort();
+            const yValues = [...new Set(filteredData.map(row => row[yAxis]))].sort();
+
+            let html = '<table><thead><tr><th></th>';
+            xValues.forEach(xVal => html += `<th>${xVal}</th>`);
+            html += '</tr></thead><tbody>';
+
+            yValues.forEach(yVal => {
+                html += `<tr><th>${yVal}</th>`;
+                xValues.forEach(xVal => {
+                    const cellData = filteredData
+                        .filter(row => row[xAxis] === xVal && row[yAxis] === yVal)
+                        .map(row => valueColumns.map(col => row[col] || '').join(' | '))
+                        .join(', ');
+                    html += `<td>${cellData || ''}</td>`;
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+
+            document.getElementById('matrixContainer').innerHTML = html;
+        }
+
+        populateDropdowns();
+        setDropdownValuesFromParams();
+    </script>
+</body>
+</html>
+

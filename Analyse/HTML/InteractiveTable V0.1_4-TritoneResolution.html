@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X-Y Matrix Darstellung</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 5px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>X-Y Matrix Darstellung</h1>
+
+    <label for="xAxis">Spalte für x-Achse:</label>
+    <select id="xAxis" onchange="updateURL()"></select>
+
+    <label for="yAxis">Spalte für y-Achse:</label>
+    <select id="yAxis" onchange="updateURL()"></select>
+
+    <label for="valueColumn1">Anzeigeattribut 1:</label>
+    <select id="valueColumn1" onchange="updateURL()"></select>
+
+    <label for="valueColumn2">Anzeigeattribut 2:</label>
+    <select id="valueColumn2" onchange="updateURL()"></select>
+
+    <label for="valueColumn3">Anzeigeattribut 3:</label>
+    <select id="valueColumn3" onchange="updateURL()"></select>
+
+    <label for="valueColumn4">Anzeigeattribut 4:</label>
+    <select id="valueColumn4" onchange="updateURL()"></select>
+
+    <label for="filterColumn1">Filterspalte 1:</label>
+    <select id="filterColumn1" onchange="updateURL()"></select>
+    <label for="filterValue1">Filterwert 1:</label>
+    <input type="text" id="filterValue1" oninput="updateURL()">
+
+    <label for="filterColumn2">Filterspalte 2:</label>
+    <select id="filterColumn2" onchange="updateURL()"></select>
+    <label for="filterValue2">Filterwert 2:</label>
+    <input type="text" id="filterValue2" oninput="updateURL()">
+
+    <button onclick="generateMatrix()">Matrix generieren</button>
+
+    <div id="matrixContainer"></div>
+
+    <script>
+ 
+
+        // Beispiel-Daten, die durch eine echte Tabelle ersetzt werden können
+
+const data = [
+{ "Betrag von": "4","Hew Rep Name": "C vermindeter Septimakkord","Hew Rep PCL": "2340","nach PCL": "277","nach Name": "C 7/#5","Oberton Rang vorher": "34","Oberton Rang nachher": "36" },
+{ "Betrag von": "4","Hew Rep Name": "C vermindeter Septimakkord","Hew Rep PCL": "2340","nach PCL": "2594","nach Name": "C 7/#5","Oberton Rang vorher": "34","Oberton Rang nachher": "36" },
+{ "Betrag von": "4","Hew Rep Name": "C vermindeter Septimakkord","Hew Rep PCL": "2340","nach PCL": "1348","nach Name": "C 7/#5","Oberton Rang vorher": "34","Oberton Rang nachher": "36" },
+{ "Betrag von": "4","Hew Rep Name": "C vermindeter Septimakkord","Hew Rep PCL": "2340","nach PCL": "2216","nach Name": "C 7/#5","Oberton Rang vorher": "34","Oberton Rang nachher": "36" },
+{ "Betrag von": "4","Hew Rep Name": "C dreifach vermindeter Septimakkord","Hew Rep PCL": "2596","nach PCL": "533","nach Name": "C m7/#5","Oberton Rang vorher": "42","Oberton Rang nachher": "41" },
+{ "Betrag von": "4","Hew Rep Name": "C dreifach vermindeter Septimakkord","Hew Rep PCL": "2596","nach PCL": "1604","nach Name": "C m j7","Oberton Rang vorher": "42","Oberton Rang nachher": "35" },
+{ "Betrag von": "4","Hew Rep Name": "C Messiaen's truncated mode 6","Hew Rep PCL": "2600","nach PCL": "537","nach Name": "C m j7/b5","Oberton Rang vorher": "38","Oberton Rang nachher": "37" },
+{ "Betrag von": "4","Hew Rep Name": "C Messiaen's truncated mode 6","Hew Rep PCL": "2600","nach PCL": "3108","nach Name": "C m add #11","Oberton Rang vorher": "38","Oberton Rang nachher": "35" },
+{ "Betrag von": "4","Hew Rep Name": "C Messiaen's truncated mode 6","Hew Rep PCL": "2600","nach PCL": "1608","nach Name": "C m j7/b5","Oberton Rang vorher": "38","Oberton Rang nachher": "37" },
+{ "Betrag von": "4","Hew Rep Name": "C Messiaen's truncated mode 6","Hew Rep PCL": "2600","nach PCL": "2352","nach Name": "C m add #11","Oberton Rang vorher": "38","Oberton Rang nachher": "35" },
+{ "Betrag von": "4","Hew Rep Name": "C NN","Hew Rep PCL": "2632","nach PCL": "3140","nach Name": "C j7/#5","Oberton Rang vorher": "38","Oberton Rang nachher": "34" },
+{ "Betrag von": "4","Hew Rep Name": "C NN","Hew Rep PCL": "2632","nach PCL": "2384","nach Name": "C m   11","Oberton Rang vorher": "38","Oberton Rang nachher": "40" },
+{ "Betrag von": "4","Hew Rep Name": "C NN","Hew Rep PCL": "2696","nach PCL": "3204","nach Name": "C m j7/#5","Oberton Rang vorher": "36","Oberton Rang nachher": "36" },
+{ "Betrag von": "4","Hew Rep Name": "C NN","Hew Rep PCL": "2696","nach PCL": "2448","nach Name": "C m j7/#5","Oberton Rang vorher": "36","Oberton Rang nachher": "36" },
+{ "Betrag von": "4","Hew Rep Name": "C Lydian-Tetrachord","Hew Rep PCL": "2720","nach PCL": "657","nach Name": "C m7","Oberton Rang vorher": "39","Oberton Rang nachher": "39" },
+{ "Betrag von": "4","Hew Rep Name": "C Lydian-Tetrachord","Hew Rep PCL": "2720","nach PCL": "1728","nach Name": "C Spanish-Tetrachord","Oberton Rang vorher": "39","Oberton Rang nachher": "33" },
+{ "Betrag von": "4","Hew Rep Name": "C 5 7 b9","Hew Rep PCL": "3090","nach PCL": "2594","nach Name": "C 7/#5","Oberton Rang vorher": "36","Oberton Rang nachher": "36" },
+{ "Betrag von": "4","Hew Rep Name": "C NN","Hew Rep PCL": "3092","nach PCL": "2596","nach Name": "C 7","Oberton Rang vorher": "34","Oberton Rang nachher": "42" },
+{ "Betrag von": "4","Hew Rep Name": "C b5 7 b7 (om3)","Hew Rep PCL": "3106","nach PCL": "1043","nach Name": "C Hungarian major-Tetrachord","Oberton Rang vorher": "40","Oberton Rang nachher": "34" },
+{ "Betrag von": "4","Hew Rep Name": "C NN","Hew Rep PCL": "3108","nach PCL": "1045","nach Name": "C Lydian-Tetrachord","Oberton Rang vorher": "35","Oberton Rang nachher": "39" },
+{ "Betrag von": "4","Hew Rep Name": "C NN","Hew Rep PCL": "3112","nach PCL": "1049","nach Name": "C Hungarian Spanish-Tetrachord","Oberton Rang vorher": "38","Oberton Rang nachher": "39" },
+{ "Betrag von": "4","Hew Rep Name": "C sus4 add b9","Hew Rep PCL": "3152","nach PCL": "2656","nach Name": "C gro�er dreifach verminderter Septakkord","Oberton Rang vorher": "34","Oberton Rang nachher": "34" },
+{ "Betrag von": "4","Hew Rep Name": "C Double Fourth Tetramirror","Hew Rep PCL": "3168","nach PCL": "1105","nach Name": "C 7/b5","Oberton Rang vorher": "35","Oberton Rang nachher": "38" },
+{ "Betrag von": "4","Hew Rep Name": "C NN","Hew Rep PCL": "3202","nach PCL": "3329","nach Name": "C m j7 b9 (om5)","Oberton Rang vorher": "37","Oberton Rang nachher": "34" },
+{ "Betrag von": "4","Hew Rep Name": "C NN","Hew Rep PCL": "3202","nach PCL": "3140","nach Name": "C j7/#5","Oberton Rang vorher": "37","Oberton Rang nachher": "34" },
+{ "Betrag von": "4","Hew Rep Name": "C add b9","Hew Rep PCL": "3216","nach PCL": "2720","nach Name": "C Lydian-Tetrachord","Oberton Rang vorher": "37","Oberton Rang nachher": "39" },
+{ "Betrag von": "4","Hew Rep Name": "C Hungarian Spanish-Tetrachord","Hew Rep PCL": "3232","nach PCL": "1169","nach Name": "C m6","Oberton Rang vorher": "39","Oberton Rang nachher": "38" },
+{ "Betrag von": "4","Hew Rep Name": "C NN","Hew Rep PCL": "3332","nach PCL": "3586","nach Name": "C Dorian b4-Tetrachord","Oberton Rang vorher": "34","Oberton Rang nachher": "33" },
+{ "Betrag von": "4","Hew Rep Name": "C NN","Hew Rep PCL": "3332","nach PCL": "3208","nach Name": "C m j7","Oberton Rang vorher": "34","Oberton Rang nachher": "35" },
+{ "Betrag von": "4","Hew Rep Name": "C m b9","Hew Rep PCL": "3344","nach PCL": "2848","nach Name": "C Hungarian minor-Tetrachord","Oberton Rang vorher": "37","Oberton Rang nachher": "37" },
+{ "Betrag von": "4","Hew Rep Name": "C Hungarian phrygian-Tetrachord","Hew Rep PCL": "3360","nach PCL": "1297","nach Name": "C 7/#5","Oberton Rang vorher": "36","Oberton Rang nachher": "36" },
+{ "Betrag von": "4","Hew Rep Name": "C NN","Hew Rep PCL": "3592","nach PCL": "3344","nach Name": "C Chopin Akkord","Oberton Rang vorher": "33","Oberton Rang nachher": "37" },
+{ "Betrag von": "4","Hew Rep Name": "C Firebird I-Tetrachord","Hew Rep PCL": "3616","nach PCL": "1553","nach Name": "C m #5  9","Oberton Rang vorher": "36","Oberton Rang nachher": "40" }
+    ];
+
+
+  const columns = Object.keys(data[0]);
+
+        function populateDropdowns() {
+            const xAxisSelect = document.getElementById('xAxis');
+            const yAxisSelect = document.getElementById('yAxis');
+            const valueColumnSelects = [
+                document.getElementById('valueColumn1'),
+                document.getElementById('valueColumn2'),
+                document.getElementById('valueColumn3'),
+                document.getElementById('valueColumn4')
+            ];
+            const filterColumn1Select = document.getElementById('filterColumn1');
+            const filterColumn2Select = document.getElementById('filterColumn2');
+
+            columns.forEach(column => {
+                xAxisSelect.add(new Option(column, column));
+                yAxisSelect.add(new Option(column, column));
+                valueColumnSelects.forEach(select => select.add(new Option(column, column)));
+                filterColumn1Select.add(new Option(column, column));
+                filterColumn2Select.add(new Option(column, column));
+            });
+        }
+
+        function setDropdownValuesFromParams() {
+            const params = new URLSearchParams(window.location.search);
+            document.getElementById('xAxis').value = params.get('xAxis') || '';
+            document.getElementById('yAxis').value = params.get('yAxis') || '';
+            document.getElementById('valueColumn1').value = params.get('valueColumn1') || '';
+            document.getElementById('valueColumn2').value = params.get('valueColumn2') || '';
+            document.getElementById('valueColumn3').value = params.get('valueColumn3') || '';
+            document.getElementById('valueColumn4').value = params.get('valueColumn4') || '';
+            document.getElementById('filterColumn1').value = params.get('filterColumn1') || '';
+            document.getElementById('filterValue1').value = params.get('filterValue1') || '';
+            document.getElementById('filterColumn2').value = params.get('filterColumn2') || '';
+            document.getElementById('filterValue2').value = params.get('filterValue2') || '';
+        }
+
+        function updateURL() {
+            const params = new URLSearchParams();
+            params.set('xAxis', document.getElementById('xAxis').value);
+            params.set('yAxis', document.getElementById('yAxis').value);
+            params.set('valueColumn1', document.getElementById('valueColumn1').value);
+            params.set('valueColumn2', document.getElementById('valueColumn2').value);
+            params.set('valueColumn3', document.getElementById('valueColumn3').value);
+            params.set('valueColumn4', document.getElementById('valueColumn4').value);
+            params.set('filterColumn1', document.getElementById('filterColumn1').value);
+            params.set('filterValue1', document.getElementById('filterValue1').value);
+            params.set('filterColumn2', document.getElementById('filterColumn2').value);
+            params.set('filterValue2', document.getElementById('filterValue2').value);
+
+            const newUrl = `${window.location.pathname}?${params.toString()}`;
+            history.replaceState(null, '', newUrl);
+        }
+
+        function generateMatrix() {
+            const xAxis = document.getElementById('xAxis').value;
+            const yAxis = document.getElementById('yAxis').value;
+            const valueColumns = [
+                document.getElementById('valueColumn1').value,
+                document.getElementById('valueColumn2').value,
+                document.getElementById('valueColumn3').value,
+                document.getElementById('valueColumn4').value
+            ].filter(v => v);
+
+            const filterColumn1 = document.getElementById('filterColumn1').value;
+            const filterValue1 = document.getElementById('filterValue1').value;
+            const filterColumn2 = document.getElementById('filterColumn2').value;
+            const filterValue2 = document.getElementById('filterValue2').value;
+
+            const filteredData = data.filter(row => {
+                let match = true;
+                if (filterValue1) match = match && row[filterColumn1] == filterValue1;
+                if (filterValue2) match = match && row[filterColumn2] == filterValue2;
+                return match;
+            });
+
+            const xValues = [...new Set(filteredData.map(row => row[xAxis]))].sort();
+            const yValues = [...new Set(filteredData.map(row => row[yAxis]))].sort();
+
+            let html = '<table><thead><tr><th></th>';
+            xValues.forEach(xVal => html += `<th>${xVal}</th>`);
+            html += '</tr></thead><tbody>';
+
+            yValues.forEach(yVal => {
+                html += `<tr><th>${yVal}</th>`;
+                xValues.forEach(xVal => {
+                    const cellData = filteredData
+                        .filter(row => row[xAxis] === xVal && row[yAxis] === yVal)
+                        .map(row => valueColumns.map(col => row[col] || '').join(' | '))
+                        .join(', ');
+                    html += `<td>${cellData || ''}</td>`;
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+
+            document.getElementById('matrixContainer').innerHTML = html;
+        }
+
+        populateDropdowns();
+        setDropdownValuesFromParams();
+    </script>
+</body>
+</html>
+
