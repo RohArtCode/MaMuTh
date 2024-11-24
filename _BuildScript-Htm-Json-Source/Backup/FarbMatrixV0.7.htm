@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>##TITLE##</title>
+    <style>
+        .matrix-container {
+            display: grid;
+            gap: 10px;
+            justify-content: start;
+            align-items: start;
+        }
+        .matrix-row-label, .matrix-col-label {
+            font-weight: bold;
+            text-align: center;
+            padding: 5px;
+            font-size: smaller;
+        }
+        .matrix-cell {
+            width: 220px; /* Einheitliche Zellengröße */
+            height: 220px;
+            padding: 5px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Inhalt vertikal zentrieren */
+            align-items: center;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        .matrix-cell-content-container {
+            display: grid;
+            gap: 5px;
+            width: 100%;
+            height: 100%;
+            justify-items: center;
+            align-items: center;
+            box-sizing: border-box;
+        }
+        .text-container {
+            text-align: center;
+            font-weight: bold;
+            font-size: smaller;
+        }
+        .description {
+            text-align: center;
+            font-size: smaller;
+        }
+        .clip {
+            width: 100%;
+            height: auto;
+            max-height: 50px;
+            object-fit: contain;
+        }
+        .matrix-cell-content {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+
+<h1>##TITLE##</h1>
+<p style="font-size: 10px; text-align: center;">
+    <a href="Inhalt.html" style="text-decoration: none; color: gray;">zurück zum Inhaltsverzeichnis</a>
+</p>
+
+<div id="matrix-container-wrapper"></div>
+
+<script>
+    const data = [
+        { "Betrag von": "3","Hew Rep Name": "C dim","Hew Rep PCL": "2336","nach PCL": "273","nach Name": "C +","Oberton Rang vorher": "30","Oberton Rang nachher": "24" },
+        { "Betrag von": "3","Hew Rep Name": "C dim","Hew Rep PCL": "2336","nach PCL": "1344","nach Name": "C Ganzton Dreiklang","Oberton Rang vorher": "30","Oberton Rang nachher": "30" },
+        { "Betrag von": "3","Hew Rep Name": "C NN","Hew Rep PCL": "2568","nach PCL": "3076","nach Name": "C Doppelterz Dreiklang","Oberton Rang vorher": "29","Oberton Rang nachher": "25" },
+        { "Betrag von": "3","Hew Rep Name": "C NN","Hew Rep PCL": "2568","nach PCL": "2320","nach Name": "C m","Oberton Rang vorher": "29","Oberton Rang nachher": "28" },
+        { "Betrag von": "3","Hew Rep Name": "C doppelt vermindert Dreiklang","Hew Rep PCL": "2592","nach PCL": "529","nach Name": "C dur-Dreiklang","Oberton Rang vorher": "31","Oberton Rang nachher": "33" },
+        { "Betrag von": "3","Hew Rep Name": "C doppelt vermindert Dreiklang","Hew Rep PCL": "2592","nach PCL": "1600","nach Name": "C unvollständiger großer Moll-Septakkord","Oberton Rang vorher": "31","Oberton Rang nachher": "27" },
+        { "Betrag von": "3","Hew Rep Name": "C 5 add b9","Hew Rep PCL": "3088","nach PCL": "2592","nach Name": "C Italienischer Sextakkord","Oberton Rang vorher": "27","Oberton Rang nachher": "31" },
+        { "Betrag von": "3","Hew Rep Name": "C NN","Hew Rep PCL": "3104","nach PCL": "1041","nach Name": "C dur-verminderter Dreiklang","Oberton Rang vorher": "30","Oberton Rang nachher": "29" }
+    ];
+
+    // Hilfsfunktionen
+    function to12BitBinary(num) {
+        return num.toString(2).padStart(12, '0');
+    }
+
+    function createMatrixCellContent(item) {
+        const point = document.createElement('div');
+        point.classList.add('matrix-cell-content');
+
+        // Text oberhalb der Bilder
+        const nameText = document.createElement('div');
+        nameText.classList.add('text-container');
+        nameText.textContent = `${item["Hew Rep Name"]} → ${item["nach Name"]}`;
+        point.appendChild(nameText);
+
+        // Container für Bilder
+        const imageContainer = document.createElement('div');
+        imageContainer.classList.add('image-container');
+
+        const img1 = document.createElement('img');
+        img1.classList.add('clip');
+        img1.alt = 'clip';
+        img1.src = `../svg/${parseFloat(item["Betrag von"])}_Circle_${to12BitBinary(parseFloat(item["Hew Rep PCL"]))}.svg`;
+        imageContainer.appendChild(img1);
+
+        const img2 = document.createElement('img');
+        img2.classList.add('clip');
+        img2.alt = 'clip';
+        img2.src = `../svg/${parseFloat(item["Betrag von"])}_Circle_${to12BitBinary(parseFloat(item["nach PCL"]))}.svg`;
+        imageContainer.appendChild(img2);
+
+        // Bilder-Container hinzufügen
+        point.appendChild(imageContainer);
+
+        // Beschreibung mit Link
+        const description = document.createElement('div');
+        description.classList.add('description');
+
+        const link1 = document.createElement('a');
+        link1.href = `../../HTML/${item["Hew Rep PCL"]}.htm`;
+        link1.textContent = item["Hew Rep PCL"];
+        description.appendChild(link1);
+
+        description.appendChild(document.createTextNode(` (${item["Oberton Rang vorher"]}) → `));
+
+        const link2 = document.createElement('a');
+        link2.href = `../../HTML/${item["nach PCL"]}.htm`;
+        link2.textContent = item["nach PCL"];
+        description.appendChild(link2);
+
+        description.appendChild(document.createTextNode(` (${item["Oberton Rang nachher"]})`));
+        point.appendChild(description);
+
+        return point;
+    }
+
+    // Bestimme minimale und maximale Werte für Zeilen und Spalten
+    let minRow = Infinity, maxRow = -Infinity, minCol = Infinity, maxCol = -Infinity;
+    data.forEach(item => {
+        const row = parseInt(item["Oberton Rang nachher"], 10);
+        const col = parseInt(item["Oberton Rang vorher"], 10);
+        if (row < minRow) minRow = row;
+        if (row > maxRow) maxRow = row;
+        if (col < minCol) minCol = col;
+        if (col > maxCol) maxCol = col;
+    });
+
+    // Matrix erstellen
+    const matrixContainerWrapper = document.getElementById('matrix-container-wrapper');
+
+    // Zeilen- und Spaltenbeschriftungen erstellen
+    const matrixContainer = document.createElement('div');
+    matrixContainer.classList.add('matrix-container');
+    matrixContainer.style.gridTemplateColumns = `repeat(${maxCol - minCol + 2}, 220px)`; // +2 für Zeilenbeschriftung
+
+    // Platzhalter für linke obere Ecke
+    matrixContainer.appendChild(document.createElement('div'));
+
+    // Spaltenbeschriftungen
+    for (let col = minCol; col <= maxCol; col++) {
+        const colLabel = document.createElement('div');
+        colLabel.classList.add('matrix-col-label');
+        colLabel.textContent = `von Rang ${col}`;
+        matrixContainer.appendChild(colLabel);
+    }
+
+    const cellMap = {};
+
+    // Zeilen in absteigender Reihenfolge (große Werte oben) hinzufügen
+    for (let row = maxRow; row >= minRow; row--) {
+        // Zeilenbeschriftung
+        const rowLabel = document.createElement('div');
+        rowLabel.classList.add('matrix-row-label');
+        rowLabel.textContent = `nach Rang ${row}`;
+        matrixContainer.appendChild(rowLabel);
+
+        // Spalten für diese Zeile hinzufügen
+        for (let col = minCol; col <= maxCol; col++) {
+            const cellKey = `${row}-${col}`;
+            const cell = document.createElement('div');
+            cell.classList.add('matrix-cell');
+
+            // Hintergrundfarbe basierend auf Zeilen- und Spaltennummer
+            const difference = col - row;
+            if (difference < 0) {
+                cell.style.backgroundColor = `rgba(144, 238, 144, ${0.1 + Math.min(-difference * 0.1, 0.9)})`; // Blassgrün, intensiver bei größerem Unterschied
+            } else if (difference > 0) {
+                cell.style.backgroundColor = `rgba(255, 182, 193, ${0.1 + Math.min(+difference * 0.1, 0.9)})`; // Blassrot, intensiver bei größerem Unterschied
+            } else {
+                cell.style.backgroundColor = `rgba(211, 211, 211, 0.5)`; // Blassgrau für gleiche Werte
+            }
+
+            matrixContainer.appendChild(cell);
+            cellMap[cellKey] = cell;
+        }
+    }
+
+    // Füge Daten in die Matrixzellen ein
+    const cellContentCount = {};
+    data.forEach(item => {
+        const row = parseInt(item["Oberton Rang nachher"], 10);
+        const col = parseInt(item["Oberton Rang vorher"], 10);
+        const cellKey = `${row}-${col}`;
+
+        if (!cellContentCount[cellKey]) {
+            cellContentCount[cellKey] = 0;
+        }
+        cellContentCount[cellKey]++;
+    });
+
+    data.forEach(item => {
+        const row = parseInt(item["Oberton Rang nachher"], 10);
+        const col = parseInt(item["Oberton Rang vorher"], 10);
+        const cellKey = `${row}-${col}`;
+        const itemCount = cellContentCount[cellKey];
+
+        // Create container if it doesn't exist
+        if (!cellMap[cellKey].querySelector('.matrix-cell-content-container')) {
+            const container = document.createElement('div');
+            container.classList.add('matrix-cell-content-container');
+            // Adjust grid layout based on item count
+            const rows = Math.ceil(Math.sqrt(itemCount));
+            const cols = Math.ceil(itemCount / rows);
+            container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            container.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+            cellMap[cellKey].appendChild(container);
+        }
+
+        const container = cellMap[cellKey].querySelector('.matrix-cell-content-container');
+        const content = createMatrixCellContent(item);
+        container.appendChild(content);
+    });
+
+    // Matrix in den Wrapper einfügen
+    matrixContainerWrapper.appendChild(matrixContainer);
+</script>
+
+</body>
+</html>

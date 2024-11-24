@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>aFilterTableV0.1</title>
+    <link rel="stylesheet" href="stylesheet.css">
+</head>
+<body>
+    <h2>aFilterTableV0.1</h2>
+    <table id="demo">
+        <thead>
+            <!-- Dynamische Spaltenüberschriften -->
+        </thead>
+        <tbody>
+            <!-- Dynamische Inhalte -->
+        </tbody>
+    </table>
+    <script src="dist/tablefilter/tablefilter.js"></script>
+    <script>
+        // JSON-Daten im kompakten Format (ohne Zeilenumbrüche pro Attribut)
+const data = [
+{ "Betrag von": "5","Hew Rep Name": "C Kung tiao","Hew Rep PCL": "2724","nach PCL": "661","nach Name": "C Dur-Pentatonik","Oberton Rang vorher": "50","Oberton Rang nachher": "47" },
+{ "Betrag von": "5","Hew Rep Name": "C Kung tiao","Hew Rep PCL": "2724","nach PCL": "1732","nach Name": "C m j7 9","Oberton Rang vorher": "50","Oberton Rang nachher": "41" },
+{ "Betrag von": "5","Hew Rep Name": "C + 9 #11","Hew Rep PCL": "2728","nach PCL": "665","nach Name": "C Scriabin","Oberton Rang vorher": "46","Oberton Rang nachher": "45" },
+{ "Betrag von": "5","Hew Rep Name": "C + 9 #11","Hew Rep PCL": "2728","nach PCL": "3236","nach Name": "C b5 07 b9","Oberton Rang vorher": "46","Oberton Rang nachher": "43" },
+{ "Betrag von": "5","Hew Rep Name": "C + 9 #11","Hew Rep PCL": "2728","nach PCL": "1736","nach Name": "C m  b9 b11","Oberton Rang vorher": "46","Oberton Rang nachher": "41" },
+{ "Betrag von": "5","Hew Rep Name": "C + 9 #11","Hew Rep PCL": "2728","nach PCL": "2480","nach Name": "C m #5 j7 9","Oberton Rang vorher": "46","Oberton Rang nachher": "43" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3114","nach PCL": "1051","nach Name": "C 0  b9 b11","Oberton Rang vorher": "48","Oberton Rang nachher": "45" },
+{ "Betrag von": "5","Hew Rep Name": "C Raga Vibhavari (Revati)","Hew Rep PCL": "3154","nach PCL": "2658","nach Name": "C + 7 #9","Oberton Rang vorher": "44","Oberton Rang nachher": "42" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3156","nach PCL": "2660","nach Name": "C Scriabin","Oberton Rang vorher": "42","Oberton Rang nachher": "45" },
+{ "Betrag von": "5","Hew Rep Name": "C Iwato","Hew Rep PCL": "3170","nach PCL": "1107","nach Name": "C b5 7 #9","Oberton Rang vorher": "45","Oberton Rang nachher": "44" },
+{ "Betrag von": "5","Hew Rep Name": "C + 7 b9","Hew Rep PCL": "3210","nach PCL": "3337","nach Name": "C NN","Oberton Rang vorher": "45","Oberton Rang nachher": "45" },
+{ "Betrag von": "5","Hew Rep Name": "C + 7 b9","Hew Rep PCL": "3210","nach PCL": "3148","nach Name": "C + j7 #9","Oberton Rang vorher": "45","Oberton Rang nachher": "39" },
+{ "Betrag von": "5","Hew Rep Name": "C kleiner Dur-Nonenakkord","Hew Rep PCL": "3218","nach PCL": "3345","nach Name": "C m j7 b9","Oberton Rang vorher": "46","Oberton Rang nachher": "41" },
+{ "Betrag von": "5","Hew Rep Name": "C kleiner Dur-Nonenakkord","Hew Rep PCL": "3218","nach PCL": "2722","nach Name": "C b5 7 9","Oberton Rang vorher": "46","Oberton Rang nachher": "46" },
+{ "Betrag von": "5","Hew Rep Name": "C kleiner Dur-Nonenakkord","Hew Rep PCL": "3218","nach PCL": "3156","nach Name": "C + 7 #9","Oberton Rang vorher": "46","Oberton Rang nachher": "42" },
+{ "Betrag von": "5","Hew Rep Name": "C Scriabin","Hew Rep PCL": "3220","nach PCL": "2724","nach Name": "C akustischer Nonenakkord","Oberton Rang vorher": "45","Oberton Rang nachher": "50" },
+{ "Betrag von": "5","Hew Rep Name": "C Raga Reva","Hew Rep PCL": "3224","nach PCL": "2728","nach Name": "C b5 7 9","Oberton Rang vorher": "39","Oberton Rang nachher": "46" },
+{ "Betrag von": "5","Hew Rep Name": "C b5 7 b9","Hew Rep PCL": "3234","nach PCL": "1171","nach Name": "C m 07  #11","Oberton Rang vorher": "49","Oberton Rang nachher": "42" },
+{ "Betrag von": "5","Hew Rep Name": "C b5 7 b9","Hew Rep PCL": "3234","nach PCL": "3361","nach Name": "C 0 j7 b9","Oberton Rang vorher": "49","Oberton Rang nachher": "45" },
+{ "Betrag von": "5","Hew Rep Name": "C b5 7 b9","Hew Rep PCL": "3234","nach PCL": "3172","nach Name": "C + 07 #9","Oberton Rang vorher": "49","Oberton Rang nachher": "39" },
+{ "Betrag von": "5","Hew Rep Name": "C b5 07 b9","Hew Rep PCL": "3236","nach PCL": "1173","nach Name": "C akustischer Nonenakkord","Oberton Rang vorher": "43","Oberton Rang nachher": "50" },
+{ "Betrag von": "5","Hew Rep Name": "C + add b9 #11","Hew Rep PCL": "3240","nach PCL": "1177","nach Name": "C b5 07 b9","Oberton Rang vorher": "47","Oberton Rang nachher": "43" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3266","nach PCL": "3393","nach Name": "C 7b6 +#11 (om3)","Oberton Rang vorher": "42","Oberton Rang nachher": "44" },
+{ "Betrag von": "5","Hew Rep Name": "C m #5 07 b9","Hew Rep PCL": "3340","nach PCL": "3594","nach Name": "C b5  9 11","Oberton Rang vorher": "39","Oberton Rang nachher": "42" },
+{ "Betrag von": "5","Hew Rep Name": "C Pelog","Hew Rep PCL": "3346","nach PCL": "2850","nach Name": "C m j7   13","Oberton Rang vorher": "48","Oberton Rang nachher": "45" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3348","nach PCL": "3602","nach Name": "C sus2 7 b9","Oberton Rang vorher": "44","Oberton Rang nachher": "44" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3348","nach PCL": "2852","nach Name": "C kleiner Dur-Nonenakkord","Oberton Rang vorher": "44","Oberton Rang nachher": "46" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3348","nach PCL": "3224","nach Name": "C + 07 #9","Oberton Rang vorher": "44","Oberton Rang nachher": "39" },
+{ "Betrag von": "5","Hew Rep Name": "C Raga Bhupalam","Hew Rep PCL": "3352","nach PCL": "2856","nach Name": "C 7  #11","Oberton Rang vorher": "43","Oberton Rang nachher": "49" },
+{ "Betrag von": "5","Hew Rep Name": "C dim 7 b9","Hew Rep PCL": "3362","nach PCL": "1299","nach Name": "C + j7 9","Oberton Rang vorher": "46","Oberton Rang nachher": "43" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3364","nach PCL": "1301","nach Name": "C b5 7 9","Oberton Rang vorher": "42","Oberton Rang nachher": "46" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3364","nach PCL": "3618","nach Name": "C #11 b13","Oberton Rang vorher": "42","Oberton Rang nachher": "41" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3364","nach PCL": "3240","nach Name": "C + 7  11","Oberton Rang vorher": "42","Oberton Rang nachher": "47" },
+{ "Betrag von": "5","Hew Rep Name": "C Raga Chhaya Todi","Hew Rep PCL": "3368","nach PCL": "1305","nach Name": "C + 7  11","Oberton Rang vorher": "44","Oberton Rang nachher": "47" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3396","nach PCL": "3650","nach Name": "C m  9 b11","Oberton Rang vorher": "43","Oberton Rang nachher": "44" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3396","nach PCL": "3272","nach Name": "C j7 #9","Oberton Rang vorher": "43","Oberton Rang nachher": "41" },
+{ "Betrag von": "5","Hew Rep Name": "C m b9 11","Hew Rep PCL": "3408","nach PCL": "2912","nach Name": "C 0  9 11","Oberton Rang vorher": "45","Oberton Rang nachher": "43" },
+{ "Betrag von": "5","Hew Rep Name": "C dim b9 11","Hew Rep PCL": "3424","nach PCL": "1361","nach Name": "C b5 7 9","Oberton Rang vorher": "41","Oberton Rang nachher": "46" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3458","nach PCL": "3396","nach Name": "C + j7 9","Oberton Rang vorher": "43","Oberton Rang nachher": "43" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3460","nach PCL": "3714","nach Name": "C 0  9 b11","Oberton Rang vorher": "43","Oberton Rang nachher": "43" },
+{ "Betrag von": "5","Hew Rep Name": "C m  b9 b11","Hew Rep PCL": "3472","nach PCL": "2976","nach Name": "C 0  9 b11","Oberton Rang vorher": "41","Oberton Rang nachher": "43" },
+{ "Betrag von": "5","Hew Rep Name": "C 0  b9 b11","Hew Rep PCL": "3488","nach PCL": "1425","nach Name": "C m j7   13","Oberton Rang vorher": "45","Oberton Rang nachher": "45" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3594","nach PCL": "3346","nach Name": "C 0   11 b13","Oberton Rang vorher": "42","Oberton Rang nachher": "48" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3596","nach PCL": "3348","nach Name": "C b5 7 #9","Oberton Rang vorher": "44","Oberton Rang nachher": "44" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3618","nach PCL": "1555","nach Name": "C m #5 j7 9","Oberton Rang vorher": "41","Oberton Rang nachher": "43" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3620","nach PCL": "1557","nach Name": "C add 9 #11","Oberton Rang vorher": "47","Oberton Rang nachher": "48" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3624","nach PCL": "1561","nach Name": "C 0 j7  11","Oberton Rang vorher": "43","Oberton Rang nachher": "44" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3624","nach PCL": "3376","nach Name": "C m b9 #11","Oberton Rang vorher": "43","Oberton Rang nachher": "40" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3656","nach PCL": "3408","nach Name": "C m b9 11","Oberton Rang vorher": "42","Oberton Rang nachher": "45" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3680","nach PCL": "1617","nach Name": "C 7  #11","Oberton Rang vorher": "39","Oberton Rang nachher": "49" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3714","nach PCL": "3841","nach Name": "C F�nfton Cluster","Oberton Rang vorher": "43","Oberton Rang nachher": "38" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3714","nach PCL": "3652","nach Name": "C + j7 b9","Oberton Rang vorher": "43","Oberton Rang nachher": "40" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3720","nach PCL": "3472","nach Name": "C m  b9 b11","Oberton Rang vorher": "41","Oberton Rang nachher": "41" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3744","nach PCL": "1681","nach Name": "C m 7   13","Oberton Rang vorher": "44","Oberton Rang nachher": "46" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3844","nach PCL": "3720","nach Name": "C m j7 b9","Oberton Rang vorher": "41","Oberton Rang nachher": "41" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3872","nach PCL": "1809","nach Name": "C #11 b13","Oberton Rang vorher": "40","Oberton Rang nachher": "41" }
+];
+
+        // Dynamische Erstellung von Spaltenüberschriften und Datenzeilen
+        const table = document.getElementById('demo');
+        const thead = table.querySelector('thead');
+        const tbody = table.querySelector('tbody');
+
+        // Spaltenüberschriften aus den JSON-Schlüsseln extrahieren
+        const columns = Object.keys(data[0]);
+        const headerRow = document.createElement('tr');
+        columns.forEach(column => {
+            const th = document.createElement('th');
+            th.textContent = column;
+            headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+
+        // Datenzeilen dynamisch erstellen
+        data.forEach(row => {
+            const tr = document.createElement('tr');
+            columns.forEach(column => {
+                const td = document.createElement('td');
+                td.innerHTML = row[column]; // Daten einfügen
+                tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+        });
+
+        // TableFilter initialisieren
+        const filtersConfig = {
+            base_path: 'dist/tablefilter/',
+            extensions: [{ name: 'sort' }]
+        };
+        const tf = new TableFilter('demo', filtersConfig);
+        tf.init();
+    </script>
+</body>
+</html>
+

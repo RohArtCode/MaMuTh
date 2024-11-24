@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Filtertabelle V0.1</title>
+    <link rel="stylesheet" href="stylesheet.css">
+</head>
+<body>
+
+<h1>Filtertabelle V0.1</h1>
+<p style="font-size: 10px; text-align: left;">
+    <a href="Inhalt.html" style="text-decoration: none; color: gray;">zurück zum Inhaltsverzeichnis</a>
+</p>
+
+    <table id="demo">
+        <thead>
+            <!-- Dynamische Spaltenüberschriften -->
+        </thead>
+        <tbody>
+            <!-- Dynamische Inhalte -->
+        </tbody>
+    </table>
+    <script src="dist/tablefilter/tablefilter.js"></script>
+    <script>
+        // JSON-Daten im kompakten Format (ohne Zeilenumbrüche pro Attribut)
+const data = [
+{ "Betrag von": "3","Hew Rep Name": "C dim","Hew Rep PCL": "2336","nach PCL": "273","nach Name": "C +","Oberton Rang vorher": "30","Oberton Rang nachher": "24" },
+{ "Betrag von": "3","Hew Rep Name": "C dim","Hew Rep PCL": "2336","nach PCL": "1344","nach Name": "C Ganzton Dreiklang","Oberton Rang vorher": "30","Oberton Rang nachher": "30" },
+{ "Betrag von": "3","Hew Rep Name": "C NN","Hew Rep PCL": "2568","nach PCL": "3076","nach Name": "C Doppelterz Dreiklang","Oberton Rang vorher": "29","Oberton Rang nachher": "25" },
+{ "Betrag von": "3","Hew Rep Name": "C NN","Hew Rep PCL": "2568","nach PCL": "2320","nach Name": "C m","Oberton Rang vorher": "29","Oberton Rang nachher": "28" },
+{ "Betrag von": "3","Hew Rep Name": "C doppelt vermindert Dreiklang","Hew Rep PCL": "2592","nach PCL": "529","nach Name": "C dur-Dreiklang","Oberton Rang vorher": "31","Oberton Rang nachher": "33" },
+{ "Betrag von": "3","Hew Rep Name": "C doppelt vermindert Dreiklang","Hew Rep PCL": "2592","nach PCL": "1600","nach Name": "C unvollst�ndiger gro�er Moll-Septakkord","Oberton Rang vorher": "31","Oberton Rang nachher": "27" },
+{ "Betrag von": "3","Hew Rep Name": "C 5 add b9","Hew Rep PCL": "3088","nach PCL": "2592","nach Name": "C Italienischer Sextakkord","Oberton Rang vorher": "27","Oberton Rang nachher": "31" },
+{ "Betrag von": "3","Hew Rep Name": "C NN","Hew Rep PCL": "3104","nach PCL": "1041","nach Name": "C dur-verminderter Dreiklang","Oberton Rang vorher": "30","Oberton Rang nachher": "29" }
+];
+
+        // Dynamische Erstellung von Spaltenüberschriften und Datenzeilen
+        const table = document.getElementById('demo');
+        const thead = table.querySelector('thead');
+        const tbody = table.querySelector('tbody');
+
+        // Spaltenüberschriften aus den JSON-Schlüsseln extrahieren
+        const columns = Object.keys(data[0]);
+        const headerRow = document.createElement('tr');
+        columns.forEach(column => {
+            const th = document.createElement('th');
+            th.textContent = column;
+            headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+
+        // Datenzeilen dynamisch erstellen
+        data.forEach(row => {
+            const tr = document.createElement('tr');
+            columns.forEach(column => {
+                const td = document.createElement('td');
+                td.innerHTML = row[column]; // Daten einfügen
+                tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+        });
+
+        // TableFilter initialisieren
+        const filtersConfig = {
+            base_path: 'dist/tablefilter/',
+            extensions: [{ name: 'sort' }]
+        };
+        const tf = new TableFilter('demo', filtersConfig);
+        tf.init();
+    </script>
+</body>
+</html>
+

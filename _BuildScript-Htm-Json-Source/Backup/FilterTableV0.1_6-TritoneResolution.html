@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Tritonus Auflösungen für alle Hewitt Klassen</title>
+    <link rel="stylesheet" href="stylesheet.css">
+</head>
+<body>
+    <h2>Hewitt Klassen</h2>
+    <table id="demo">
+        <thead>
+            <!-- Dynamische Spaltenüberschriften -->
+        </thead>
+        <tbody>
+            <!-- Dynamische Inhalte -->
+        </tbody>
+    </table>
+    <script src="dist/tablefilter/tablefilter.js"></script>
+    <script>
+        // JSON-Daten im kompakten Format (ohne Zeilenumbrüche pro Attribut)
+        const tableData = [
+            {"HewRepPCL": "2048", "HewRepName": "C Prim", "HewitNamePCL": "1", "HewittName": "C Prim", "BetragVon": "1", "TritonusAuf": "no tritonus", "Tritonus": "", "Auflösung": "", "NachPCL": "", "NachRepPCL": "", "NachNamePCL": "", "NachName": "", "BetragNach": "", "BetragDelta": "", "ObertonVorher": "12:C   11:F", "ObertonNachher": "", "OTRankVorher": "", "OTRankNachher": "", "Verbesserung": "", "AnzTritonusVorher": "0", "AnzTritonusNachher": "", "Delta": ""},
+            {"HewRepPCL": "3208", "HewRepName": "C + b9", "HewitNamePCL": "4", "HewittName": "C m j7", "BetragVon": "4", "TritonusAuf": "no tritonus", "Tritonus": "G#-E", "Auflösung": "3834", "NachPCL": "4014", "NachRepPCL": "4014", "NachNamePCL": "C NN", "NachName": "9", "BetragNach": "-2", "BetragDelta": "77:D#  76:F#", "ObertonVorher": "67:F#, A#  64:C", "ObertonNachher": "77", "OTRankVorher": "67", "OTRankNachher": "-10", "Verbesserung": "5", "AnzTritonusVorher": "4", "AnzTritonusNachher": "-1", "Delta": ""},
+            {"HewRepPCL": "4094", "HewRepName": "C NN", "HewitNamePCL": "4094", "HewittName": "C NN", "BetragVon": "11", "TritonusAuf": "10", "Tritonus": "A#-E", "Auflösung": "A -F", "NachPCL": "3964", "NachRepPCL": "3998", "NachNamePCL": "3998", "NachName": "C NN", "BetragNach": "9", "BetragDelta": "-2", "ObertonVorher": "77:D#  76:F#", "ObertonNachher": "66:G#  64:F", "OTRankVorher": "77", "OTRankNachher": "66", "Verbesserung": "-11", "AnzTritonusVorher": "5", "AnzTritonusNachher": "4", "Delta": "-1"}
+        ];
+
+        // Dynamische Erstellung von Spaltenüberschriften und Datenzeilen
+        const table = document.getElementById('demo');
+        const thead = table.querySelector('thead');
+        const tbody = table.querySelector('tbody');
+
+        // Spaltenüberschriften aus den JSON-Schlüsseln extrahieren
+        const columns = Object.keys(tableData[0]);
+        const headerRow = document.createElement('tr');
+        columns.forEach(column => {
+            const th = document.createElement('th');
+            th.textContent = column;
+            headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+
+        // Datenzeilen dynamisch erstellen
+        tableData.forEach(row => {
+            const tr = document.createElement('tr');
+            columns.forEach(column => {
+                const td = document.createElement('td');
+                td.innerHTML = row[column]; // Daten einfügen
+                tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+        });
+
+        // TableFilter initialisieren
+        const filtersConfig = {
+            base_path: 'dist/tablefilter/',
+            extensions: [{ name: 'sort' }]
+        };
+        const tf = new TableFilter('demo', filtersConfig);
+        tf.init();
+    </script>
+</body>
+</html>
+

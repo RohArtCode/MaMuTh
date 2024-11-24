@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Darstellung</title>
+    <style>
+        .matrix-container {
+            display: grid;
+            gap: 10px;
+            justify-content: start;
+            align-items: start;
+        }
+        .matrix-row-label, .matrix-col-label {
+            font-weight: bold;
+            text-align: center;
+            padding: 5px;
+            font-size: smaller;
+        }
+        .matrix-cell {
+            width: 220px; /* Einheitliche Zellengröße */
+            height: 220px;
+            padding: 5px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Inhalt vertikal zentrieren */
+            align-items: center;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        .image-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            width: 100%;
+            height: auto;
+            margin: 3px 0;
+        }
+        .text-container {
+            text-align: center;
+            font-weight: bold;
+            margin: 3px 0;
+            font-size: smaller;
+        }
+        .description {
+            margin: 3px 0;
+            text-align: center;
+            font-size: smaller;
+        }
+        .clip {
+            height: auto;
+            max-height: 70px;
+            object-fit: contain;
+        }
+        .matrix-cell-content {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+            margin-bottom: 5px;
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Matrix Darstellung Tritonusauflösungen nach Oberton Rang</h1>
+<div id="matrix-container-wrapper"></div>
+
+<script>
+const data = [
+{ "Betrag von": "5","Hew Rep Name": "C Kung tiao","Hew Rep PCL": "2724","nach PCL": "661","nach Name": "C Dur-Pentatonik","Oberton Rang vorher": "50","Oberton Rang nachher": "47" },
+{ "Betrag von": "5","Hew Rep Name": "C Kung tiao","Hew Rep PCL": "2724","nach PCL": "1732","nach Name": "C m j7 9","Oberton Rang vorher": "50","Oberton Rang nachher": "41" },
+{ "Betrag von": "5","Hew Rep Name": "C + 9 #11","Hew Rep PCL": "2728","nach PCL": "665","nach Name": "C Scriabin","Oberton Rang vorher": "46","Oberton Rang nachher": "45" },
+{ "Betrag von": "5","Hew Rep Name": "C + 9 #11","Hew Rep PCL": "2728","nach PCL": "3236","nach Name": "C b5 07 b9","Oberton Rang vorher": "46","Oberton Rang nachher": "43" },
+{ "Betrag von": "5","Hew Rep Name": "C + 9 #11","Hew Rep PCL": "2728","nach PCL": "1736","nach Name": "C m  b9 b11","Oberton Rang vorher": "46","Oberton Rang nachher": "41" },
+{ "Betrag von": "5","Hew Rep Name": "C + 9 #11","Hew Rep PCL": "2728","nach PCL": "2480","nach Name": "C m #5 j7 9","Oberton Rang vorher": "46","Oberton Rang nachher": "43" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3114","nach PCL": "1051","nach Name": "C 0  b9 b11","Oberton Rang vorher": "48","Oberton Rang nachher": "45" },
+{ "Betrag von": "5","Hew Rep Name": "C Raga Vibhavari (Revati)","Hew Rep PCL": "3154","nach PCL": "2658","nach Name": "C + 7 #9","Oberton Rang vorher": "44","Oberton Rang nachher": "42" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3156","nach PCL": "2660","nach Name": "C Scriabin","Oberton Rang vorher": "42","Oberton Rang nachher": "45" },
+{ "Betrag von": "5","Hew Rep Name": "C Iwato","Hew Rep PCL": "3170","nach PCL": "1107","nach Name": "C b5 7 #9","Oberton Rang vorher": "45","Oberton Rang nachher": "44" },
+{ "Betrag von": "5","Hew Rep Name": "C + 7 b9","Hew Rep PCL": "3210","nach PCL": "3337","nach Name": "C NN","Oberton Rang vorher": "45","Oberton Rang nachher": "45" },
+{ "Betrag von": "5","Hew Rep Name": "C + 7 b9","Hew Rep PCL": "3210","nach PCL": "3148","nach Name": "C + j7 #9","Oberton Rang vorher": "45","Oberton Rang nachher": "39" },
+{ "Betrag von": "5","Hew Rep Name": "C kleiner Dur-Nonenakkord","Hew Rep PCL": "3218","nach PCL": "3345","nach Name": "C m j7 b9","Oberton Rang vorher": "46","Oberton Rang nachher": "41" },
+{ "Betrag von": "5","Hew Rep Name": "C kleiner Dur-Nonenakkord","Hew Rep PCL": "3218","nach PCL": "2722","nach Name": "C b5 7 9","Oberton Rang vorher": "46","Oberton Rang nachher": "46" },
+{ "Betrag von": "5","Hew Rep Name": "C kleiner Dur-Nonenakkord","Hew Rep PCL": "3218","nach PCL": "3156","nach Name": "C + 7 #9","Oberton Rang vorher": "46","Oberton Rang nachher": "42" },
+{ "Betrag von": "5","Hew Rep Name": "C Scriabin","Hew Rep PCL": "3220","nach PCL": "2724","nach Name": "C akustischer Nonenakkord","Oberton Rang vorher": "45","Oberton Rang nachher": "50" },
+{ "Betrag von": "5","Hew Rep Name": "C Raga Reva","Hew Rep PCL": "3224","nach PCL": "2728","nach Name": "C b5 7 9","Oberton Rang vorher": "39","Oberton Rang nachher": "46" },
+{ "Betrag von": "5","Hew Rep Name": "C b5 7 b9","Hew Rep PCL": "3234","nach PCL": "1171","nach Name": "C m 07  #11","Oberton Rang vorher": "49","Oberton Rang nachher": "42" },
+{ "Betrag von": "5","Hew Rep Name": "C b5 7 b9","Hew Rep PCL": "3234","nach PCL": "3361","nach Name": "C 0 j7 b9","Oberton Rang vorher": "49","Oberton Rang nachher": "45" },
+{ "Betrag von": "5","Hew Rep Name": "C b5 7 b9","Hew Rep PCL": "3234","nach PCL": "3172","nach Name": "C + 07 #9","Oberton Rang vorher": "49","Oberton Rang nachher": "39" },
+{ "Betrag von": "5","Hew Rep Name": "C b5 07 b9","Hew Rep PCL": "3236","nach PCL": "1173","nach Name": "C akustischer Nonenakkord","Oberton Rang vorher": "43","Oberton Rang nachher": "50" },
+{ "Betrag von": "5","Hew Rep Name": "C + add b9 #11","Hew Rep PCL": "3240","nach PCL": "1177","nach Name": "C b5 07 b9","Oberton Rang vorher": "47","Oberton Rang nachher": "43" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3266","nach PCL": "3393","nach Name": "C 7b6 +#11 (om3)","Oberton Rang vorher": "42","Oberton Rang nachher": "44" },
+{ "Betrag von": "5","Hew Rep Name": "C m #5 07 b9","Hew Rep PCL": "3340","nach PCL": "3594","nach Name": "C b5  9 11","Oberton Rang vorher": "39","Oberton Rang nachher": "42" },
+{ "Betrag von": "5","Hew Rep Name": "C Pelog","Hew Rep PCL": "3346","nach PCL": "2850","nach Name": "C m j7   13","Oberton Rang vorher": "48","Oberton Rang nachher": "45" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3348","nach PCL": "3602","nach Name": "C sus2 7 b9","Oberton Rang vorher": "44","Oberton Rang nachher": "44" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3348","nach PCL": "2852","nach Name": "C kleiner Dur-Nonenakkord","Oberton Rang vorher": "44","Oberton Rang nachher": "46" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3348","nach PCL": "3224","nach Name": "C + 07 #9","Oberton Rang vorher": "44","Oberton Rang nachher": "39" },
+{ "Betrag von": "5","Hew Rep Name": "C Raga Bhupalam","Hew Rep PCL": "3352","nach PCL": "2856","nach Name": "C 7  #11","Oberton Rang vorher": "43","Oberton Rang nachher": "49" },
+{ "Betrag von": "5","Hew Rep Name": "C dim 7 b9","Hew Rep PCL": "3362","nach PCL": "1299","nach Name": "C + j7 9","Oberton Rang vorher": "46","Oberton Rang nachher": "43" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3364","nach PCL": "1301","nach Name": "C b5 7 9","Oberton Rang vorher": "42","Oberton Rang nachher": "46" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3364","nach PCL": "3618","nach Name": "C #11 b13","Oberton Rang vorher": "42","Oberton Rang nachher": "41" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3364","nach PCL": "3240","nach Name": "C + 7  11","Oberton Rang vorher": "42","Oberton Rang nachher": "47" },
+{ "Betrag von": "5","Hew Rep Name": "C Raga Chhaya Todi","Hew Rep PCL": "3368","nach PCL": "1305","nach Name": "C + 7  11","Oberton Rang vorher": "44","Oberton Rang nachher": "47" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3396","nach PCL": "3650","nach Name": "C m  9 b11","Oberton Rang vorher": "43","Oberton Rang nachher": "44" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3396","nach PCL": "3272","nach Name": "C j7 #9","Oberton Rang vorher": "43","Oberton Rang nachher": "41" },
+{ "Betrag von": "5","Hew Rep Name": "C m b9 11","Hew Rep PCL": "3408","nach PCL": "2912","nach Name": "C 0  9 11","Oberton Rang vorher": "45","Oberton Rang nachher": "43" },
+{ "Betrag von": "5","Hew Rep Name": "C dim b9 11","Hew Rep PCL": "3424","nach PCL": "1361","nach Name": "C b5 7 9","Oberton Rang vorher": "41","Oberton Rang nachher": "46" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3458","nach PCL": "3396","nach Name": "C + j7 9","Oberton Rang vorher": "43","Oberton Rang nachher": "43" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3460","nach PCL": "3714","nach Name": "C 0  9 b11","Oberton Rang vorher": "43","Oberton Rang nachher": "43" },
+{ "Betrag von": "5","Hew Rep Name": "C m  b9 b11","Hew Rep PCL": "3472","nach PCL": "2976","nach Name": "C 0  9 b11","Oberton Rang vorher": "41","Oberton Rang nachher": "43" },
+{ "Betrag von": "5","Hew Rep Name": "C 0  b9 b11","Hew Rep PCL": "3488","nach PCL": "1425","nach Name": "C m j7   13","Oberton Rang vorher": "45","Oberton Rang nachher": "45" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3594","nach PCL": "3346","nach Name": "C 0   11 b13","Oberton Rang vorher": "42","Oberton Rang nachher": "48" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3596","nach PCL": "3348","nach Name": "C b5 7 #9","Oberton Rang vorher": "44","Oberton Rang nachher": "44" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3618","nach PCL": "1555","nach Name": "C m #5 j7 9","Oberton Rang vorher": "41","Oberton Rang nachher": "43" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3620","nach PCL": "1557","nach Name": "C add 9 #11","Oberton Rang vorher": "47","Oberton Rang nachher": "48" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3624","nach PCL": "1561","nach Name": "C 0 j7  11","Oberton Rang vorher": "43","Oberton Rang nachher": "44" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3624","nach PCL": "3376","nach Name": "C m b9 #11","Oberton Rang vorher": "43","Oberton Rang nachher": "40" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3656","nach PCL": "3408","nach Name": "C m b9 11","Oberton Rang vorher": "42","Oberton Rang nachher": "45" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3680","nach PCL": "1617","nach Name": "C 7  #11","Oberton Rang vorher": "39","Oberton Rang nachher": "49" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3714","nach PCL": "3841","nach Name": "C F�nfton Cluster","Oberton Rang vorher": "43","Oberton Rang nachher": "38" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3714","nach PCL": "3652","nach Name": "C + j7 b9","Oberton Rang vorher": "43","Oberton Rang nachher": "40" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3720","nach PCL": "3472","nach Name": "C m  b9 b11","Oberton Rang vorher": "41","Oberton Rang nachher": "41" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3744","nach PCL": "1681","nach Name": "C m 7   13","Oberton Rang vorher": "44","Oberton Rang nachher": "46" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3844","nach PCL": "3720","nach Name": "C m j7 b9","Oberton Rang vorher": "41","Oberton Rang nachher": "41" },
+{ "Betrag von": "5","Hew Rep Name": "C NN","Hew Rep PCL": "3872","nach PCL": "1809","nach Name": "C #11 b13","Oberton Rang vorher": "40","Oberton Rang nachher": "41" }
+];
+
+    // Hilfsfunktionen
+    function to12BitBinary(num) {
+        return num.toString(2).padStart(12, '0');
+    }
+
+    function createMatrixCellContent(item, scale) {
+        const point = document.createElement('div');
+        point.classList.add('matrix-cell-content');
+        point.style.transform = `scale(${scale})`;  // Apply scaling factor to fit multiple items
+
+        // Text oberhalb der Bilder
+        const nameText = document.createElement('div');
+        nameText.classList.add('text-container');
+        nameText.textContent = `${item["Hew Rep Name"]} → ${item["nach Name"]}`;
+        point.appendChild(nameText);
+
+        // Container für Bilder
+        const imageContainer = document.createElement('div');
+        imageContainer.classList.add('image-container');
+
+        const img1 = document.createElement('img');
+        img1.classList.add('clip');
+        img1.alt = 'clip';
+        img1.src = `../svg/${parseFloat(item["Betrag von"])}_Circle_${to12BitBinary(parseFloat(item["Hew Rep PCL"]))}.svg`;
+        imageContainer.appendChild(img1);
+
+        const img2 = document.createElement('img');
+        img2.classList.add('clip');
+        img2.alt = 'clip';
+        img2.src = `../svg/${parseFloat(item["Betrag von"])}_Circle_${to12BitBinary(parseFloat(item["nach PCL"]))}.svg`;
+        imageContainer.appendChild(img2);
+
+        // Bilder-Container hinzufügen
+        point.appendChild(imageContainer);
+
+        // Beschreibung mit Link
+        const description = document.createElement('div');
+        description.classList.add('description');
+
+        const link1 = document.createElement('a');
+        link1.href = `../../HTML/${item["Hew Rep PCL"]}.htm`;
+        link1.textContent = item["Hew Rep PCL"];
+        description.appendChild(link1);
+
+        description.appendChild(document.createTextNode(` (${item["Oberton Rang vorher"]}) → `));
+
+        const link2 = document.createElement('a');
+        link2.href = `../../HTML/${item["nach PCL"]}.htm`;
+        link2.textContent = item["nach PCL"];
+        description.appendChild(link2);
+
+        description.appendChild(document.createTextNode(` (${item["Oberton Rang nachher"]})`));
+        point.appendChild(description);
+
+        return point;
+    }
+
+    // Bestimme minimale und maximale Werte für Zeilen und Spalten
+    let minRow = Infinity, maxRow = -Infinity, minCol = Infinity, maxCol = -Infinity;
+    data.forEach(item => {
+        const row = parseInt(item["Oberton Rang nachher"], 10);
+        const col = parseInt(item["Oberton Rang vorher"], 10);
+        if (row < minRow) minRow = row;
+        if (row > maxRow) maxRow = row;
+        if (col < minCol) minCol = col;
+        if (col > maxCol) maxCol = col;
+    });
+
+    // Matrix erstellen
+    const matrixContainerWrapper = document.getElementById('matrix-container-wrapper');
+
+    // Zeilen- und Spaltenbeschriftungen erstellen
+    const matrixContainer = document.createElement('div');
+    matrixContainer.classList.add('matrix-container');
+    matrixContainer.style.gridTemplateColumns = `repeat(${maxCol - minCol + 2}, 220px)`; // +2 für Zeilenbeschriftung
+
+    // Platzhalter für linke obere Ecke
+    matrixContainer.appendChild(document.createElement('div'));
+
+    // Spaltenbeschriftungen
+    for (let col = minCol; col <= maxCol; col++) {
+        const colLabel = document.createElement('div');
+        colLabel.classList.add('matrix-col-label');
+        colLabel.textContent = `von Rang ${col}`;
+        matrixContainer.appendChild(colLabel);
+    }
+
+    const cellMap = {};
+
+    // Zeilen in absteigender Reihenfolge (große Werte oben) hinzufügen
+    for (let row = maxRow; row >= minRow; row--) {
+        // Zeilenbeschriftung
+        const rowLabel = document.createElement('div');
+        rowLabel.classList.add('matrix-row-label');
+        rowLabel.textContent = `nach Rang ${row}`;
+        matrixContainer.appendChild(rowLabel);
+
+        // Spalten für diese Zeile hinzufügen
+        for (let col = minCol; col <= maxCol; col++) {
+            const cellKey = `${row}-${col}`;
+            const cell = document.createElement('div');
+            cell.classList.add('matrix-cell');
+
+            // Hintergrundfarbe basierend auf Zeilen- und Spaltennummer
+            const difference = col - row;
+            if (difference < 0) {
+                cell.style.backgroundColor = `rgba(144, 238, 144, ${0.1 + Math.min(-difference * 0.1, 0.9)})`; // Blassgrün, intensiver bei größerem Unterschied
+            } else if (difference > 0) {
+                cell.style.backgroundColor = `rgba(255, 182, 193, ${0.1 + Math.min(+difference * 0.1, 0.9)})`; // Blassrot, intensiver bei größerem Unterschied
+            } else {
+                cell.style.backgroundColor = `rgba(211, 211, 211, 0.5)`; // Blassgrau für gleiche Werte
+            }
+
+            matrixContainer.appendChild(cell);
+            cellMap[cellKey] = cell;
+        }
+    }
+
+    // Füge Daten in die Matrixzellen ein
+    const cellContentCount = {};
+    data.forEach(item => {
+        const row = parseInt(item["Oberton Rang nachher"], 10);
+        const col = parseInt(item["Oberton Rang vorher"], 10);
+        const cellKey = `${row}-${col}`;
+
+        if (!cellContentCount[cellKey]) {
+            cellContentCount[cellKey] = 0;
+        }
+        cellContentCount[cellKey]++;
+    });
+
+    data.forEach(item => {
+        const row = parseInt(item["Oberton Rang nachher"], 10);
+        const col = parseInt(item["Oberton Rang vorher"], 10);
+        const cellKey = `${row}-${col}`;
+        const itemCount = cellContentCount[cellKey];
+
+        // Calculate scale based on number of items in cell
+        const scale = itemCount > 1 ? 1 / Math.sqrt(itemCount) : 1;
+
+        const content = createMatrixCellContent(item, scale);
+        cellMap[cellKey].appendChild(content);
+    });
+
+    // Matrix in den Wrapper einfügen
+    matrixContainerWrapper.appendChild(matrixContainer);
+</script>
+
+</body>
+</html>
+
