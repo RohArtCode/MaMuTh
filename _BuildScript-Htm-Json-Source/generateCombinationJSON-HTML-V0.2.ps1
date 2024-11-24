@@ -42,7 +42,7 @@ foreach ($htmFile in $htmFiles) {
         $modifiedHtm = $htmContent -replace [regex]::Escape($defaultJsonString), $jsonContent
 
         # Ersetze ##TITLE## durch den Namen der Ausgangsdatei
-        $modifiedHtm = $modifiedHtm -replace "##TITLE##", $htmFile.BaseName
+        $modifiedHtm = $modifiedHtm -replace "##TITLE##", "$htmFile.BaseName: $jsonFile.BaseName"
 
         # Erstelle den neuen Dateinamen
         $htmBaseName = $htmFile.BaseName
