@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D3-NetzDiagramm V01: 2-HalbtonAufloesungen</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="dist/tablefilter/tablefilter.js"></script>
+    <script src="https://surikov.github.io/webaudiofont/npm/dist/WebAudioFontPlayer.js"></script>
+    <script src="https://surikov.github.io/webaudiofontdata/sound/0000_JCLive_sf2_file.js"></script>
+    <script src="js/PlayScript.js"></script>
+    <style>
+        svg {
+            border: 1px solid #ccc;
+            display: block;
+            margin: auto;
+        }
+        .tooltip {
+            position: absolute;
+            padding: 5px 10px;
+            background: #333;
+            color: #fff;
+            border-radius: 5px;
+            font-size: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+    </style>
+</head>
+<body>
+    <h1>D3-NetzDiagramm V01: 2-HalbtonAufloesungen</h1>
+    <p style="font-size: 10px; text-align: left;">
+        <a href="../Inhalt.html" style="text-decoration: none; color: gray;">zurück zum Inhaltsverzeichnis</a>
+    </p>
+    <div id="matrix-container-wrapper"></div>
+    <svg width="800" height="600"></svg>
+    <div id="tooltip" class="tooltip"></div>
+
+    <script>
+const data = [
+{ "Hew Rep PCL": "2080","Hew Rep Name": "C Tritonus","Hewit Name PCL": "2080","Hewitt Name": "C Tritonus","Betrag von": "2","von nr": "0","von": "C ","nach": "B ","nach PCL": "33","nach Rep PCL": "2112","nach Name PCL": "2112","nach Name": "C Quart","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "19:C , D , F#, G#  15:F , B","Oberton nachher": "23:B   19:E","Oberton Rang vorher": "19","Oberton Rang nachher": "23","Oberton Rang Verbesserung": "4","": "" },
+{ "Hew Rep PCL": "2080","Hew Rep Name": "C Tritonus","Hewit Name PCL": "2080","Hewitt Name": "C Tritonus","Betrag von": "2","von nr": "0","von": "C ","nach": "C#","nach PCL": "1056","nach Rep PCL": "2112","nach Name PCL": "2112","nach Name": "C Quart","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "19:C , D , F#, G#  15:F , B","Oberton nachher": "23:F#  19:B","Oberton Rang vorher": "19","Oberton Rang nachher": "23","Oberton Rang Verbesserung": "4","": "" },
+{ "Hew Rep PCL": "2080","Hew Rep Name": "C Tritonus","Hewit Name PCL": "2080","Hewitt Name": "C Tritonus","Betrag von": "2","von nr": "6","von": "F#","nach": "F ","nach PCL": "2112","nach Rep PCL": "2112","nach Name PCL": "2112","nach Name": "C Quart","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "19:C , D , F#, G#  15:F , B","Oberton nachher": "23:F   19:A#","Oberton Rang vorher": "19","Oberton Rang nachher": "23","Oberton Rang Verbesserung": "4","": "" },
+{ "Hew Rep PCL": "2080","Hew Rep Name": "C Tritonus","Hewit Name PCL": "2080","Hewitt Name": "C Tritonus","Betrag von": "2","von nr": "6","von": "F#","nach": "G ","nach PCL": "2064","nach Rep PCL": "2112","nach Name PCL": "2112","nach Name": "C Quart","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "19:C , D , F#, G#  15:F , B","Oberton nachher": "23:C   19:F","Oberton Rang vorher": "19","Oberton Rang nachher": "23","Oberton Rang Verbesserung": "4","": "" },
+{ "Hew Rep PCL": "2112","Hew Rep Name": "C Quart","Hewit Name PCL": "2112","Hewitt Name": "C Quart","Betrag von": "2","von nr": "0","von": "C ","nach": "B ","nach PCL": "65","nach Rep PCL": "2080","nach Name PCL": "2080","nach Name": "C Tritonus","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "23:F   19:A#","Oberton nachher": "19:C#, F , G , B   15:E , A#","Oberton Rang vorher": "23","Oberton Rang nachher": "19","Oberton Rang Verbesserung": "-4","": "" },
+{ "Hew Rep PCL": "2112","Hew Rep Name": "C Quart","Hewit Name PCL": "2112","Hewitt Name": "C Quart","Betrag von": "2","von nr": "0","von": "C ","nach": "C#","nach PCL": "1088","nach Rep PCL": "2176","nach Name PCL": "2176","nach Name": "C gr.Terz","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "23:F   19:A#","Oberton nachher": "22:C#  17:D#","Oberton Rang vorher": "23","Oberton Rang nachher": "22","Oberton Rang Verbesserung": "-1","": "" },
+{ "Hew Rep PCL": "2112","Hew Rep Name": "C Quart","Hewit Name PCL": "2112","Hewitt Name": "C Quart","Betrag von": "2","von nr": "5","von": "F ","nach": "E ","nach PCL": "2176","nach Rep PCL": "2176","nach Name PCL": "2176","nach Name": "C gr.Terz","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "23:F   19:A#","Oberton nachher": "22:C   17:D","Oberton Rang vorher": "23","Oberton Rang nachher": "22","Oberton Rang Verbesserung": "-1","": "" },
+{ "Hew Rep PCL": "2112","Hew Rep Name": "C Quart","Hewit Name PCL": "2112","Hewitt Name": "C Quart","Betrag von": "2","von nr": "5","von": "F ","nach": "F#","nach PCL": "2080","nach Rep PCL": "2080","nach Name PCL": "2080","nach Name": "C Tritonus","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "23:F   19:A#","Oberton nachher": "19:C , D , F#, G#  15:F , B","Oberton Rang vorher": "23","Oberton Rang nachher": "19","Oberton Rang Verbesserung": "-4","": "" },
+{ "Hew Rep PCL": "2176","Hew Rep Name": "C gr.Terz","Hewit Name PCL": "2176","Hewitt Name": "C gr.Terz","Betrag von": "2","von nr": "0","von": "C ","nach": "B ","nach PCL": "129","nach Rep PCL": "2112","nach Name PCL": "2112","nach Name": "C Quart","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "22:C   17:D","Oberton nachher": "23:E   19:A","Oberton Rang vorher": "22","Oberton Rang nachher": "23","Oberton Rang Verbesserung": "1","": "" },
+{ "Hew Rep PCL": "2176","Hew Rep Name": "C gr.Terz","Hewit Name PCL": "2176","Hewitt Name": "C gr.Terz","Betrag von": "2","von nr": "0","von": "C ","nach": "C#","nach PCL": "1152","nach Rep PCL": "2304","nach Name PCL": "2304","nach Name": "C kl.Terz","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "22:C   17:D","Oberton nachher": "21:A   20:F#","Oberton Rang vorher": "22","Oberton Rang nachher": "21","Oberton Rang Verbesserung": "-1","": "" },
+{ "Hew Rep PCL": "2176","Hew Rep Name": "C gr.Terz","Hewit Name PCL": "2176","Hewitt Name": "C gr.Terz","Betrag von": "2","von nr": "4","von": "E ","nach": "D#","nach PCL": "2304","nach Rep PCL": "2304","nach Name PCL": "2304","nach Name": "C kl.Terz","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "22:C   17:D","Oberton nachher": "21:G#  20:F","Oberton Rang vorher": "22","Oberton Rang nachher": "21","Oberton Rang Verbesserung": "-1","": "" },
+{ "Hew Rep PCL": "2176","Hew Rep Name": "C gr.Terz","Hewit Name PCL": "2176","Hewitt Name": "C gr.Terz","Betrag von": "2","von nr": "4","von": "E ","nach": "F ","nach PCL": "2112","nach Rep PCL": "2112","nach Name PCL": "2112","nach Name": "C Quart","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "22:C   17:D","Oberton nachher": "23:F   19:A#","Oberton Rang vorher": "22","Oberton Rang nachher": "23","Oberton Rang Verbesserung": "1","": "" },
+{ "Hew Rep PCL": "2304","Hew Rep Name": "C kl.Terz","Hewit Name PCL": "2304","Hewitt Name": "C kl.Terz","Betrag von": "2","von nr": "0","von": "C ","nach": "B ","nach PCL": "257","nach Rep PCL": "2176","nach Name PCL": "2176","nach Name": "C gr.Terz","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "21:G#  20:F","Oberton nachher": "22:B   17:C#","Oberton Rang vorher": "21","Oberton Rang nachher": "22","Oberton Rang Verbesserung": "1","": "" },
+{ "Hew Rep PCL": "2304","Hew Rep Name": "C kl.Terz","Hewit Name PCL": "2304","Hewitt Name": "C kl.Terz","Betrag von": "2","von nr": "0","von": "C ","nach": "C#","nach PCL": "1280","nach Rep PCL": "2560","nach Name PCL": "2560","nach Name": "C gr.Sek.","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "21:G#  20:F","Oberton nachher": "21:D#  20:C#","Oberton Rang vorher": "21","Oberton Rang nachher": "21","Oberton Rang Verbesserung": "0","": "" },
+{ "Hew Rep PCL": "2304","Hew Rep Name": "C kl.Terz","Hewit Name PCL": "2304","Hewitt Name": "C kl.Terz","Betrag von": "2","von nr": "3","von": "D#","nach": "D ","nach PCL": "2560","nach Rep PCL": "2560","nach Name PCL": "2560","nach Name": "C gr.Sek.","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "21:G#  20:F","Oberton nachher": "21:D   20:C","Oberton Rang vorher": "21","Oberton Rang nachher": "21","Oberton Rang Verbesserung": "0","": "" },
+{ "Hew Rep PCL": "2304","Hew Rep Name": "C kl.Terz","Hewit Name PCL": "2304","Hewitt Name": "C kl.Terz","Betrag von": "2","von nr": "3","von": "D#","nach": "E ","nach PCL": "2176","nach Rep PCL": "2176","nach Name PCL": "2176","nach Name": "C gr.Terz","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "21:G#  20:F","Oberton nachher": "22:C   17:D","Oberton Rang vorher": "21","Oberton Rang nachher": "22","Oberton Rang Verbesserung": "1","": "" },
+{ "Hew Rep PCL": "2560","Hew Rep Name": "C gr.Sek.","Hewit Name PCL": "2560","Hewitt Name": "C gr.Sek.","Betrag von": "2","von nr": "0","von": "C ","nach": "B ","nach PCL": "513","nach Rep PCL": "2304","nach Name PCL": "2304","nach Name": "C kl.Terz","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "21:D   20:C","Oberton nachher": "21:G   20:E","Oberton Rang vorher": "21","Oberton Rang nachher": "21","Oberton Rang Verbesserung": "0","": "" },
+{ "Hew Rep PCL": "2560","Hew Rep Name": "C gr.Sek.","Hewit Name PCL": "2560","Hewitt Name": "C gr.Sek.","Betrag von": "2","von nr": "0","von": "C ","nach": "C#","nach PCL": "1536","nach Rep PCL": "3072","nach Name PCL": "3072","nach Name": "C kl.Sek.","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "21:D   20:C","Oberton nachher": "18:G   17:D","Oberton Rang vorher": "21","Oberton Rang nachher": "18","Oberton Rang Verbesserung": "-3","": "" },
+{ "Hew Rep PCL": "2560","Hew Rep Name": "C gr.Sek.","Hewit Name PCL": "2560","Hewitt Name": "C gr.Sek.","Betrag von": "2","von nr": "2","von": "D ","nach": "C#","nach PCL": "3072","nach Rep PCL": "3072","nach Name PCL": "3072","nach Name": "C kl.Sek.","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "21:D   20:C","Oberton nachher": "18:F#  17:C#","Oberton Rang vorher": "21","Oberton Rang nachher": "18","Oberton Rang Verbesserung": "-3","": "" },
+{ "Hew Rep PCL": "2560","Hew Rep Name": "C gr.Sek.","Hewit Name PCL": "2560","Hewitt Name": "C gr.Sek.","Betrag von": "2","von nr": "2","von": "D ","nach": "D#","nach PCL": "2304","nach Rep PCL": "2304","nach Name PCL": "2304","nach Name": "C kl.Terz","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "21:D   20:C","Oberton nachher": "21:G#  20:F","Oberton Rang vorher": "21","Oberton Rang nachher": "21","Oberton Rang Verbesserung": "0","": "" },
+{ "Hew Rep PCL": "3072","Hew Rep Name": "C kl.Sek.","Hewit Name PCL": "3072","Hewitt Name": "C kl.Sek.","Betrag von": "2","von nr": "0","von": "C ","nach": "B ","nach PCL": "1025","nach Rep PCL": "2560","nach Name PCL": "2560","nach Name": "C gr.Sek.","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "18:F#  17:C#","Oberton nachher": "21:C#  20:B","Oberton Rang vorher": "18","Oberton Rang nachher": "21","Oberton Rang Verbesserung": "3","": "" },
+{ "Hew Rep PCL": "3072","Hew Rep Name": "C kl.Sek.","Hewit Name PCL": "3072","Hewitt Name": "C kl.Sek.","Betrag von": "2","von nr": "1","von": "C#","nach": "D ","nach PCL": "2560","nach Rep PCL": "2560","nach Name PCL": "2560","nach Name": "C gr.Sek.","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "18:F#  17:C#","Oberton nachher": "21:D   20:C","Oberton Rang vorher": "18","Oberton Rang nachher": "21","Oberton Rang Verbesserung": "3","": "" }
+];
+
+        function to12BitBinary(num) {
+            return num.toString(2).padStart(12, '0');
+        }
+
+        const width = 800;
+        const height = 600;
+        const svg = d3.select("svg");
+        const tooltip = d3.select("#tooltip");
+
+        // Process data into nodes and links
+        const nodes = {};
+        data.forEach(d => {
+            nodes[d["Hew Rep PCL"]] = { id: d["Hew Rep PCL"], name: d["Hew Rep Name"], betrag: d["Betrag von"] };
+            nodes[d["nach Rep PCL"]] = { id: d["nach Rep PCL"], name: d["nach Name"], betrag: d["Betrag von"] };
+        });
+
+        const links = data.map(d => ({ source: d["Hew Rep PCL"], target: d["nach Rep PCL"] }));
+
+        // Convert nodes object to an array
+        const nodesArray = Object.values(nodes);
+
+        // Create simulation
+        const simulation = d3.forceSimulation(nodesArray)
+            .force("link", d3.forceLink(links).id(d => d.id).distance(150))
+            .force("charge", d3.forceManyBody().strength(-300))
+            .force("center", d3.forceCenter(width / 2, height / 2));
+
+        // Draw links
+        const link = svg.selectAll("line")
+            .data(links)
+            .enter().append("line")
+            .attr("stroke", "#999")
+            .attr("stroke-width", 1.5);
+
+        // Draw nodes with images
+        const node = svg.selectAll("g")
+            .data(nodesArray)
+            .enter().append("g")
+            .call(d3.drag()
+                .on("start", dragStarted)
+                .on("drag", dragged)
+                .on("end", dragEnded));
+
+        node.append("image")
+            .attr("xlink:href", d => `../../Hewitt/svg/${parseFloat(d.betrag)}_Circle_${to12BitBinary(parseFloat(d.id))}.svg`)
+            .attr("width", 50)
+            .attr("height", 50)
+            .attr("x", -25)
+            .attr("y", -25)
+            .on("click", (event, d) => playChord(10000 + parseInt(d.id)))
+            .on("mouseover", (event, d) => {
+                tooltip
+                    .style("opacity", 1)
+                    .style("left", `${event.pageX + 10}px`)
+                    .style("top", `${event.pageY + 10}px`)
+                    .html(`Name: ${d.name}<br>ID: ${d.id}`);
+
+                link
+                    .attr("stroke", l => (l.source.id === d.id || l.target.id === d.id ? "red" : "#999"))
+                    .attr("stroke-width", l => (l.source.id === d.id || l.target.id === d.id ? 3 : 1.5));
+            })
+            .on("mouseout", () => {
+                tooltip.style("opacity", 0);
+                link.attr("stroke", "#999").attr("stroke-width", 1.5);
+            });
+
+        simulation.on("tick", () => {
+            link
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+
+            node.attr("transform", d => `translate(${d.x},${d.y})`);
+        });
+
+        // Drag functions
+        function dragStarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+
+        function dragEnded(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+    </script>
+</body>
+</html>
+
+
