@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D3-NetzDiagramm V01: 3-HalbtonAufloesungen</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="dist/tablefilter/tablefilter.js"></script>
+    <script src="https://surikov.github.io/webaudiofont/npm/dist/WebAudioFontPlayer.js"></script>
+    <script src="https://surikov.github.io/webaudiofontdata/sound/0000_JCLive_sf2_file.js"></script>
+    <script src="js/PlayScript.js"></script>
+    <style>
+        svg {
+            border: 1px solid #ccc;
+            display: block;
+            margin: auto;
+        }
+
+        .tooltip {
+            position: absolute;
+            padding: 5px 10px;
+            background: #333;
+            color: #fff;
+            border-radius: 5px;
+            font-size: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        button {
+            display: block;
+            margin: 20px auto;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>D3-NetzDiagramm V01: 3-HalbtonAufloesungen</h1>
+    <p style="font-size: 10px; text-align: left;">
+        <a href="../Inhalt.html" style="text-decoration: none; color: gray;">zur√ºck zum Inhaltsverzeichnis</a>
+    </p>
+    <div id="matrix-container-wrapper"></div>
+    <svg width="1800" height="1600"></svg>
+    <div id="tooltip" class="tooltip"></div>
+
+    <script>
+const data = [
+{ "Hew Rep PCL": "2336","Hew Rep Name": "C dim","Hewit Name PCL": "2336","Hewitt Name": "C dim","Betrag von": "3","tritonus auf": "0","Tritonus": "C -F#","Auflˆsung": "B -G ","nach PCL": "273","nach Rep PCL": "2184","nach Name PCL": "2184","nach Name": "C +","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:G#  25:F#, B","Oberton nachher": "24:C#, F , A   23:D#, G , B","Oberton Rang vorher": "30","Oberton Rang nachher": "24","Oberton Rang Verbesserung": "-6","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2336","Hew Rep Name": "C dim","Hewit Name PCL": "2336","Hewitt Name": "C dim","Betrag von": "3","tritonus auf": "6","Tritonus": "F#-C ","Auflˆsung": "F -C#","nach PCL": "1344","nach Rep PCL": "2688","nach Name PCL": "2688","nach Name": "C Ganzton Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:G#  25:F#, B","Oberton nachher": "30:C#  29:D#","Oberton Rang vorher": "30","Oberton Rang nachher": "30","Oberton Rang Verbesserung": "0","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2568","Hew Rep Name": "C NN","Hewit Name PCL": "2208","Hewitt Name": "C dur-verminderter Dreiklang","Betrag von": "3","tritonus auf": "2","Tritonus": "D -G#","Auflˆsung": "C#-A ","nach PCL": "3076","nach Rep PCL": "3076","nach Name PCL": "2432","nach Name": "C Doppelterz Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "29:G#  28:D","Oberton nachher": "25:D , A   22:C , D#, F","Oberton Rang vorher": "29","Oberton Rang nachher": "25","Oberton Rang Verbesserung": "-4","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2568","Hew Rep Name": "C NN","Hewit Name PCL": "2208","Hewitt Name": "C dur-verminderter Dreiklang","Betrag von": "3","tritonus auf": "8","Tritonus": "G#-D ","Auflˆsung": "G -D#","nach PCL": "2320","nach Rep PCL": "2320","nach Name PCL": "2320","nach Name": "C m","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "29:G#  28:D","Oberton nachher": "28:D#, F   26:C , G#","Oberton Rang vorher": "29","Oberton Rang nachher": "28","Oberton Rang Verbesserung": "-1","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2592","Hew Rep Name": "C doppelt vermindert Dreiklang","Hewit Name PCL": "2178","Hewitt Name": "C Italienischer Sextakkord","Betrag von": "3","tritonus auf": "0","Tritonus": "C -F#","Auflˆsung": "B -G ","nach PCL": "529","nach Rep PCL": "2312","nach Name PCL": "2192","nach Name": "C dur-Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "31:D   27:C","Oberton nachher": "33:G   24:C","Oberton Rang vorher": "31","Oberton Rang nachher": "33","Oberton Rang Verbesserung": "2","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2592","Hew Rep Name": "C doppelt vermindert Dreiklang","Hewit Name PCL": "2178","Hewitt Name": "C Italienischer Sextakkord","Betrag von": "3","tritonus auf": "6","Tritonus": "F#-C ","Auflˆsung": "F -C#","nach PCL": "1600","nach Rep PCL": "3200","nach Name PCL": "2305","nach Name": "C unvollst‰ndiger groﬂer Moll-Septakkord","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "31:D   27:C","Oberton nachher": "27:G   26:C#","Oberton Rang vorher": "31","Oberton Rang nachher": "27","Oberton Rang Verbesserung": "-4","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "3088","Hew Rep Name": "C 5 add b9","Hewit Name PCL": "3088","Hewitt Name": "C 5 add b9","Betrag von": "3","tritonus auf": "7","Tritonus": "G -C#","Auflˆsung": "F#-D ","nach PCL": "2592","nach Rep PCL": "2592","nach Name PCL": "2178","nach Name": "C Italienischer Sextakkord","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "27:C   25:D#","Oberton nachher": "31:D   27:C","Oberton Rang vorher": "27","Oberton Rang nachher": "31","Oberton Rang Verbesserung": "4","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3104","Hew Rep Name": "C NN","Hewit Name PCL": "2096","Hewitt Name": "C Raga Ongkari","Betrag von": "3","tritonus auf": "0","Tritonus": "C -F#","Auflˆsung": "B -G ","nach PCL": "1041","nach Rep PCL": "2568","nach Name PCL": "2208","nach Name": "C dur-verminderter Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:F#  24:D","Oberton nachher": "29:G   28:C#","Oberton Rang vorher": "30","Oberton Rang nachher": "29","Oberton Rang Verbesserung": "-1","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" }
+];
+
+        function to12BitBinary(num) {
+            return num.toString(2).padStart(12, '0');
+        }
+
+        const width = 1800;
+        const height = 1600;
+        const svg = d3.select("svg");
+        const tooltip = d3.select("#tooltip");
+
+        // Add zoom behavior to SVG
+        const zoom = d3.zoom()
+            .scaleExtent([0.1, 10]) // Limit the zoom scale
+            .on("zoom", (event) => {
+                svgGroup.attr("transform", event.transform);
+            });
+
+        // Create a group for all SVG content
+        const svgGroup = svg.append("g");
+        svg.call(zoom);
+
+        // Process data into nodes and links
+        const nodes = {};
+        data.forEach(d => {
+            nodes[d["Hew Rep PCL"]] = { id: d["Hew Rep PCL"], name: d["Hew Rep Name"], betrag: d["Betrag von"], "Oberton Rang vorher": d["Oberton Rang vorher"] };
+            nodes[d["nach PCL"]] = { id: d["nach PCL"], name: d["nach Name"], betrag: d["Betrag von"], "Oberton Rang vorher": d["Oberton Rang nachher"] };
+        });
+
+        const links = data.map(d => ({ source: d["Hew Rep PCL"], target: d["nach PCL"] }));
+
+        // Convert nodes object to an array
+        const nodesArray = Object.values(nodes);
+
+        // Create simulation
+        const simulation = d3.forceSimulation(nodesArray)
+            .force("link", d3.forceLink(links).id(d => d.id).distance(100))
+            .force("charge", d3.forceManyBody().strength(-600))
+            .force("center", d3.forceCenter(width / 2, height / 2));
+
+        // Add arrowhead marker to SVG
+        svg.append("defs").append("marker")
+            .attr("id", "arrowhead")
+            .attr("viewBox", "0 -5 10 10")
+            .attr("refX", 15) // Position of the arrow relative to the line
+            .attr("refY", 0)
+            .attr("markerWidth", 6)
+            .attr("markerHeight", 6)
+            .attr("orient", "auto")
+            .append("path")
+            .attr("d", "M0,-5L10,0L0,5") // Shape of the arrow
+            .attr("fill", "#999");
+
+        // Draw links with arrows
+        const link = svgGroup.selectAll("line")
+            .data(links)
+            .enter().append("line")
+            .attr("stroke", "#999")
+            .attr("stroke-width", 1.5)
+            .attr("marker-end", "url(#arrowhead)"); // Attach arrowhead marker
+
+        // Add labels to show direction (optional: midpoint arrows)
+        const labels = svgGroup.selectAll("text")
+            .data(links)
+            .enter().append("text")
+            .attr("font-size", "10px")
+            .attr("fill", "#666")
+            .attr("text-anchor", "middle")
+            .attr("dy", -5) // Offset from the line
+            .text("‚Üí");
+
+        // Add nodes and tooltips
+        const node = svgGroup.selectAll("g")
+            .data(nodesArray)
+            .enter().append("g")
+            .call(d3.drag()
+                .on("start", dragStarted)
+                .on("drag", dragged)
+                .on("end", dragEnded));
+
+        node.append("image")
+            .attr("xlink:href", d => `../../Hewitt/svg/${parseFloat(d.betrag)}_Circle_${to12BitBinary(parseFloat(d.id))}.svg`)
+            .attr("width", 80)
+            .attr("height", 80)
+            .attr("x", -40)
+            .attr("y", -40)
+            .on("click", (event, d) => playChord(10000 + parseInt(d.id)))
+            .on("mouseover", (event, d) => {
+                tooltip
+                    .style("opacity", 1)
+                    .style("left", `${event.pageX + 10}px`)
+                    .style("top", `${event.pageY + 10}px`)
+                    .html(`
+                        <b>Name:</b> ${d.name}<br>
+                        <b>ID:</b> ${d.id}<br>
+                        <b>Oberton Rang vorher:</b> ${d["Oberton Rang vorher"]}
+                    `);
+
+                link
+                    .attr("stroke", l => (l.source.id === d.id || l.target.id === d.id ? "red" : "#999"))
+                    .attr("stroke-width", l => (l.source.id === d.id || l.target.id === d.id ? 3 : 1.5));
+            })
+            .on("mouseout", () => {
+                tooltip.style("opacity", 0);
+                link.attr("stroke", "#999").attr("stroke-width", 1.5);
+            });
+
+        // Simulation tick updates
+        simulation.on("tick", () => {
+            link
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+
+            labels
+                .attr("x", d => (d.source.x + d.target.x) / 2)
+                .attr("y", d => (d.source.y + d.target.y) / 2);
+
+            node.attr("transform", d => `translate(${d.x},${d.y})`);
+        });
+
+        // Drag functions
+        function dragStarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+
+        function dragEnded(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+
+        // Fit to view function
+        function fitToView() {
+            const bounds = svgGroup.node().getBBox();
+            const scale = Math.min(width / bounds.width, height / bounds.height);
+            const translateX = (width - scale * bounds.width) / 2 - bounds.x * scale;
+            const translateY = (height - scale * bounds.height) / 2 - bounds.y * scale;
+
+            svg.transition().duration(750).call(
+                zoom.transform,
+                d3.zoomIdentity.translate(translateX, translateY).scale(scale)
+            );
+        }
+
+        // "Alles Anzeigen" button
+        d3.select("body")
+            .append("button")
+            .text("Alles Anzeigen")
+            .on("click", fitToView);
+    </script>
+</body>
+
+</html>
+
