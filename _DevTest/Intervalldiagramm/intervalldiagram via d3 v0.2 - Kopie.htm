@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <title>Intervalle im Obertonspektrum</title>
+    <style>
+        .axis path, .axis line {
+            fill: none;
+            stroke: black;
+            shape-rendering: crispEdges;
+        }
+        .grid line {
+            stroke: lightgrey;
+            stroke-opacity: 0.7;
+            shape-rendering: crispEdges;
+        }
+        .grid path {
+            stroke-width: 0;
+        }
+    </style>
+</head>
+<body>
+    <svg id="chart" width="800" height="600"></svg>
+    <script>
+        // Daten mit Intervallen (Zähler und Nenner) und den Cent-Werten
+        const data = [
+            { numerator: 1, denominator: 1, cent: 0 },
+            { numerator: 2, denominator: 1, cent: 1200 },
+            { numerator: 3, denominator: 2, cent: 702 },
+            { numerator: 4, denominator: 3, cent: 498 },
+            { numerator: 5, denominator: 4, cent: 386 },
+            { numerator: 6, denominator: 5, cent: 315 },
+            { numerator: 7, denominator: 4, cent: 968 },
+            { numerator: 8, denominator: 5, cent: 813 },
+        ];
+
+        const margin = { top: 20, right: 20, bottom: 50, left: 50 };
+        const width = 800 - margin.left - margin.right;
+        const height = 600 - margin.top - margin.bottom;
+
+        const svg = d3.select("#chart")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Skalen für die Achsen
+        const xScale = d3.scaleLinear()
+            .domain([1, 16])
+            .range([0, width]);
+
+        const yScale = d3.scaleLinear()
+            .domain([0, 1200])
+            .range([height, 0]);
+
+        // Achsen
+        const xAxis = d3.axisBottom(xScale).ticks(16);
+        const yAxis = d3.axisLeft(yScale).ticks(10);
+
+        const gridlines = d3.axisLeft(yScale)
+            .tickSize(-width)
+            .tickFormat("");
+
+        // Gitterlinien hinzufügen
+        svg.append("g")
+            .attr("class", "grid")
+            .call(gridlines)
+            .attr("transform", "translate(0,0)");
+
+        // Achsen hinzufügen
+        svg.append("g")
+            .attr("class", "axis")
+            .call(yAxis);
+
+        svg.append("g")
+            .attr("class", "axis")
+            .attr("transform", `translate(0,${height})`)
+            .call(xAxis);
+
+        // Linien und Punkte darstellen
+        data.forEach(d => {
+            const x1 = xScale(d.numerator);
+            const x2 = xScale(d.denominator);
+            const y = yScale(d.cent);
+
+            // Linie zwischen den Zähler- und Nennerpunkten
+            svg.append("line")
+                .attr("x1", x1)
+                .attr("y1", y)
+                .attr("x2", x2)
+                .attr("y2", y)
+                .attr("stroke", "steelblue")
+                .attr("stroke-width", 2);
+
+            // Punkt für Zähler
+            svg.append("circle")
+                .attr("cx", x1)
+                .attr("cy", y)
+                .attr("r", 4)
+                .attr("fill", "orange");
+
+            // Punkt für Nenner
+            svg.append("circle")
+                .attr("cx", x2)
+                .attr("cy", y)
+                .attr("r", 4)
+                .attr("fill", "green");
+        });
+    </script>
+</body>
+</html>

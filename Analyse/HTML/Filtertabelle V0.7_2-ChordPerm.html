@@ -1,0 +1,220 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+	<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filtertabelle V0.7: 2-ChordPerm</title>
+    <link rel="stylesheet" href="stylesheet.css">
+</head>
+<body>
+
+<h1>Filtertabelle V0.7: 2-ChordPerm</h1>
+<p style="font-size: 10px; text-align: left;">
+    <a href="../Inhalt.html" style="text-decoration: none; color: gray;">zurück zum Inhaltsverzeichnis</a>
+</p>
+
+<table id="demo">
+    <thead>
+        <!-- Dynamische Spaltenüberschriften -->
+    </thead>
+    <tbody>
+        <!-- Dynamische Inhalte -->
+    </tbody>
+</table>
+
+<script src="dist/tablefilter/tablefilter.js"></script>
+<script src="https://surikov.github.io/webaudiofont/npm/dist/WebAudioFontPlayer.js"></script>
+<script src="https://surikov.github.io/webaudiofontdata/sound/0000_JCLive_sf2_file.js"></script>
+<script src="js/PlayScript.js"></script>
+
+<script>
+    // JSON-Daten
+
+const data = [
+{ "Hew Rep PCL": "2112","Hew Rep Name": "C Quart","Hewit Name PCL": "2112","Hewitt Name": "C Quart","Betrag": "2","Pitchclass Folge Integer": "5, 0","min": "65","max": "72","span": "7","tension#": "0","friction#": "0","Lilypond": "< f c' >","Noten": "F4C5","Midi": " 65, 72","maxBasePitchFreq": "1","NextIntervalMax": "7","bas0 C": "0","bas1 C#": "0","bas2 D": "0","bas3 D#": "0","bas4 E": "0","bas5 F": "1","bas 6 F#": "0","bas7 G": "0","bas8 G#": "0","bas9 A": "0","bas10 A#": "0","bas11 H": "0","basePitchFreq Signatur": "1","distinct basePitch Count": "1","basePitch inside": "1","basePitch outside": "0","Freq Base Lower": "1","Freq Base Upper": "0","Freq Base Outside": "0","Freq Base Ambigious": "0","Intervallfolge": "i= 7","Score": "score=99999801000000" },
+{ "Hew Rep PCL": "2176","Hew Rep Name": "C gr.Terz","Hewit Name PCL": "2176","Hewitt Name": "C gr.Terz","Betrag": "2","Pitchclass Folge Integer": "0, 4","min": "60","max": "64","span": "4","tension#": "0","friction#": "0","Lilypond": "< c e >","Noten": "C4E4","Midi": " 60, 64","maxBasePitchFreq": "1","NextIntervalMax": "4","bas0 C": "1","bas1 C#": "0","bas2 D": "0","bas3 D#": "0","bas4 E": "0","bas5 F": "0","bas 6 F#": "0","bas7 G": "0","bas8 G#": "0","bas9 A": "0","bas10 A#": "0","bas11 H": "0","basePitchFreq Signatur": "1","distinct basePitch Count": "1","basePitch inside": "1","basePitch outside": "0","Freq Base Lower": "1","Freq Base Upper": "0","Freq Base Outside": "0","Freq Base Ambigious": "0","Intervallfolge": "i= 4","Score": "score=99999801000000" },
+{ "Hew Rep PCL": "2560","Hew Rep Name": "C gr.Sek.","Hewit Name PCL": "2560","Hewitt Name": "C gr.Sek.","Betrag": "2","Pitchclass Folge Integer": "0, 2","min": "60","max": "62","span": "2","tension#": "0","friction#": "0","Lilypond": "< c d >","Noten": "C4D4","Midi": " 60, 62","maxBasePitchFreq": "1","NextIntervalMax": "2","bas0 C": "1","bas1 C#": "0","bas2 D": "0","bas3 D#": "0","bas4 E": "0","bas5 F": "0","bas 6 F#": "0","bas7 G": "0","bas8 G#": "0","bas9 A": "0","bas10 A#": "0","bas11 H": "0","basePitchFreq Signatur": "1","distinct basePitch Count": "1","basePitch inside": "1","basePitch outside": "0","Freq Base Lower": "1","Freq Base Upper": "0","Freq Base Outside": "0","Freq Base Ambigious": "0","Intervallfolge": "i= 2","Score": "score=99999801000000" },
+{ "Hew Rep PCL": "2112","Hew Rep Name": "C Quart","Hewit Name PCL": "2112","Hewitt Name": "C Quart","Betrag": "2","Pitchclass Folge Integer": "0, 5","min": "60","max": "65","span": "5","tension#": "0","friction#": "0","Lilypond": "< c f >","Noten": "C4F4","Midi": " 60, 65","maxBasePitchFreq": "1","NextIntervalMax": "5","bas0 C": "0","bas1 C#": "0","bas2 D": "0","bas3 D#": "0","bas4 E": "0","bas5 F": "1","bas 6 F#": "0","bas7 G": "0","bas8 G#": "0","bas9 A": "0","bas10 A#": "0","bas11 H": "0","basePitchFreq Signatur": "1","distinct basePitch Count": "1","basePitch inside": "1","basePitch outside": "0","Freq Base Lower": "0","Freq Base Upper": "1","Freq Base Outside": "0","Freq Base Ambigious": "0","Intervallfolge": "i= 5","Score": "score=99999800010000" },
+{ "Hew Rep PCL": "2176","Hew Rep Name": "C gr.Terz","Hewit Name PCL": "2176","Hewitt Name": "C gr.Terz","Betrag": "2","Pitchclass Folge Integer": "4, 0","min": "64","max": "72","span": "8","tension#": "0","friction#": "0","Lilypond": "< e c' >","Noten": "E4C5","Midi": " 64, 72","maxBasePitchFreq": "1","NextIntervalMax": "8","bas0 C": "1","bas1 C#": "0","bas2 D": "0","bas3 D#": "0","bas4 E": "0","bas5 F": "0","bas 6 F#": "0","bas7 G": "0","bas8 G#": "0","bas9 A": "0","bas10 A#": "0","bas11 H": "0","basePitchFreq Signatur": "1","distinct basePitch Count": "1","basePitch inside": "1","basePitch outside": "0","Freq Base Lower": "0","Freq Base Upper": "1","Freq Base Outside": "0","Freq Base Ambigious": "0","Intervallfolge": "i= 8","Score": "score=99999800010000" },
+{ "Hew Rep PCL": "2080","Hew Rep Name": "C Tritonus","Hewit Name PCL": "2080","Hewitt Name": "C Tritonus","Betrag": "2","Pitchclass Folge Integer": "0, 6","min": "60","max": "66","span": "6","tension#": "0","friction#": "0","Lilypond": "< c fis >","Noten": "C4F#4","Midi": " 60, 66","maxBasePitchFreq": "1","NextIntervalMax": "6","bas0 C": "0","bas1 C#": "0","bas2 D": "0","bas3 D#": "0","bas4 E": "0","bas5 F": "0","bas 6 F#": "0","bas7 G": "0","bas8 G#": "-1","bas9 A": "0","bas10 A#": "0","bas11 H": "0","basePitchFreq Signatur": "-1","distinct basePitch Count": "1","basePitch inside": "0","basePitch outside": "1","Freq Base Lower": "0","Freq Base Upper": "0","Freq Base Outside": "1","Freq Base Ambigious": "0","Intervallfolge": "i= 6","Score": "score=99999800000100" },
+{ "Hew Rep PCL": "2080","Hew Rep Name": "C Tritonus","Hewit Name PCL": "2080","Hewitt Name": "C Tritonus","Betrag": "2","Pitchclass Folge Integer": "6, 0","min": "66","max": "72","span": "6","tension#": "0","friction#": "0","Lilypond": "< fis c' >","Noten": "F#4C5","Midi": " 66, 72","maxBasePitchFreq": "1","NextIntervalMax": "6","bas0 C": "0","bas1 C#": "0","bas2 D": "-1","bas3 D#": "0","bas4 E": "0","bas5 F": "0","bas 6 F#": "0","bas7 G": "0","bas8 G#": "0","bas9 A": "0","bas10 A#": "0","bas11 H": "0","basePitchFreq Signatur": "-1","distinct basePitch Count": "1","basePitch inside": "0","basePitch outside": "1","Freq Base Lower": "0","Freq Base Upper": "0","Freq Base Outside": "1","Freq Base Ambigious": "0","Intervallfolge": "i= 6","Score": "score=99999800000100" },
+{ "Hew Rep PCL": "2304","Hew Rep Name": "C kl.Terz","Hewit Name PCL": "2304","Hewitt Name": "C kl.Terz","Betrag": "2","Pitchclass Folge Integer": "0, 3","min": "60","max": "63","span": "3","tension#": "0","friction#": "0","Lilypond": "< c dis >","Noten": "C4D#4","Midi": " 60, 63","maxBasePitchFreq": "1","NextIntervalMax": "3","bas0 C": "0","bas1 C#": "0","bas2 D": "0","bas3 D#": "0","bas4 E": "0","bas5 F": "0","bas 6 F#": "0","bas7 G": "0","bas8 G#": "-1","bas9 A": "0","bas10 A#": "0","bas11 H": "0","basePitchFreq Signatur": "-1","distinct basePitch Count": "1","basePitch inside": "0","basePitch outside": "1","Freq Base Lower": "0","Freq Base Upper": "0","Freq Base Outside": "1","Freq Base Ambigious": "0","Intervallfolge": "i= 3","Score": "score=99999800000100" },
+{ "Hew Rep PCL": "2560","Hew Rep Name": "C gr.Sek.","Hewit Name PCL": "2560","Hewitt Name": "C gr.Sek.","Betrag": "2","Pitchclass Folge Integer": "2, 0","min": "62","max": "72","span": "10","tension#": "0","friction#": "0","Lilypond": "< d c' >","Noten": "D4C5","Midi": " 62, 72","maxBasePitchFreq": "1","NextIntervalMax": "10","bas0 C": "0","bas1 C#": "0","bas2 D": "0","bas3 D#": "0","bas4 E": "0","bas5 F": "0","bas 6 F#": "0","bas7 G": "0","bas8 G#": "0","bas9 A": "0","bas10 A#": "-1","bas11 H": "0","basePitchFreq Signatur": "-1","distinct basePitch Count": "1","basePitch inside": "0","basePitch outside": "1","Freq Base Lower": "0","Freq Base Upper": "0","Freq Base Outside": "1","Freq Base Ambigious": "0","Intervallfolge": "i= 10","Score": "score=99999800000100" },
+{ "Hew Rep PCL": "3072","Hew Rep Name": "C kl.Sek.","Hewit Name PCL": "3072","Hewitt Name": "C kl.Sek.","Betrag": "2","Pitchclass Folge Integer": "1, 0","min": "61","max": "72","span": "11","tension#": "1","friction#": "0","Lilypond": "< cis c' >","Noten": "C#4C5","Midi": " 61, 72","maxBasePitchFreq": "0","NextIntervalMax": "11","bas0 C": "0","bas1 C#": "0","bas2 D": "0","bas3 D#": "0","bas4 E": "0","bas5 F": "0","bas 6 F#": "0","bas7 G": "0","bas8 G#": "0","bas9 A": "0","bas10 A#": "0","bas11 H": "0","basePitchFreq Signatur": "","distinct basePitch Count": "0","basePitch inside": "0","basePitch outside": "0","Freq Base Lower": "0","Freq Base Upper": "0","Freq Base Outside": "0","Freq Base Ambigious": "1","Intervallfolge": "i= 11","Score": "score=99989900000001" },
+{ "Hew Rep PCL": "2304","Hew Rep Name": "C kl.Terz","Hewit Name PCL": "2304","Hewitt Name": "C kl.Terz","Betrag": "2","Pitchclass Folge Integer": "3, 0","min": "63","max": "72","span": "9","tension#": "1","friction#": "0","Lilypond": "< dis c' >","Noten": "D#4C5","Midi": " 63, 72","maxBasePitchFreq": "1","NextIntervalMax": "9","bas0 C": "0","bas1 C#": "0","bas2 D": "0","bas3 D#": "0","bas4 E": "0","bas5 F": "0","bas 6 F#": "0","bas7 G": "0","bas8 G#": "-1","bas9 A": "0","bas10 A#": "0","bas11 H": "0","basePitchFreq Signatur": "-1","distinct basePitch Count": "1","basePitch inside": "0","basePitch outside": "1","Freq Base Lower": "0","Freq Base Upper": "0","Freq Base Outside": "1","Freq Base Ambigious": "0","Intervallfolge": "i= 9","Score": "score=99989800000100" },
+{ "Hew Rep PCL": "3072","Hew Rep Name": "C kl.Sek.","Hewit Name PCL": "3072","Hewitt Name": "C kl.Sek.","Betrag": "2","Pitchclass Folge Integer": "0, 1","min": "60","max": "61","span": "1","tension#": "0","friction#": "1","Lilypond": "< c cis >","Noten": "C4C#4","Midi": " 60, 61","maxBasePitchFreq": "0","NextIntervalMax": "1","bas0 C": "0","bas1 C#": "0","bas2 D": "0","bas3 D#": "0","bas4 E": "0","bas5 F": "0","bas 6 F#": "0","bas7 G": "0","bas8 G#": "0","bas9 A": "0","bas10 A#": "0","bas11 H": "0","basePitchFreq Signatur": "","distinct basePitch Count": "0","basePitch inside": "0","basePitch outside": "0","Freq Base Lower": "0","Freq Base Upper": "0","Freq Base Outside": "0","Freq Base Ambigious": "1","Intervallfolge": "i= 1","Score": "score=98999900000001" }
+];
+
+
+
+  const table = document.getElementById('demo');
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+
+  // Spalten & Header bauen
+  const columns = Object.keys(data[0]);
+  const headerRow = document.createElement('tr');
+  columns.forEach(column => {
+    const th = document.createElement('th');
+    th.textContent = column;
+    headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow);
+
+  // Body bauen
+  data.forEach(row => {
+    const tr = document.createElement('tr');
+    columns.forEach(column => {
+      const td = document.createElement('td');
+
+      if (column.includes("PCL")) {
+        const pclValue = row[column].toString().padStart(4, '0');
+        const filePath = `../../Pocket/HTML/${pclValue}.htm`;
+        td.innerHTML = `
+          <img border="0" src="../../Pocket/gif/Kreise/${pclValue}.gif" height="24" onclick="playChord(1${pclValue})" style="cursor: pointer;">
+          <img border="0" src="../../Pocket/gif/Score/Scale/${pclValue}.gif" height="24" onclick="playScale(1${pclValue})" style="cursor: pointer;"><br>
+          <a href="${filePath}" style="font-size: 10px; color: gray;" target="_blank">${pclValue}</a>
+        `;
+      } else if (column.includes("Midi")) {
+        const midiValue = row[column];
+        const pclValue = midiValue.toString().padStart(4, '0');
+        td.innerHTML = `
+          <img border="0" src="../../Pocket/gif/Kreise/${pclValue}.gif" height="24" onclick="playChord('${midiValue}')" style="cursor: pointer;">
+        `;
+      } else {
+        td.textContent = row[column];
+      }
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+
+  // --- Hilfsfunktionen für Numerik & Icons ---
+  function normalizeNumber(str) {
+    const txt = (str ?? '').toString().trim();
+    // "1 234", "1.234", "3,5" -> 1234 | 1234 | 3.5
+    const norm = txt.replace(/\s/g, '').replace(/\./g, '').replace(',', '.');
+    return /^-?\d+(\.\d+)?$/.test(norm) ? parseFloat(norm) : NaN;
+  }
+
+  function looksNumeric(colIndex) {
+    // prüfe die ersten paar Zeilen
+    const max = Math.min(tbody.rows.length, 10);
+    let hits = 0, checks = 0;
+    for (let r = 0; r < max; r++) {
+      const cell = tbody.rows[r].cells[colIndex]?.textContent ?? '';
+      const n = normalizeNumber(cell);
+      if (!isNaN(n)) hits++;
+      checks++;
+    }
+    return checks > 0 && hits / checks >= 0.6; // heuristisch
+  }
+
+  function clearAllSortIcons() {
+    thead.querySelectorAll('th').forEach(th => th.classList.remove('sort-asc','sort-desc'));
+  }
+  function setSortIcon(colIndex, dir) {
+    const th = thead.querySelectorAll('th')[colIndex];
+    if (!th) return;
+    th.classList.remove('sort-asc','sort-desc');
+    th.classList.add(dir === 'desc' ? 'sort-desc' : 'sort-asc');
+  }
+
+  // --- TableFilter initialisieren mit automatisch erkannten col_types ---
+  // baue col_types dynamisch (number|string) für korrekte numerische Sortierung beim Klick
+  const col_types = columns.map((_, i) => looksNumeric(i) ? 'number' : 'string');
+
+  const filtersConfig = {
+    base_path: 'dist/tablefilter/',
+    extensions: [{ name: 'sort' }],
+    col_types // WICHTIG: sorgt dafür, dass Klick-Sortierung numerisch arbeitet
+  };
+  const tf = new TableFilter('demo', filtersConfig);
+  tf.init();
+
+  // Optional: Icons auch nach manuellem Klick aktuell halten
+  thead.addEventListener('click', (e) => {
+    const th = e.target.closest('th');
+    if (!th) return;
+    const idx = Array.from(thead.querySelectorAll('th')).indexOf(th);
+    // TableFilter sortiert bereits – wir kümmern uns nur um die Optik:
+    // Toggle-Logik: wenn th bereits asc -> desc, wenn desc -> asc, sonst asc
+    const asc = th.classList.contains('sort-asc');
+    const desc = th.classList.contains('sort-desc');
+    clearAllSortIcons();
+    setSortIcon(idx, asc ? 'desc' : 'asc');
+  });
+
+  // --- URL-Filter & -Sort anwenden ---
+  (function applyFiltersAndSortFromURL() {
+    const params = new URLSearchParams(window.location.search);
+
+    // 1) Filter per Spaltennamen (exakt, URL-encoded): ?Hew%20Rep%20Name=C%20dim&Tritonus=C%20-F%23
+    let anyFilter = false;
+    columns.forEach((colName, i) => {
+      const value = params.get(colName);
+      if (value) {
+        tf.setFilterValue(i, value);
+        anyFilter = true;
+      }
+    });
+    if (anyFilter) tf.filter();
+
+    // 2) Multi-Sort: ?sort=SpalteA:asc,SpalteB:desc
+    const sortParam = params.get('sort');
+    if (!sortParam) return;
+
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    const sortRules = sortParam.split(',').map(s => {
+      const [name, dirRaw] = s.split(':');
+      return { col: (name || '').trim(), dir: (dirRaw || 'asc').toLowerCase() };
+    }).filter(r => r.col);
+
+    function parseValue(cellText, colIdx) {
+      if (col_types[colIdx] === 'number') {
+        const n = normalizeNumber(cellText);
+        if (!isNaN(n)) return n;
+      }
+      return (cellText ?? '').toString();
+    }
+
+    rows.sort((a, b) => {
+      for (let { col, dir } of sortRules) {
+        const idx = columns.indexOf(col);
+        if (idx === -1) continue;
+
+        const av = parseValue(a.children[idx].textContent, idx);
+        const bv = parseValue(b.children[idx].textContent, idx);
+
+        let cmp = 0;
+        if (typeof av === 'number' && typeof bv === 'number') {
+          cmp = av - bv;
+        } else {
+          cmp = av.toString().localeCompare(bv.toString(), 'de', { numeric: true, sensitivity: 'base' });
+        }
+        if (cmp !== 0) return dir === 'desc' ? -cmp : cmp;
+      }
+      return 0;
+    });
+
+    // sortierte Reihen einsetzen
+    rows.forEach(r => tbody.appendChild(r));
+
+    // Sortpfeile wie beim manuellen Klicken setzen:
+    clearAllSortIcons();
+    sortRules.forEach(r => {
+      const idx = columns.indexOf(r.col);
+      if (idx !== -1) setSortIcon(idx, r.dir);
+    });
+  })();
+</script>
+<style>
+  /* einfache, unaufdringliche Sortpfeile – passt zu TableFilter */
+  #demo thead th.sort-asc::after { content: "▲"; margin-left: .35em; font-size: .8em; opacity: .7; }
+  #demo thead th.sort-desc::after { content: "▼"; margin-left: .35em; font-size: .8em; opacity: .7; }
+</style>
+
+
+</body>
+</html>
+

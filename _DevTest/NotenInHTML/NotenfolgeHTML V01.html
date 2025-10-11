@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noten Eingabe und Darstellung</title>
+    <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .form-section {
+            margin-bottom: 20px;
+        }
+        #output {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        svg {
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Noten Eingabe und Darstellung</h1>
+
+    <!-- Auswahl des Schlüssels (Clef) -->
+    <div class="form-section">
+        <label for="clef">Schlüssel:</label>
+        <select id="clef">
+            <option value="treble">Violinschlüssel</option>
+            <option value="bass">Bassschlüssel</option>
+        </select>
+    </div>
+
+    <!-- Auswahl der Notendauer -->
+    <div class="form-section">
+        <label for="duration">Notendauer:</label>
+        <select id="duration">
+            <option value="q">Viertel</option>
+            <option value="h">Halbe</option>
+            <option value="w">Ganze</option>
+        </select>
+    </div>
+
+    <!-- Eingabe der Notenfolge -->
+    <div class="form-section">
+        <label for="notes">Notenfolge (z. B. C#5/q, B4, A4, G#4):</label>
+        <input type="text" id="notes" placeholder="Geben Sie die Noten ein" size="50">
+    </div>
+
+    <!-- Button zum Auslösen der Darstellung -->
+    <button onclick="renderNotes()">Darstellen</button>
+
+    <!-- Bereich zur Darstellung der Noten -->
+    <div id="output"></div>
+
+    <script>
+        function renderNotes() {
+            // Zugriff auf VexFlow-Bibliothek
+            const VF = Vex.Flow;
+            const clef = document.getElementById('clef').value;
+            const notesInput = document.getElementById('notes').value;
+
+            // Bereich für vorherige Ausgabe leeren
+            const output = document.getElementById('output');
+            output.innerHTML = '';
+
+            // VexFlow Factory und EasyScore initialisieren
+            const vf = new VF.Factory({
+                renderer: { elementId: 'output', width: 500, height: 200 },
+            });
+
+            const score = vf.EasyScore();
+            const system = vf.System();
+
+            // Notenfolge parsen und hinzufügen
+            system
+                .addStave({
+                    voices: [
+                        score.voice(score.notes(notesInput, { stem: 'up' })),
+                    ],
+                })
+                .addClef(clef) // Hinzufügen des gewählten Schlüssels
+                .addTimeSignature('4/4'); // Standard-Taktart
+
+            // Zeichnen der Noten
+            vf.draw();
+        }
+    </script>
+</body>
+</html>

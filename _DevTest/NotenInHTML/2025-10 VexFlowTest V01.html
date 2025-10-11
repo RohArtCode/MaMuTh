@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>C-Dur in drei Lagen – VexFlow v4</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Deine gewünschte VexFlow v4 CJS-Build -->
+  <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 1rem; }
+    #score { width: 900px; }
+  </style>
+</head>
+<body>
+  <h1>C-Dur Akkord in drei Lagen (Viertel) – Klaviersystem ohne Takt</h1>
+  <div id="score"></div>
+
+  <script>
+    // Kompatibilität: Je nach Build liegen Klassen unter Vex.Flow oder direkt unter Vex.
+    const VF = (window.Vex && Vex.Flow) ? Vex.Flow : Vex;
+
+    // Renderer vorbereiten
+    const div = document.getElementById('score');
+    const renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
+    renderer.resize(900, 240);
+    const context = renderer.getContext();
+
+    // Layout
+    const left = 30;
+    const topY  = 40;
+    const width = 820;
+
+    // Systeme (oben Violine, unten Bass)
+    const treble = new VF.Stave(left, topY, width);
+    const bass   = new VF.Stave(left, topY + 90, width);
+
+    // Schlüssel setzen – keine Taktangabe hinzufügen
+    treble.addClef('treble');
+    bass.addClef('bass');
+
+    // Keine Taktstriche (auch nicht am Anfang/Ende)
+    treble.setBegBarType(VF.Barline.type.NONE);
+    treble.setEndBarType(VF.Barline.type.NONE);
+    bass.setBegBarType(VF.Barline.type.NONE);
+    bass.setEndBarType(VF.Barline.type.NONE);
+
+    treble.setContext(context).draw();
+    bass.setContext(context).draw();
+
+    // Klammer + vertikale Linien links/rechts
+    new VF.StaveConnector(treble, bass)
+      .setType(VF.StaveConnector.type.BRACE)
+      .setContext(context).draw();
+    new VF.StaveConnector(treble, bass)
+      .setType(VF.StaveConnector.type.SINGLE_LEFT)
+      .setContext(context).draw();
+    new VF.StaveConnector(treble, bass)
+      .setType(VF.StaveConnector.type.SINGLE_RIGHT)
+      .setContext(context).draw();
+
+    // Hilfsfunktion: Akkord-Viertel
+    function chord(keys, clef) {
+      return new VF.StaveNote({ keys, clef, duration: 'q' });
+    }
+
+    // Treble: C-Dur drei Lagen (angenehme Lage um c'' = c/5)
+    const trebleNotes = [
+      chord(['c/5','e/5','g/5'], 'treble'), // Grundstellung
+      chord(['e/5','g/5','c/6'], 'treble'), // 1. Umkehrung
+      chord(['g/5','c/6','e/6'], 'treble'), // 2. Umkehrung
+    ];
+
+    // Bass: eine Oktave tiefer
+    const bassNotes = [
+      chord(['c/3','e/3','g/3'], 'bass'),
+      chord(['e/3','g/3','c/4'], 'bass'),
+      chord(['g/2','c/3','e/3'], 'bass'),
+    ];
+
+    // Voices (intern 3/4, nur für das Spacing – wird NICHT angezeigt)
+    const trebleVoice = new VF.Voice({ num_beats: 3, beat_value: 4, resolution: VF.RESOLUTION });
+    trebleVoice.addTickables(trebleNotes);
+
+    const bassVoice = new VF.Voice({ num_beats: 3, beat_value: 4, resolution: VF.RESOLUTION });
+    bassVoice.addTickables(bassNotes);
+
+    // Formatierung
+    new VF.Formatter()
+      .joinVoices([trebleVoice])
+      .joinVoices([bassVoice])
+      .format([trebleVoice, bassVoice], width - 60);
+
+    // Zeichnen
+    trebleVoice.draw(context, treble);
+    bassVoice.draw(context, bass);
+  </script>
+</body>
+</html>

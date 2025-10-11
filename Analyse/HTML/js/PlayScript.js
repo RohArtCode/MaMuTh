@@ -15,37 +15,62 @@ var selectedPreset = _tone_0000_JCLive_sf2_file;
 			return notes;
 		}
 
-        // Funktion zum Konvertieren eines Piano-Roll-Strings in Noten
-        function pianoRollToNotes(pianoRoll, baseNote = 60) {
-            const notes = [];
-            for (let i = 0; i < pianoRoll.length; i++) {
-                if (pianoRoll[i] === '1') {
-                    notes.push(baseNote + i);
-                }
-            }
-            return notes;
+// Funktion zum Konvertieren eines Piano-Roll-Strings in Noten
+function pianoRollToNotes(pianoRoll, baseNote = 60) {
+    const notes = [];
+    for (let i = 0; i < pianoRoll.length; i++) {
+        if (pianoRoll[i] === '1') {
+            notes.push(baseNote + i);
         }
+    }
+    return notes;
+}
 
-        // Hauptfunktion zur Verarbeitung der Eingaben
-        function processInput(input) {
-            if (Array.isArray(input)) {
-                // Wenn das Input ein Array ist, gehen wir davon aus, dass es direkt Noten enthält
-                return input;
-            } else if (typeof input === 'string') {
-                // Wenn das Input ein String ist, behandeln wir es als Piano-Roll
-                return pianoRollToNotes(input);
-            } else if (typeof input === 'number' && input >= 10000 && input <= 14095) {
-                // Wenn das Input eine Zahl zwischen 0 und 4095 ist, behandeln wir es als binären Integer mit fuehrender 1 da fuehrende 0 Oktalzahl
-                return binaryToNotes(input-10000);
-            } else {
-                throw new Error("Ungültiges Eingabeformat. Erlaubt sind Arrays, Strings oder Zahlen zwischen 0 und 4095.");
-            }
+// Funktion zum Konvertieren einer kommagetrennten Liste in ein Array von Zahlen
+function commaSeparatedToArray(input) {
+    return input.split(',').map(num => parseInt(num.trim(), 10));
+}
+
+// Funktion zum Konvertieren eines binären Integers in Noten
+function binaryToNotes(binary) {
+    const notes = [];
+    let position = 0;
+    while (binary > 0) {
+        if (binary % 2 === 1) {
+            notes.push(60 + position); // BaseNote ist 60
         }
+        binary = Math.floor(binary / 2);
+        position++;
+    }
+    return notes;
+}
+
+// Hauptfunktion zur Verarbeitung der Eingaben
+function processInput(input) {
+    if (Array.isArray(input)) {
+        // Wenn das Input ein Array ist, gehen wir davon aus, dass es direkt Noten enthält
+        return input;
+    } else if (typeof input === 'string') {
+        if (input.includes(',')) {
+            // Wenn der String ein Komma enthält, behandeln wir ihn als kommagetrennte Liste
+            return commaSeparatedToArray(input);
+        } else {
+            // Andernfalls behandeln wir ihn als Piano-Roll
+            return pianoRollToNotes(input);
+        }
+    } else if (typeof input === 'number' && input >= 10000 && input <= 14095) {
+        // Wenn das Input eine Zahl zwischen 0 und 4095 ist, behandeln wir es als binären Integer mit führender 1 da führende 0 Oktalzahl
+        return binaryToNotes(input - 10000);
+    } else {
+        throw new Error("Ungültiges Eingabeformat. Erlaubt sind Arrays, Strings oder Zahlen zwischen 0 und 4095.");
+    }
+}
+
 
         // Funktion zum Spielen eines Akkords
         function playChord(input) {
             const notes = processInput(input);
-            player.queueChord(audioContext, audioContext.destination, selectedPreset, 0, notes, 4.5);
+            player.queueChord(audioContext, audioContext.destination, selectedPreset, 0, notes, 3.0);
         }
 
         // Funktion zum Spielen einer Skala mit Verzögerung zwischen den Tönen

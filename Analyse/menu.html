@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Kapitel‑Navigator</title>
+<style>
+ body{font-family:sans-serif;margin:2em;line-height:1.4;background:#f8f8f8;color:#222}
+ h1{font-size:1.4em}
+ select,button{padding:0.4em;margin:0.2em}
+ a{display:block;margin:0.3em 0;text-decoration:none;color:#0645ad}
+ a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<h1>Kapitel‑Navigator (schlicht)</h1>
+
+<label>Kapitel:
+<select id="kapitel">
+  <option value="Übersichten">Übersichten</option>
+  <option value="Übergänge">Übergänge</option>
+  <option value="Lagen">Lagen</option>
+</select></label>
+
+<label>Aspekt:
+<select id="aspekt"></select></label>
+
+<label>Anzahl Töne:
+<select id="nToene"></select></label>
+
+<label>Darstellung:
+<select id="darstellung"></select></label>
+
+<button id="go">Öffnen</button>
+
+<div id="links"></div>
+
+<script>
+const cfg={
+  darstellungen:{
+    D3:{p:"D3-NetzDiagramm",v:"V04b"},
+    Farb:{p:"Farbmatrix",v:"V0.9"},
+    Filter:{p:"Filtertabelle",v:"V0.6"},
+    Inter:{p:"InteractiveTable",v:"V0.4"}
+  },
+  kapitel:{
+    "Übersichten":[{k:"All-Hewitt-Table2024",n:false}],
+    "Übergänge":[{k:"HalbtonAufloesungen",n:true},{k:"Tritonus-Aufloesungen",n:true}],
+    "Lagen":[{k:"ChordPerm",n:true,nums:[2,3,4]},{k:"Voicing",n:true,nums:[4]}]
+  },
+  nDefault:[2,3,4,5,6,7], base:"HTML/"
+};
+
+const kSel=document.getElementById('kapitel');
+const aSel=document.getElementById('aspekt');
+const nSel=document.getElementById('nToene');
+const dSel=document.getElementById('darstellung');
+const links=document.getElementById('links');
+
+function fillDarst(){
+  dSel.innerHTML='';
+  for(const k in cfg.darstellungen){ dSel.add(new Option(k,k)); }
+}
+function fillAspekt(){
+  aSel.innerHTML='';
+  cfg.kapitel[kSel.value].forEach(a=> aSel.add(new Option(a.k,a.k)));
+}
+function fillN(){
+  nSel.innerHTML='';
+  const a=cfg.kapitel[kSel.value].find(x=>x.k===aSel.value);
+  if(a && a.n){(a.nums||cfg.nDefault).forEach(n=> nSel.add(new Option(n,n)))}
+  else {nSel.add(new Option('-', ''))}
+}
+
+function makeFile(d,a,n){
+  if(a==='All-Hewitt-Table2024') return `${d.p} ${d.v}_All-Hewitt-Table2024.html`;
+  return `${d.p} ${d.v}_${n}-${a}.html`;
+}
+
+function showLink(){
+  links.innerHTML='';
+  const d=cfg.darstellungen[dSel.value];
+  const file=makeFile(d,aSel.value,nSel.value);
+  const a=document.createElement('a');
+  a.href=cfg.base+file;
+  a.textContent=file;
+  links.append(a);
+}
+
+kSel.addEventListener('change',()=>{fillAspekt();fillN();showLink();});
+aSel.addEventListener('change',()=>{fillN();showLink();});
+nSel.addEventListener('change',showLink);
+dSel.addEventListener('change',showLink);
+
+document.getElementById('go').onclick=()=>{
+  const d=cfg.darstellungen[dSel.value];
+  const file=makeFile(d,aSel.value,nSel.value);
+  location.href=cfg.base+file;
+};
+
+fillDarst();
+fillAspekt();
+fillN();
+showLink();
+</script>
+</body>
+</html>

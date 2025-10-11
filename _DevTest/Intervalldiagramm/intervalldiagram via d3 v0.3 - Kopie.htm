@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <title>Intervalle im Obertonspektrum</title>
+    <style>
+        .axis path, .axis line {
+            fill: none;
+            stroke: black;
+            shape-rendering: crispEdges;
+        }
+        .grid line {
+            stroke: lightgrey;
+            stroke-opacity: 0.7;
+            shape-rendering: crispEdges;
+        }
+        .grid path {
+            stroke-width: 0;
+        }
+        text.label {
+            font-size: 12px;
+            text-anchor: middle;
+        }
+    </style>
+</head>
+<body>
+    <svg id="chart" width="1000" height="800"></svg>
+    <script>
+        const data = [
+            { numerator: 2, denominator: 1, cent: 1200, label: "Oktav" },
+            { numerator: 3, denominator: 2, cent: 702, label: "reine Quint" },
+            { numerator: 4, denominator: 3, cent: 498, label: "reine Quart" },
+            { numerator: 5, denominator: 3, cent: 884, label: "grosse Sexte" },
+            { numerator: 5, denominator: 4, cent: 386, label: "grosse Terz" },
+            { numerator: 7, denominator: 4, cent: 969, label: "harmonische Septime" },
+            { numerator: 6, denominator: 5, cent: 316, label: "kleine Terz" },
+            { numerator: 7, denominator: 5, cent: 583, label: "Huygens' Tritonus" },
+            { numerator: 8, denominator: 5, cent: 814, label: "kleine Sexte" },
+            { numerator: 9, denominator: 5, cent: 1018, label: "kleine Septime" },
+            { numerator: 7, denominator: 6, cent: 267, label: "septimale kleine Terz" },
+            { numerator: 11, denominator: 6, cent: 1049, label: "undezimale neutrale Septime" },
+            { numerator: 8, denominator: 7, cent: 231, label: "vergrösserte Sekunde" },
+            { numerator: 9, denominator: 7, cent: 435, label: "septimale grosse Terz" },
+            { numerator: 10, denominator: 7, cent: 617, label: "Eulers Tritonus" },
+            { numerator: 11, denominator: 7, cent: 782, label: "erweiterte Quinte" },
+            { numerator: 12, denominator: 7, cent: 933, label: "septimale grosse Sexte" },
+            { numerator: 13, denominator: 7, cent: 1072, label: "dritteltönige grosse Septe" },
+            { numerator: 9, denominator: 8, cent: 204, label: "grosser Ganzton" },
+            { numerator: 11, denominator: 8, cent: 551, label: "vierteltönige Quarte" },
+            { numerator: 13, denominator: 8, cent: 841, label: "neutrale Sexte" },
+            { numerator: 15, denominator: 8, cent: 1088, label: "grosse Septime" },
+            { numerator: 10, denominator: 9, cent: 182, label: "kleiner Ganzton" },
+            { numerator: 11, denominator: 9, cent: 347, label: "neutrale Terz" },
+            { numerator: 13, denominator: 9, cent: 637, label: "no name" },
+            { numerator: 14, denominator: 9, cent: 765, label: "kleine Sexte" },
+            { numerator: 16, denominator: 9, cent: 996, label: "Pythagoreische kleine Septime" },
+            { numerator: 11, denominator: 10, cent: 165, label: "Ptolemeus' Sekunde" },
+            { numerator: 13, denominator: 10, cent: 454, label: "halbverminderte Quarte" },
+            { numerator: 12, denominator: 11, cent: 151, label: "neutrale Sekunde" },
+            { numerator: 13, denominator: 11, cent: 289, label: "kleine Terz" },
+            { numerator: 14, denominator: 11, cent: 418, label: "grosse Terz" },
+            { numerator: 15, denominator: 11, cent: 537, label: "übermässige Quarte" },
+            { numerator: 16, denominator: 11, cent: 649, label: "halbverminderte Quinte" },
+            { numerator: 13, denominator: 12, cent: 139, label: "zwei-Drittelton" },
+            { numerator: 14, denominator: 13, cent: 128, label: "kleine Sekunde" },
+            { numerator: 15, denominator: 13, cent: 248, label: "5 Vierteltöne" },
+            { numerator: 16, denominator: 13, cent: 359, label: "neutrale Terz" },
+            { numerator: 15, denominator: 14, cent: 119, label: "diatonischer Halbton" },
+            { numerator: 16, denominator: 15, cent: 112, label: "diatonischer Halbton" },
+        ];
+
+        const margin = { top: 20, right: 20, bottom: 50, left: 70 };
+        const width = 1000 - margin.left - margin.right;
+        const height = 800 - margin.top - margin.bottom;
+
+        const svg = d3.select("#chart")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const xScale = d3.scaleLinear()
+            .domain([1, 16])
+            .range([0, width]);
+
+        const yScale = d3.scaleLinear()
+            .domain([0, 1200])
+            .range([height, 0]);
+
+        const xAxis = d3.axisBottom(xScale).ticks(16);
+        const yAxis = d3.axisLeft(yScale).ticks(10);
+
+        const gridlines = d3.axisLeft(yScale)
+            .tickSize(-width)
+            .tickFormat("");
+
+        svg.append("g")
+            .attr("class", "grid")
+            .call(gridlines)
+            .attr("transform", "translate(0,0)");
+
+        svg.append("g")
+            .attr("class", "axis")
+            .call(yAxis);
+
+        svg.append("g")
+            .attr("class", "axis")
+            .attr("transform", `translate(0,${height})`)
+            .call(xAxis);
+
+        data.forEach(d => {
+            const x1 = xScale(d.numerator);
+            const x2 = xScale(d.denominator);
+            const y = yScale(d.cent);
+
+            svg.append("line")
+                .attr("x1", x1)
+                .attr("y1", y)
+                .attr("x2", x2)
+                .attr("y2", y)
+                .attr("stroke", "steelblue")
+                .attr("stroke-width", 2);
+
+            svg.append("circle")
+                .attr("cx", x1)
+                .attr("cy", y)
+                .attr("r", 4)
+                .attr("fill", "orange");
+
+            svg.append("circle")
+                .attr("cx", x2)
+                .attr("cy", y)
+                .attr("r", 4)
+                .attr("fill", "green");
+
+            svg.append("text")
+                .attr("x", (x1 + x2) / 2)
+                .attr("y", y - 10)
+                .attr("class", "label")
+                .text(d.label);
+        });
+    </script>
+</body>
+</html>
