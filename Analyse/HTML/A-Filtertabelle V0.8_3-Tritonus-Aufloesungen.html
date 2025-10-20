@@ -1,0 +1,242 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+	<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A-Filtertabelle V0.8: 3-Tritonus-Aufloesungen</title>
+    <link rel="stylesheet" href="stylesheet.css">
+</head>
+<body>
+
+<h1>A-Filtertabelle V0.8: 3-Tritonus-Aufloesungen</h1>
+<p style="font-size: 10px; text-align: left;">
+    <a href="../Inhalt.html" style="text-decoration: none; color: gray;">zurück zum Inhaltsverzeichnis</a>
+</p>
+
+<table id="demo">
+    <thead>
+        <!-- Dynamische Spaltenüberschriften -->
+    </thead>
+    <tbody>
+        <!-- Dynamische Inhalte -->
+    </tbody>
+</table>
+
+<script src="dist/tablefilter/tablefilter.js"></script>
+<script src="https://surikov.github.io/webaudiofont/npm/dist/WebAudioFontPlayer.js"></script>
+<script src="https://surikov.github.io/webaudiofontdata/sound/0000_JCLive_sf2_file.js"></script>
+<script src="js/PlayScript.js"></script>
+
+<script>
+    // JSON-Daten
+
+const data = [
+{ "Hew Rep PCL": "2336","Hew Rep Name": "C dim","Hewit Name PCL": "2336","Hewitt Name": "C dim","Betrag von": "3","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "273","nach Rep PCL": "2184","nach Name PCL": "2184","nach Name": "C +","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:G#  25:F#, B","Oberton nachher": "24:C#, F , A   23:D#, G , B","Oberton Rang vorher": "30","Oberton Rang nachher": "24","Oberton Rang Verbesserung": "-6","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2336","Hew Rep Name": "C dim","Hewit Name PCL": "2336","Hewitt Name": "C dim","Betrag von": "3","tritonus auf": "6","Tritonus": "F#-C ","Auflösung": "F -C#","nach PCL": "1344","nach Rep PCL": "2688","nach Name PCL": "2688","nach Name": "C Ganzton Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:G#  25:F#, B","Oberton nachher": "30:C#  29:D#","Oberton Rang vorher": "30","Oberton Rang nachher": "30","Oberton Rang Verbesserung": "0","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2568","Hew Rep Name": "C NN","Hewit Name PCL": "2208","Hewitt Name": "C dur-verminderter Dreiklang","Betrag von": "3","tritonus auf": "2","Tritonus": "D -G#","Auflösung": "C#-A ","nach PCL": "3076","nach Rep PCL": "3076","nach Name PCL": "2432","nach Name": "C Doppelterz Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "29:G#  28:D","Oberton nachher": "25:D , A   22:C , D#, F","Oberton Rang vorher": "29","Oberton Rang nachher": "25","Oberton Rang Verbesserung": "-4","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2568","Hew Rep Name": "C NN","Hewit Name PCL": "2208","Hewitt Name": "C dur-verminderter Dreiklang","Betrag von": "3","tritonus auf": "8","Tritonus": "G#-D ","Auflösung": "G -D#","nach PCL": "2320","nach Rep PCL": "2320","nach Name PCL": "2320","nach Name": "C m","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "29:G#  28:D","Oberton nachher": "28:D#, F   26:C , G#","Oberton Rang vorher": "29","Oberton Rang nachher": "28","Oberton Rang Verbesserung": "-1","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2592","Hew Rep Name": "C doppelt vermindert Dreiklang","Hewit Name PCL": "2178","Hewitt Name": "C Italienischer Sextakkord","Betrag von": "3","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "529","nach Rep PCL": "2312","nach Name PCL": "2192","nach Name": "C dur-Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "31:D   27:C","Oberton nachher": "33:G   24:C","Oberton Rang vorher": "31","Oberton Rang nachher": "33","Oberton Rang Verbesserung": "2","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2592","Hew Rep Name": "C doppelt vermindert Dreiklang","Hewit Name PCL": "2178","Hewitt Name": "C Italienischer Sextakkord","Betrag von": "3","tritonus auf": "6","Tritonus": "F#-C ","Auflösung": "F -C#","nach PCL": "1600","nach Rep PCL": "3200","nach Name PCL": "2305","nach Name": "C unvollständiger großer Moll-Septakkord","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "31:D   27:C","Oberton nachher": "27:G   26:C#","Oberton Rang vorher": "31","Oberton Rang nachher": "27","Oberton Rang Verbesserung": "-4","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "3088","Hew Rep Name": "C 5 add b9","Hewit Name PCL": "3088","Hewitt Name": "C 5 add b9","Betrag von": "3","tritonus auf": "7","Tritonus": "G -C#","Auflösung": "F#-D ","nach PCL": "2592","nach Rep PCL": "2592","nach Name PCL": "2178","nach Name": "C Italienischer Sextakkord","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "27:C   25:D#","Oberton nachher": "31:D   27:C","Oberton Rang vorher": "27","Oberton Rang nachher": "31","Oberton Rang Verbesserung": "4","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3104","Hew Rep Name": "C NN","Hewit Name PCL": "2096","Hewitt Name": "C Raga Ongkari","Betrag von": "3","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "1041","nach Rep PCL": "2568","nach Name PCL": "2208","nach Name": "C dur-verminderter Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:F#  24:D","Oberton nachher": "29:G   28:C#","Oberton Rang vorher": "30","Oberton Rang nachher": "29","Oberton Rang Verbesserung": "-1","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" }
+];
+
+
+
+  const table = document.getElementById('demo');
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+
+  // Spalten & Header bauen
+  const columns = Object.keys(data[0]);
+  const headerRow = document.createElement('tr');
+  columns.forEach(column => {
+    const th = document.createElement('th');
+    th.textContent = column;
+    headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow);
+
+  // Body bauen
+  function isImageColumn(name) {
+     return /image$/i.test(name); // nur Spalten, deren Name auf "Image" endet
+  }
+  function fixPath(v) {
+  // ../XYZ/...  ->  ../../Hewitt/XYZ/...
+   return v.replace(/^\.\.\//, '../../Hewitt/');
+  }
+
+  data.forEach(row => {
+    const tr = document.createElement('tr');
+    columns.forEach(column => {
+      const td = document.createElement('td');
+      const val = row[column];
+      if (column.includes("PCL")) {
+        const pclValue = row[column].toString().padStart(4, '0');
+        const filePath = `../../Pocket/HTML/${pclValue}.htm`;
+        td.innerHTML = `
+          <img border="0" src="../../Pocket/gif/Kreise/${pclValue}.gif" height="24" onclick="playChord(1${pclValue})" style="cursor: pointer;">
+          <a href="${filePath}" style="font-size: 10px; color: gray;" target="_blank">${pclValue}</a>
+          <img border="0" src="../../Pocket/gif/Score/Scale/${pclValue}.gif" height="24" onclick="playScale(1${pclValue})" style="cursor: pointer;"><br>
+        `;
+      } else if (column.includes("Midi")) {
+        const midiValue = row[column];
+        const pclValue = midiValue.toString().padStart(4, '0');
+        td.innerHTML = `
+          <img border="0" src="../../Pocket/gif/Kreise/${pclValue}.gif" height="24" onclick="playChord('${midiValue}')" style="cursor: pointer;">
+        `;
+      } else if ((isImageColumn(column))) {
+        const corrected = fixPath(val);
+        const a = document.createElement('a');
+        a.href = corrected;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.title = corrected;
+
+        const img = document.createElement('img');
+        img.src = corrected;
+        img.alt = column;
+        img.loading = 'lazy';
+        img.style.maxHeight = '56px';
+        img.style.maxWidth  = '120px';
+
+        a.appendChild(img);
+        td.appendChild(a);
+     } else 
+	 {
+        td.textContent = row[column];
+      }
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+
+  // --- Hilfsfunktionen für Numerik & Icons ---
+  function normalizeNumber(str) {
+    const txt = (str ?? '').toString().trim();
+    // "1 234", "1.234", "3,5" -> 1234 | 1234 | 3.5
+    const norm = txt.replace(/\s/g, '').replace(/\./g, '').replace(',', '.');
+    return /^-?\d+(\.\d+)?$/.test(norm) ? parseFloat(norm) : NaN;
+  }
+
+  function looksNumeric(colIndex) {
+    // prüfe die ersten paar Zeilen
+    const max = Math.min(tbody.rows.length, 10);
+    let hits = 0, checks = 0;
+    for (let r = 0; r < max; r++) {
+      const cell = tbody.rows[r].cells[colIndex]?.textContent ?? '';
+      const n = normalizeNumber(cell);
+      if (!isNaN(n)) hits++;
+      checks++;
+    }
+    return checks > 0 && hits / checks >= 0.6; // heuristisch
+  }
+
+  function clearAllSortIcons() {
+    thead.querySelectorAll('th').forEach(th => th.classList.remove('sort-asc','sort-desc'));
+  }
+  function setSortIcon(colIndex, dir) {
+    const th = thead.querySelectorAll('th')[colIndex];
+    if (!th) return;
+    th.classList.remove('sort-asc','sort-desc');
+    th.classList.add(dir === 'desc' ? 'sort-desc' : 'sort-asc');
+  }
+
+  // --- TableFilter initialisieren mit automatisch erkannten col_types ---
+  // baue col_types dynamisch (number|string) für korrekte numerische Sortierung beim Klick
+  const col_types = columns.map((_, i) => looksNumeric(i) ? 'number' : 'string');
+
+  const filtersConfig = {
+    base_path: 'dist/tablefilter/',
+    extensions: [{ name: 'sort' }],
+    col_types // WICHTIG: sorgt dafür, dass Klick-Sortierung numerisch arbeitet
+  };
+  const tf = new TableFilter('demo', filtersConfig);
+  tf.init();
+
+  // Optional: Icons auch nach manuellem Klick aktuell halten
+  thead.addEventListener('click', (e) => {
+    const th = e.target.closest('th');
+    if (!th) return;
+    const idx = Array.from(thead.querySelectorAll('th')).indexOf(th);
+    // TableFilter sortiert bereits – wir kümmern uns nur um die Optik:
+    // Toggle-Logik: wenn th bereits asc -> desc, wenn desc -> asc, sonst asc
+    const asc = th.classList.contains('sort-asc');
+    const desc = th.classList.contains('sort-desc');
+    clearAllSortIcons();
+    setSortIcon(idx, asc ? 'desc' : 'asc');
+  });
+
+  // --- URL-Filter & -Sort anwenden ---
+  (function applyFiltersAndSortFromURL() {
+    const params = new URLSearchParams(window.location.search);
+
+    // 1) Filter per Spaltennamen (exakt, URL-encoded): ?Hew%20Rep%20Name=C%20dim&Tritonus=C%20-F%23
+    let anyFilter = false;
+    columns.forEach((colName, i) => {
+      const value = params.get(colName);
+      if (value) {
+        tf.setFilterValue(i, value);
+        anyFilter = true;
+      }
+    });
+    if (anyFilter) tf.filter();
+
+    // 2) Multi-Sort: ?sort=SpalteA:asc,SpalteB:desc
+    const sortParam = params.get('sort');
+    if (!sortParam) return;
+
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    const sortRules = sortParam.split(',').map(s => {
+      const [name, dirRaw] = s.split(':');
+      return { col: (name || '').trim(), dir: (dirRaw || 'asc').toLowerCase() };
+    }).filter(r => r.col);
+
+    function parseValue(cellText, colIdx) {
+      if (col_types[colIdx] === 'number') {
+        const n = normalizeNumber(cellText);
+        if (!isNaN(n)) return n;
+      }
+      return (cellText ?? '').toString();
+    }
+
+    rows.sort((a, b) => {
+      for (let { col, dir } of sortRules) {
+        const idx = columns.indexOf(col);
+        if (idx === -1) continue;
+
+        const av = parseValue(a.children[idx].textContent, idx);
+        const bv = parseValue(b.children[idx].textContent, idx);
+
+        let cmp = 0;
+        if (typeof av === 'number' && typeof bv === 'number') {
+          cmp = av - bv;
+        } else {
+          cmp = av.toString().localeCompare(bv.toString(), 'de', { numeric: true, sensitivity: 'base' });
+        }
+        if (cmp !== 0) return dir === 'desc' ? -cmp : cmp;
+      }
+      return 0;
+    });
+
+    // sortierte Reihen einsetzen
+    rows.forEach(r => tbody.appendChild(r));
+
+    // Sortpfeile wie beim manuellen Klicken setzen:
+    clearAllSortIcons();
+    sortRules.forEach(r => {
+      const idx = columns.indexOf(r.col);
+      if (idx !== -1) setSortIcon(idx, r.dir);
+    });
+  })();
+</script>
+<style>
+  /* einfache, unaufdringliche Sortpfeile – passt zu TableFilter */
+  #demo thead th.sort-asc::after { content: "▲"; margin-left: .35em; font-size: .8em; opacity: .7; }
+  #demo thead th.sort-desc::after { content: "▼"; margin-left: .35em; font-size: .8em; opacity: .7; }
+</style>
+
+
+</body>
+</html>
+

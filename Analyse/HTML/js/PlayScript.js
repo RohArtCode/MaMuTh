@@ -74,12 +74,40 @@ function processInput(input) {
         }
 
         // Funktion zum Spielen einer Skala mit Verzögerung zwischen den Tönen
-        function playScale(input) {
-            const notes = processInput(input);
-            notes.forEach((note, index) => {
-                player.queueWaveTable(audioContext, audioContext.destination, selectedPreset, audioContext.currentTime + index * 0.5, note, 0.5);
-            });
-        }
+        // Spielt eine Skala: aufwärts, dann Grundton + 12 (Oktave), dann abwärts
+		
+function playScale(input, step = 0.40, duration = 0.48) {
+  const notes = processInput(input);
+  if (!Array.isArray(notes) || notes.length === 0) return;
+
+  // Heuristik: sind es MIDI-Noten (<=127) oder Frequenzen?
+  const isFrequency = notes[0] > 127;
+  const octaveUp = isFrequency ? notes[0] * 2 : notes[0] + 12;
+
+  // Aufwärts (wie geliefert)
+  const up = notes;
+
+  // Abwärts: ab der zweithöchsten Note, damit nach der Oktave nicht sofort dieselbe Note wiederholt wird
+  const down = notes.slice(0, -1).reverse();
+
+  // Gesamtabfolge
+  const sequence = [...up, octaveUp, ...down];
+
+  let t = audioContext.currentTime;
+  for (const n of sequence) {
+    player.queueWaveTable(
+      audioContext,
+      audioContext.destination,
+      selectedPreset,
+      t,
+      n,
+      duration
+    );
+    t += step; // Abstand zwischen den Noten
+  }
+}
+
+		
 // Funktion zum Spielen einer Skala und danach des Akkords
 function playScaleChord(input) {
     const notes = processInput(input);

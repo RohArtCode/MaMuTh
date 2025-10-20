@@ -1,5 +1,5 @@
 # Quell- und Zielverzeichnisse
-$basePath = "C:\D\Add\_Projekte\Website\github\MaMuTH\MaMuTh\_BuildScript-Htm-Json-Source"
+$basePath = "C:\D\Add\_Projekte\Website\github\MaMuTH\MaMuTh\1-BuildScript-Htm-Json-Source"
 $outputPath = "C:\D\Add\_Projekte\Website\github\MaMuTH\MaMuTh\Analyse"
 $htmlDirectory="HTML"
 $outputSubPath = Join-Path $outputPath $htmlDirectory  # Vollständiger Pfad zum Unterverzeichnis
