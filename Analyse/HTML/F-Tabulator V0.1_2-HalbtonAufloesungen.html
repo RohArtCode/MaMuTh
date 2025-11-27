@@ -1,0 +1,411 @@
+﻿<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <title>F-Tabulator V0.1: 2-HalbtonAufloesungen</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="dist/css/tabulator.min.css">
+  <style>
+    :root{
+      --bg:#0b0d10;
+      --panel:#12161b;
+      --text:#ecf1f6;
+      --muted:#8aa0b5;
+      --border:#1f2630;
+      --accent:#6ab0ff;
+      --accent2:#ffd166;
+    }
+    *{box-sizing:border-box}
+    body{
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+    }
+    h1{margin:16px 16px 6px;font-size:20px;}
+    p.backlink{margin:0 16px 10px;font-size:11px;}
+    p.backlink a{color:var(--muted);text-decoration:none;}
+    .panel{
+      margin:0 16px 16px;
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:10px 12px 12px;
+      box-shadow:0 6px 24px rgba(0,0,0,.25);
+    }
+    .toolbar{
+      display:flex;
+      gap:10px;
+      align-items:flex-end;
+      flex-wrap:wrap;
+    }
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      min-width:150px;
+    }
+    label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+    select,input[type="text"]{
+      background:#0d1116;
+      border:1px solid #242b35;
+      border-radius:10px;
+      color:var(--text);
+      padding:5px 8px;
+      min-height:30px;
+    }
+    select[multiple]{
+      min-width:240px;
+      min-height:6.5em;
+    }
+    button{
+      background:linear-gradient(180deg,#1b2332,#0f141e);
+      border:1px solid #243043;
+      border-radius:10px;
+      padding:6px 14px;
+      color:var(--text);
+      cursor:pointer;
+      min-height:30px;
+    }
+    button:hover{filter:brightness(1.05);}
+    .inline-check{
+      display:flex;
+      gap:6px;
+      align-items:center;
+      margin-bottom:4px;
+      font-size:12px;
+      color:var(--muted);
+    }
+    #tableWrap{
+      margin:0 16px 16px;
+    }
+    /* Tabulator dark-ish */
+    .tabulator{
+      background:#0f141a;
+      color:var(--text);
+      border:1px solid #10151b;
+      border-radius:14px;
+      overflow:hidden;
+    }
+    .tabulator .tabulator-header{
+      background:#151b23;
+      border-bottom:1px solid #1f2733;
+    }
+    .tabulator-row{
+      background:rgba(6,8,11,.35);
+    }
+    .tabulator-row.tabulator-row-even{
+      background:rgba(6,8,11,.12);
+    }
+    .tabulator .tabulator-row .tabulator-cell.feature-col{
+      background:rgba(11,13,16,.85);
+      font-weight:600;
+      position:sticky;
+      left:0;
+      z-index:3;
+    }
+    .tabulator-col[role="columnheader"]{
+      white-space:nowrap;
+    }
+    .smallnote{
+      font-size:11px;
+      color:var(--muted);
+      margin-top:6px;
+    }
+    @media (max-width:940px){
+      .toolbar{flex-direction:column;align-items:flex-start;}
+      select[multiple]{width:100%;}
+    }
+  </style>
+</head>
+<body>
+  <h1>F-Tabulator V0.1: 2-HalbtonAufloesungen</h1>
+  <p class="backlink">
+    <a href="../Inhalt.html">zurück zum Inhaltsverzeichnis</a>
+  </p>
+
+  <div class="panel">
+    <div class="toolbar">
+      <div class="field">
+        <label for="filterCol">Filterspalte</label>
+        <select id="filterCol"></select>
+      </div>
+      <div class="field">
+        <label for="filterVal">Filterwert</label>
+        <input id="filterVal" type="text" placeholder="z.B. 2336 oder 3" />
+      </div>
+      <div class="field" style="min-width:110px;">
+        <label style="visibility:hidden;">.</label>
+        <button id="btnFilter">auf Liste anwenden</button>
+      </div>
+
+      <div class="field" style="flex:1 1 320px;">
+        <label for="productSelect">Einträge nebeneinander (Strg/Cmd für mehrere)</label>
+        <select id="productSelect" multiple></select>
+      </div>
+
+      <div class="field" style="min-width:150px;">
+        <label style="visibility:hidden;">.</label>
+        <div class="inline-check">
+          <input type="checkbox" id="toggleVertical" checked>
+          <span>vertikale Überschriften</span>
+        </div>
+        <button id="buildBtn">Tabelle aktualisieren</button>
+      </div>
+    </div>
+    <div class="smallnote">
+      Tipp: erst filtern, dann mehrere Einträge auswählen → so bestimmst du genau, was du nebeneinander sehen willst.
+    </div>
+  </div>
+
+  <div id="tableWrap">
+    <div id="table"></div>
+  </div>
+
+  <!-- Tabulator JS -->
+  <script src="dist/tabulator/js/tabulator.min.js"></script>
+
+  <!-- ====== DATENBLOCK: nur columns + rows ====== -->
+  <!-- WICHTIG: rows benutzen jetzt die identifier als Keys -->
+  <script id="data" type="application/json">
+  const data = [
+{ "Hew Rep PCL": "2080","Hew Rep Name": "C Tritonus","Hewit Name PCL": "2080","Hewitt Name": "C Tritonus","Betrag von": "2","von nr": "0","von": "C ","nach": "B ","nach PCL": "33","nach Rep PCL": "2112","nach Name PCL": "2112","nach Name": "C Quart","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "19:C , D , F#, G#  15:F , B","Oberton nachher": "23:B   19:E","Oberton Rang vorher": "19","Oberton Rang nachher": "23","Oberton Rang Verbesserung": "4","": "" },
+{ "Hew Rep PCL": "2080","Hew Rep Name": "C Tritonus","Hewit Name PCL": "2080","Hewitt Name": "C Tritonus","Betrag von": "2","von nr": "0","von": "C ","nach": "C#","nach PCL": "1056","nach Rep PCL": "2112","nach Name PCL": "2112","nach Name": "C Quart","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "19:C , D , F#, G#  15:F , B","Oberton nachher": "23:F#  19:B","Oberton Rang vorher": "19","Oberton Rang nachher": "23","Oberton Rang Verbesserung": "4","": "" },
+{ "Hew Rep PCL": "2080","Hew Rep Name": "C Tritonus","Hewit Name PCL": "2080","Hewitt Name": "C Tritonus","Betrag von": "2","von nr": "6","von": "F#","nach": "F ","nach PCL": "2112","nach Rep PCL": "2112","nach Name PCL": "2112","nach Name": "C Quart","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "19:C , D , F#, G#  15:F , B","Oberton nachher": "23:F   19:A#","Oberton Rang vorher": "19","Oberton Rang nachher": "23","Oberton Rang Verbesserung": "4","": "" },
+{ "Hew Rep PCL": "2080","Hew Rep Name": "C Tritonus","Hewit Name PCL": "2080","Hewitt Name": "C Tritonus","Betrag von": "2","von nr": "6","von": "F#","nach": "G ","nach PCL": "2064","nach Rep PCL": "2112","nach Name PCL": "2112","nach Name": "C Quart","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "19:C , D , F#, G#  15:F , B","Oberton nachher": "23:C   19:F","Oberton Rang vorher": "19","Oberton Rang nachher": "23","Oberton Rang Verbesserung": "4","": "" },
+{ "Hew Rep PCL": "2112","Hew Rep Name": "C Quart","Hewit Name PCL": "2112","Hewitt Name": "C Quart","Betrag von": "2","von nr": "0","von": "C ","nach": "B ","nach PCL": "65","nach Rep PCL": "2080","nach Name PCL": "2080","nach Name": "C Tritonus","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "23:F   19:A#","Oberton nachher": "19:C#, F , G , B   15:E , A#","Oberton Rang vorher": "23","Oberton Rang nachher": "19","Oberton Rang Verbesserung": "-4","": "" },
+{ "Hew Rep PCL": "2112","Hew Rep Name": "C Quart","Hewit Name PCL": "2112","Hewitt Name": "C Quart","Betrag von": "2","von nr": "0","von": "C ","nach": "C#","nach PCL": "1088","nach Rep PCL": "2176","nach Name PCL": "2176","nach Name": "C gr.Terz","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "23:F   19:A#","Oberton nachher": "22:C#  17:D#","Oberton Rang vorher": "23","Oberton Rang nachher": "22","Oberton Rang Verbesserung": "-1","": "" },
+{ "Hew Rep PCL": "2112","Hew Rep Name": "C Quart","Hewit Name PCL": "2112","Hewitt Name": "C Quart","Betrag von": "2","von nr": "5","von": "F ","nach": "E ","nach PCL": "2176","nach Rep PCL": "2176","nach Name PCL": "2176","nach Name": "C gr.Terz","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "23:F   19:A#","Oberton nachher": "22:C   17:D","Oberton Rang vorher": "23","Oberton Rang nachher": "22","Oberton Rang Verbesserung": "-1","": "" },
+{ "Hew Rep PCL": "2112","Hew Rep Name": "C Quart","Hewit Name PCL": "2112","Hewitt Name": "C Quart","Betrag von": "2","von nr": "5","von": "F ","nach": "F#","nach PCL": "2080","nach Rep PCL": "2080","nach Name PCL": "2080","nach Name": "C Tritonus","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "23:F   19:A#","Oberton nachher": "19:C , D , F#, G#  15:F , B","Oberton Rang vorher": "23","Oberton Rang nachher": "19","Oberton Rang Verbesserung": "-4","": "" },
+{ "Hew Rep PCL": "2176","Hew Rep Name": "C gr.Terz","Hewit Name PCL": "2176","Hewitt Name": "C gr.Terz","Betrag von": "2","von nr": "0","von": "C ","nach": "B ","nach PCL": "129","nach Rep PCL": "2112","nach Name PCL": "2112","nach Name": "C Quart","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "22:C   17:D","Oberton nachher": "23:E   19:A","Oberton Rang vorher": "22","Oberton Rang nachher": "23","Oberton Rang Verbesserung": "1","": "" },
+{ "Hew Rep PCL": "2176","Hew Rep Name": "C gr.Terz","Hewit Name PCL": "2176","Hewitt Name": "C gr.Terz","Betrag von": "2","von nr": "0","von": "C ","nach": "C#","nach PCL": "1152","nach Rep PCL": "2304","nach Name PCL": "2304","nach Name": "C kl.Terz","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "22:C   17:D","Oberton nachher": "21:A   20:F#","Oberton Rang vorher": "22","Oberton Rang nachher": "21","Oberton Rang Verbesserung": "-1","": "" },
+{ "Hew Rep PCL": "2176","Hew Rep Name": "C gr.Terz","Hewit Name PCL": "2176","Hewitt Name": "C gr.Terz","Betrag von": "2","von nr": "4","von": "E ","nach": "D#","nach PCL": "2304","nach Rep PCL": "2304","nach Name PCL": "2304","nach Name": "C kl.Terz","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "22:C   17:D","Oberton nachher": "21:G#  20:F","Oberton Rang vorher": "22","Oberton Rang nachher": "21","Oberton Rang Verbesserung": "-1","": "" },
+{ "Hew Rep PCL": "2176","Hew Rep Name": "C gr.Terz","Hewit Name PCL": "2176","Hewitt Name": "C gr.Terz","Betrag von": "2","von nr": "4","von": "E ","nach": "F ","nach PCL": "2112","nach Rep PCL": "2112","nach Name PCL": "2112","nach Name": "C Quart","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "22:C   17:D","Oberton nachher": "23:F   19:A#","Oberton Rang vorher": "22","Oberton Rang nachher": "23","Oberton Rang Verbesserung": "1","": "" },
+{ "Hew Rep PCL": "2304","Hew Rep Name": "C kl.Terz","Hewit Name PCL": "2304","Hewitt Name": "C kl.Terz","Betrag von": "2","von nr": "0","von": "C ","nach": "B ","nach PCL": "257","nach Rep PCL": "2176","nach Name PCL": "2176","nach Name": "C gr.Terz","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "21:G#  20:F","Oberton nachher": "22:B   17:C#","Oberton Rang vorher": "21","Oberton Rang nachher": "22","Oberton Rang Verbesserung": "1","": "" },
+{ "Hew Rep PCL": "2304","Hew Rep Name": "C kl.Terz","Hewit Name PCL": "2304","Hewitt Name": "C kl.Terz","Betrag von": "2","von nr": "0","von": "C ","nach": "C#","nach PCL": "1280","nach Rep PCL": "2560","nach Name PCL": "2560","nach Name": "C gr.Sek.","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "21:G#  20:F","Oberton nachher": "21:D#  20:C#","Oberton Rang vorher": "21","Oberton Rang nachher": "21","Oberton Rang Verbesserung": "0","": "" },
+{ "Hew Rep PCL": "2304","Hew Rep Name": "C kl.Terz","Hewit Name PCL": "2304","Hewitt Name": "C kl.Terz","Betrag von": "2","von nr": "3","von": "D#","nach": "D ","nach PCL": "2560","nach Rep PCL": "2560","nach Name PCL": "2560","nach Name": "C gr.Sek.","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "21:G#  20:F","Oberton nachher": "21:D   20:C","Oberton Rang vorher": "21","Oberton Rang nachher": "21","Oberton Rang Verbesserung": "0","": "" },
+{ "Hew Rep PCL": "2304","Hew Rep Name": "C kl.Terz","Hewit Name PCL": "2304","Hewitt Name": "C kl.Terz","Betrag von": "2","von nr": "3","von": "D#","nach": "E ","nach PCL": "2176","nach Rep PCL": "2176","nach Name PCL": "2176","nach Name": "C gr.Terz","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "21:G#  20:F","Oberton nachher": "22:C   17:D","Oberton Rang vorher": "21","Oberton Rang nachher": "22","Oberton Rang Verbesserung": "1","": "" },
+{ "Hew Rep PCL": "2560","Hew Rep Name": "C gr.Sek.","Hewit Name PCL": "2560","Hewitt Name": "C gr.Sek.","Betrag von": "2","von nr": "0","von": "C ","nach": "B ","nach PCL": "513","nach Rep PCL": "2304","nach Name PCL": "2304","nach Name": "C kl.Terz","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "21:D   20:C","Oberton nachher": "21:G   20:E","Oberton Rang vorher": "21","Oberton Rang nachher": "21","Oberton Rang Verbesserung": "0","": "" },
+{ "Hew Rep PCL": "2560","Hew Rep Name": "C gr.Sek.","Hewit Name PCL": "2560","Hewitt Name": "C gr.Sek.","Betrag von": "2","von nr": "0","von": "C ","nach": "C#","nach PCL": "1536","nach Rep PCL": "3072","nach Name PCL": "3072","nach Name": "C kl.Sek.","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "21:D   20:C","Oberton nachher": "18:G   17:D","Oberton Rang vorher": "21","Oberton Rang nachher": "18","Oberton Rang Verbesserung": "-3","": "" },
+{ "Hew Rep PCL": "2560","Hew Rep Name": "C gr.Sek.","Hewit Name PCL": "2560","Hewitt Name": "C gr.Sek.","Betrag von": "2","von nr": "2","von": "D ","nach": "C#","nach PCL": "3072","nach Rep PCL": "3072","nach Name PCL": "3072","nach Name": "C kl.Sek.","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "21:D   20:C","Oberton nachher": "18:F#  17:C#","Oberton Rang vorher": "21","Oberton Rang nachher": "18","Oberton Rang Verbesserung": "-3","": "" },
+{ "Hew Rep PCL": "2560","Hew Rep Name": "C gr.Sek.","Hewit Name PCL": "2560","Hewitt Name": "C gr.Sek.","Betrag von": "2","von nr": "2","von": "D ","nach": "D#","nach PCL": "2304","nach Rep PCL": "2304","nach Name PCL": "2304","nach Name": "C kl.Terz","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "21:D   20:C","Oberton nachher": "21:G#  20:F","Oberton Rang vorher": "21","Oberton Rang nachher": "21","Oberton Rang Verbesserung": "0","": "" },
+{ "Hew Rep PCL": "3072","Hew Rep Name": "C kl.Sek.","Hewit Name PCL": "3072","Hewitt Name": "C kl.Sek.","Betrag von": "2","von nr": "0","von": "C ","nach": "B ","nach PCL": "1025","nach Rep PCL": "2560","nach Name PCL": "2560","nach Name": "C gr.Sek.","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "18:F#  17:C#","Oberton nachher": "21:C#  20:B","Oberton Rang vorher": "18","Oberton Rang nachher": "21","Oberton Rang Verbesserung": "3","": "" },
+{ "Hew Rep PCL": "3072","Hew Rep Name": "C kl.Sek.","Hewit Name PCL": "3072","Hewitt Name": "C kl.Sek.","Betrag von": "2","von nr": "1","von": "C#","nach": "D ","nach PCL": "2560","nach Rep PCL": "2560","nach Name PCL": "2560","nach Name": "C gr.Sek.","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "18:F#  17:C#","Oberton nachher": "21:D   20:C","Oberton Rang vorher": "18","Oberton Rang nachher": "21","Oberton Rang Verbesserung": "3","": "" }
+];
+
+
+  </script>
+  <!-- ====== ENDE DATENBLOCK ====== -->
+
+  <script>
+  // JSON wie bei A-Filtertabelle holen
+  const RAW     = JSON.parse(document.getElementById('data').textContent);
+  const COLDEFS = RAW.columns || [];
+  const ROWS    = RAW.rows || [];
+
+  const COLMETA = {};
+  COLDEFS.forEach(c => {
+    const id = c.identifier || c.name;
+    COLMETA[id] = {
+      id,
+      label: c.name || c.identifier,
+      renderAs: (c.renderAs || 'text').toLowerCase()
+    };
+  });
+
+  const $ = (id) => document.getElementById(id);
+
+  // Filterspalte füllen
+  (function fillFilterSelect(){
+    const sel = $('filterCol');
+    sel.innerHTML = '<option value="">(alle Spalten)</option>';
+    COLDEFS.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.identifier || c.name;
+      opt.textContent = c.name || c.identifier;
+      sel.appendChild(opt);
+    });
+  })();
+
+  // Auswahl-Liste füllen
+  function buildRowLabel(row, idx){
+    const pickOrder = [
+      'HEWITT_PRIME_TONFOLGE',
+      'HEWITT_PRIME_PCL',
+      'IMAGE_PRIME_CIRCLE_SMALL',
+      'CLASS_CARDINALITY',
+      'UMFANG'
+    ];
+    for (const key of pickOrder){
+      if (row[key]) return row[key] + ' ['+(idx+1)+']';
+    }
+    for (const c of COLDEFS){
+      const id = c.identifier || c.name;
+      if (row[id]) return row[id] + ' ['+(idx+1)+']';
+    }
+    return 'Eintrag '+(idx+1);
+  }
+
+  function fillProductSelect(indices){
+    const sel = $('productSelect');
+    sel.innerHTML = '';
+    indices.forEach(i => {
+      const row = ROWS[i];
+      const opt = document.createElement('option');
+      opt.value = String(i);
+      opt.textContent = buildRowLabel(row, i);
+      sel.appendChild(opt);
+    });
+    if (indices.length <= 5){
+      Array.from(sel.options).forEach(o => o.selected = true);
+    } else {
+      for (let j=0; j<3 && sel.options[j]; j++) sel.options[j].selected = true;
+    }
+  }
+  // initial alle
+  fillProductSelect(ROWS.map((_,i)=>i));
+
+  // Filter anwenden
+  $('btnFilter').addEventListener('click', () => {
+    const col = $('filterCol').value;
+    const val = $('filterVal').value.trim().toLowerCase();
+    const hits = [];
+    ROWS.forEach((row, idx) => {
+      if (!col){
+        if (!val){ hits.push(idx); return; }
+        const match = COLDEFS.some(c => {
+          const k = c.identifier || c.name;
+          return String(row[k] ?? '').toLowerCase().includes(val);
+        });
+        if (match) hits.push(idx);
+      } else {
+        const cell = String(row[col] ?? '').toLowerCase();
+        if (!val || cell.includes(val)) hits.push(idx);
+      }
+    });
+    fillProductSelect(hits);
+  });
+
+  function normalizeNumber(str){
+    const txt = String(str ?? '').trim().replace(/\s/g,'').replace(/\./g,'').replace(',', '.');
+    const n = parseFloat(txt);
+    return Number.isFinite(n) ? n : NaN;
+  }
+
+  function buildComparison(selectedIndices, verticalHeaders){
+    const selectedRows = selectedIndices.map(i => ROWS[i]).filter(Boolean);
+
+    const features = COLDEFS.map(c => ({
+      id: c.identifier || c.name,
+      label: c.name || c.identifier,
+      renderAs: (c.renderAs || 'text').toLowerCase()
+    }));
+
+    const columns = [
+      {
+        title: "Merkmal",
+        field: "__feature",
+        frozen: true,
+        headerSort: false,
+        cssClass: "feature-col",
+        width: 145
+      }
+    ];
+
+    selectedRows.forEach((rowObj, colIdx) => {
+      const title = buildRowLabel(rowObj, selectedIndices[colIdx]);
+      columns.push({
+        title,
+        field: "p"+colIdx,
+        width: 100,
+        hozAlign: "left",
+        headerSort: false,
+        headerVertical: verticalHeaders ? true : false,
+        __srcRow: rowObj,
+        formatter: function(cell){
+          const colDef = cell.getColumn().getDefinition();
+          const srcRow = colDef.__srcRow;
+          const featureId = cell.getRow().getData().__id;
+          const meta = COLMETA[featureId];
+          const renderAs = meta ? meta.renderAs : 'text';
+          const val = srcRow ? srcRow[featureId] : '';
+
+          if (!srcRow) return '';
+
+          if (renderAs === 'image'){
+            if (!val) return '';
+            return `<img src="${val}" style="height:28px;max-width:80px;object-fit:contain;border-radius:6px;" alt="">`;
+          }
+          if (renderAs === 'pcl'){
+            if (val === undefined || val === null || val === '') return '';
+            const pcl = String(val).padStart(4,'0');
+            const href = `../../Pocket/HTML/${pcl}.htm`;
+            const img  = `../../Pocket/gif/Kreise/${pcl}.gif`;
+            return `<span style="display:inline-flex;gap:4px;align-items:center;">
+                      <a href="${href}" target="_blank" style="color:var(--muted);font-size:10px;">${pcl}</a>
+                      <img src="${img}" style="height:22px;cursor:pointer;" onclick="try{playChord(${Number(pcl)})}catch(e){}">
+                    </span>`;
+          }
+          if (renderAs === 'html'){
+            return val ?? '';
+          }
+
+          const n = normalizeNumber(val);
+          if (!Number.isNaN(n)){
+            cell.getElement().style.textAlign = "right";
+            return n;
+          }
+          return val ?? '';
+        }
+      });
+    });
+
+    const rows = features.map(f => ({
+      "__id": f.id,
+      "__feature": f.label
+    }));
+
+    return {columns, rows};
+  }
+
+  let table;
+
+  function buildTable(){
+    const selectedOpts = Array.from($('productSelect').selectedOptions);
+    let indices = selectedOpts.map(o => parseInt(o.value,10)).filter(n => !Number.isNaN(n));
+
+    if (indices.length === 0){
+      indices = Array.from($('productSelect').options).map(o => parseInt(o.value,10));
+    }
+
+    const vertical = $('toggleVertical').checked;
+    const {columns, rows} = buildComparison(indices, vertical);
+
+    if (table){
+      table.setColumns(columns);
+      table.setData(rows);
+      return;
+    }
+
+    table = new Tabulator("#table", {
+      data: rows,
+      columns: columns,
+      height: "calc(100vh - 190px)",
+      layout: "fitDataFill",
+      renderHorizontal: "virtual",
+      columnHeaderVertAlign: "top",
+      index: "__id"
+    });
+  }
+
+  buildTable();
+  $('buildBtn').addEventListener('click', buildTable);
+  </script>
+
+  <!-- optional wie in A -->
+  <script src="dist/surikov/WebAudioFontPlayer.js"></script>
+  <script src="dist/surikov/0000_JCLive_sf2_file.js"></script>
+  <script src="js/PlayScript.js"></script>
+</body>
+</html>
+

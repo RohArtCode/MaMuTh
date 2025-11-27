@@ -16,7 +16,7 @@
 
   #demo th,
   #demo td {
-    padding: 6px 8px;
+    padding: 2px 4px;
     border-bottom: 1px solid #eee;
 
     /* Wortumbruch nur an sinnvollen Stellen */
@@ -25,14 +25,14 @@
     overflow-wrap: break-word;
     hyphens: auto;
 
-    min-width: 8ch;            /* verhindert ultradünne Spalten */
+    min-width: 3ch;            /* verhindert ultradünne Spalten */
     vertical-align: top;
   }
 
   /* Header-Texte: besser lesbar – kein Wortsplit */
   #demo th {
-    white-space: nowrap;       /* falls du lieber kein Umbruch im Header willst */
-    word-break: keep-all;
+    white-space: normal;       /* nowrap falls du lieber kein Umbruch im Header willst */
+    word-break: normal;  /* keep-all */
     overflow-wrap: normal;
   }
 
@@ -71,8 +71,13 @@
 
 <!-- Libs -->
 <script src="dist/tablefilter/tablefilter.js"></script>
+
+<!-- 
 <script src="https://surikov.github.io/webaudiofont/npm/dist/WebAudioFontPlayer.js"></script>
 <script src="https://surikov.github.io/webaudiofontdata/sound/0000_JCLive_sf2_file.js"></script>
+-->
+<script src="surikov/WebAudioFontPlayer.js"></script>
+<script src="surikov/0000_JCLive_sf2_file.js"></script
 <script src="js/PlayScript.js"></script>
 
 <script>
@@ -1120,9 +1125,9 @@ const data = [
    2) Helfer (klein & schnell)
    ========================= */
 
-/** Nur Spaltennamen, die auf "image" enden, gelten als Bildspalten. */
+/** Nur Spaltennamen, die "image" enthalten, gelten als Bildspalten. */
 function isImageColumn(name) {
-  return String(name).toLowerCase().endsWith('image');
+  return String(name).toLowerCase().includes('image');
 }
 
 /** Pfadkorrektur: "../XYZ/..." -> "../../Hewitt/XYZ/..." */

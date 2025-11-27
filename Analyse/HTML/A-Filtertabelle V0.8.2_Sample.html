@@ -1,0 +1,239 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Musterliste</title>
+  <link rel="stylesheet" href="css/main.css"/>
+</head>
+<body>
+  <h1>Musterliste</h1>
+  <p class="backlink">
+    <a href="../Inhalt.html">zurück zum Inhaltsverzeichnis</a>
+  </p>
+
+  <table id="myTable">
+    <thead></thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- Libs (lokal) -->
+  <script src="dist/tablefilter/tablefilter.js"></script>
+  <script src="dist/surikov/WebAudioFontPlayer.js"></script>
+  <script src="dist/surikov/0000_JCLive_sf2_file.js"></script>
+  <script src="js/PlayScript.js"></script>
+
+  <!-- ====== DATENBLOCK: nur columns + rows ====== -->
+  <script id="data" type="application/json">
+{
+	"title": "A-Filtertabelle V0.8.2: Sample",
+	"meta": {
+		"colTypes": {
+			"Betrag von": "number"
+		},
+		"renderAs": {
+			"Hew Rep PCL": "pcl",
+			"nach Name PCL": "pcl",
+			"Image": "image",
+			"Midi": "midi"
+		}
+	},
+	"rows": [
+		{
+			"Hew Rep PCL": "2336",
+			"nach Name PCL": "2184",
+			"Betrag von": "3",
+			"Image": "../../Hewitt/Diagram/2_Overtone_100000100000.jpg",
+			"Midi": "../../Hewitt/Lilypond/1_Scale.2Octave_100000000000.png"
+		},
+		{
+			"Hew Rep PCL": "2336",
+			"nach Name PCL": "2688",
+			"Betrag von": "3",
+			"Image": "../../Hewitt/Diagram/2_Overtone_100000100000.jpg",
+			"Midi": "../../Hewitt/Lilypond/1_Scale.2Octave_100000000000.png"
+		}
+	]
+}  </script>
+  <!-- ====== ENDE DATENBLOCK ====== -->
+
+  <script>
+  // ---------- JSON einlesen ----------
+  const RAW = JSON.parse(document.getElementById('data').textContent);
+  const COLDEFS = RAW.columns || [];
+  const COLUMNS = COLDEFS.map(c => c.name);
+  const ROWS = RAW.rows || [];
+
+  // Mappings aus Spalten-Meta
+  const RENDERAS  = Object.fromEntries(COLDEFS.map(c => [c.name, String(c.renderAs || 'text').toLowerCase()]));
+  const COLTYPES  = COLDEFS.map(c => (String(c.tftype || 'string').toLowerCase() === 'number' ? 'number' : 'string'));
+  const COLWIDTHS = COLDEFS.map(c => {
+    const w = (c.width || '').toString().trim();
+    return (w && w.toLowerCase() !== 'auto') ? w : ''; // leeres Feld = keine feste Breite
+  });
+
+  // ---------- DOM-Grundlagen ----------
+  const table = document.getElementById('myTable');
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+
+  // Lazy Image Loader
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      const img = e.target;
+      const src = img.dataset.src;
+      if (src){ img.src = src; img.removeAttribute('data-src'); }
+      io.unobserve(img);
+    }
+  }, { root:null, rootMargin:'300px' });
+
+  function padLeft(val, len){
+    const s = String(val ?? '');
+    return s.length >= len ? s : ('0'.repeat(len - s.length) + s);
+  }
+
+  // ---------- Header (Tooltip = description) ----------
+  {
+    const tr = document.createElement('tr');
+    for (const c of COLDEFS){
+      const th = document.createElement('th');
+      th.textContent = c.name;
+      if (c.description) th.title = c.description; // Meta-Tooltip; KEINE Spalte
+      tr.appendChild(th);
+    }
+    thead.appendChild(tr);
+  }
+
+  // ---------- Body ----------
+  const frag = document.createDocumentFragment();
+  ROWS.forEach((row, i) => {
+    const tr = document.createElement('tr');
+    tr.dataset.dataIndex = i;
+
+    for (const col of COLUMNS){
+      const td = document.createElement('td');
+      const val = row[col];
+
+      switch (RENDERAS[col]) {
+        case 'image': {
+          if (val){
+            const a = document.createElement('a');
+            a.href = val; a.target = '_blank'; a.rel = 'noopener'; a.title = val;
+            const img = document.createElement('img');
+            img.className = 'thumb';
+            img.alt = col;
+            img.loading = 'lazy';
+            img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
+            img.dataset.src = val;
+            a.appendChild(img);
+            td.appendChild(a);
+            io.observe(img);
+          }
+          break;
+        }
+        case 'midi': {
+          if (val){
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn-play';
+            btn.textContent = '▶︎ Play';
+            btn.setAttribute('data-action','playChord');
+            btn.setAttribute('data-arg', val);
+            td.appendChild(btn);
+          }
+          break;
+        }
+        case 'pcl': {
+          if (val !== undefined && val !== null) {
+            const pcl  = padLeft(val, 4);
+            const href = `../../Pocket/HTML/${pcl}.htm`; // fester Pfad + Endung
+            const a = document.createElement('a');
+            a.href = href; a.textContent = String(val); a.title = href;
+            td.appendChild(a);
+          }
+          break;
+        }
+        case 'html': {
+          td.innerHTML = val ?? '';
+          break;
+        }
+        default: {
+          td.textContent = (val ?? '').toString();
+        }
+      }
+
+      tr.appendChild(td);
+    }
+
+    frag.appendChild(tr);
+  });
+  tbody.appendChild(frag);
+
+  // ---------- TableFilter mit grid_layout + col_widths/col_types ----------
+  const filtersConfig = {
+    base_path: 'dist/tablefilter/',
+    grid_layout: {
+     width: '100%',         // ← ganze Seite
+     height: '70vh',        // oder was du willst
+     default_col_width: '120px'
+    },
+ 
+    alternate_rows: true,
+    btn_reset: true,
+    rows_counter: true,
+    loader: true,
+    status_bar: true,
+    col_types: COLTYPES,        // z.B. ['string','string','number','string','string']
+    col_widths: COLWIDTHS,      // z.B. ['30px','30px','90px','80px','']
+	state: {						// Enable state persistence   
+        types: ['hash'],			// Possible values: 'local_storage' 'hash' or 'cookie'  
+        filters: true,				// Persist filters values, enabled by default
+		sort: true,
+        columns_visibility: true,	// Persist columns visibility  
+        filters_visibility: true,	// Persist filters row visibility  
+    },  
+    extensions: [
+	{ name: 'sort' },
+	{
+      name: 'colsVisibility',
+      // UI-Optionen (Beispiele):
+      btn_text: 'Spalten verstecken▼',
+      enable_hover: true,
+      tick_to_hide: true,         // Häkchen = Spalte ausblenden
+      enable_tick_all: false,
+      btn_close_text: 'Schließen',
+      toolbar_position: 'right',
+      // VORAB ausblenden (0-basiert):
+      // at_start: [3, 4]
+    }
+	
+	]
+  };
+  const tf = new TableFilter('myTable', filtersConfig);
+  tf.init();
+
+  // ---------- Play-Delegation (nutzt PlayScript.js) ----------
+  tbody.addEventListener('click', (ev) => {
+    const el = ev.target.closest('[data-action]');
+    if (!el) return;
+    const action = el.getAttribute('data-action');
+    const arg = el.getAttribute('data-arg');
+    try {
+      if (action === 'playChord')      playChord(isNaN(arg) ? arg : Number(arg));
+      else if (action === 'playScale') playScale(isNaN(arg) ? arg : Number(arg));
+    } catch (e) { console.warn(e); }
+  });
+
+  // ---------- Optional: Validierung ----------
+  for (const [ri, row] of ROWS.entries()){
+    for (const key of Object.keys(row)){
+      if (!COLUMNS.includes(key)){
+        console.warn(`Row ${ri}: unbekannte Spalte "${key}" – in columns nicht definiert.`);
+      }
+    }
+  }
+  </script>
+</body>
+</html>
+

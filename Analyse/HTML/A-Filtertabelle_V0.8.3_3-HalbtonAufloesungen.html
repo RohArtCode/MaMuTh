@@ -1,0 +1,340 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>A-Filtertabelle_V0.8.3: 3-HalbtonAufloesungen</title>
+  <link rel="stylesheet" href="css/main.css"/>
+</head>
+<body>
+  <h1>A-Filtertabelle_V0.8.3: 3-HalbtonAufloesungen</h1>
+  <p class="backlink">
+    <a href="../Inhalt.html">zurück zum Inhaltsverzeichnis</a>
+  </p>
+
+  <table id="myTable">
+    <thead></thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- Libs (lokal) -->
+  <script src="dist/tablefilter/tablefilter.js"></script>
+  <script src="dist/surikov/WebAudioFontPlayer.js"></script>
+  <script src="dist/surikov/0000_JCLive_sf2_file.js"></script>
+  <script src="js/PlayScript.js"></script>
+
+  <!-- ====== DATENBLOCK: nur columns + rows ====== -->
+  <!-- WICHTIG: rows benutzen jetzt die identifier als Keys -->
+  <script id="data" type="application/json">
+  const data = [
+{ "Hew Rep PCL": "2184","Hew Rep Name": "C +","Hewit Name PCL": "2184","Hewitt Name": "C +","Betrag von": "3","von nr": "0","von": "C ","nach": "B ","nach PCL": "137","nach Rep PCL": "2312","nach Name PCL": "2192","nach Name": "C dur-Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "24:D , F#, A#  23:C , E , G#","Oberton nachher": "33:E   24:A","Oberton Rang vorher": "24","Oberton Rang nachher": "33","Oberton Rang Verbesserung": "9","": "" },
+{ "Hew Rep PCL": "2184","Hew Rep Name": "C +","Hewit Name PCL": "2184","Hewitt Name": "C +","Betrag von": "3","von nr": "0","von": "C ","nach": "C#","nach PCL": "1160","nach Rep PCL": "2320","nach Name PCL": "2320","nach Name": "C m","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "24:D , F#, A#  23:C , E , G#","Oberton nachher": "28:E , F#  26:C#, A","Oberton Rang vorher": "24","Oberton Rang nachher": "28","Oberton Rang Verbesserung": "4","": "" },
+{ "Hew Rep PCL": "2184","Hew Rep Name": "C +","Hewit Name PCL": "2184","Hewitt Name": "C +","Betrag von": "3","von nr": "4","von": "E ","nach": "D#","nach PCL": "2312","nach Rep PCL": "2312","nach Name PCL": "2192","nach Name": "C dur-Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "24:D , F#, A#  23:C , E , G#","Oberton nachher": "33:G#  24:C#","Oberton Rang vorher": "24","Oberton Rang nachher": "33","Oberton Rang Verbesserung": "9","": "" },
+{ "Hew Rep PCL": "2184","Hew Rep Name": "C +","Hewit Name PCL": "2184","Hewitt Name": "C +","Betrag von": "3","von nr": "4","von": "E ","nach": "F ","nach PCL": "2120","nach Rep PCL": "2320","nach Name PCL": "2320","nach Name": "C m","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "24:D , F#, A#  23:C , E , G#","Oberton nachher": "28:G#, A#  26:C#, F","Oberton Rang vorher": "24","Oberton Rang nachher": "28","Oberton Rang Verbesserung": "4","": "" },
+{ "Hew Rep PCL": "2184","Hew Rep Name": "C +","Hewit Name PCL": "2184","Hewitt Name": "C +","Betrag von": "3","von nr": "8","von": "G#","nach": "G ","nach PCL": "2192","nach Rep PCL": "2312","nach Name PCL": "2192","nach Name": "C dur-Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "24:D , F#, A#  23:C , E , G#","Oberton nachher": "33:C   24:F","Oberton Rang vorher": "24","Oberton Rang nachher": "33","Oberton Rang Verbesserung": "9","": "" },
+{ "Hew Rep PCL": "2184","Hew Rep Name": "C +","Hewit Name PCL": "2184","Hewitt Name": "C +","Betrag von": "3","von nr": "8","von": "G#","nach": "A ","nach PCL": "2180","nach Rep PCL": "2320","nach Name PCL": "2320","nach Name": "C m","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "24:D , F#, A#  23:C , E , G#","Oberton nachher": "28:C , D   26:F , A","Oberton Rang vorher": "24","Oberton Rang nachher": "28","Oberton Rang Verbesserung": "4","": "" },
+{ "Hew Rep PCL": "2312","Hew Rep Name": "C m #5","Hewit Name PCL": "2192","Hewitt Name": "C dur-Dreiklang","Betrag von": "3","von nr": "0","von": "C ","nach": "B ","nach PCL": "265","nach Rep PCL": "2320","nach Name PCL": "2320","nach Name": "C m","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "33:G#  24:C#","Oberton nachher": "28:C#, B   26:E , G#","Oberton Rang vorher": "33","Oberton Rang nachher": "28","Oberton Rang Verbesserung": "-5","": "" },
+{ "Hew Rep PCL": "2312","Hew Rep Name": "C m #5","Hewit Name PCL": "2192","Hewitt Name": "C dur-Dreiklang","Betrag von": "3","von nr": "0","von": "C ","nach": "C#","nach PCL": "1288","nach Rep PCL": "2576","nach Name PCL": "2576","nach Name": "C 5 9","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "33:G#  24:C#","Oberton nachher": "31:C#  25:F#, G#","Oberton Rang vorher": "33","Oberton Rang nachher": "31","Oberton Rang Verbesserung": "-2","": "" },
+{ "Hew Rep PCL": "2312","Hew Rep Name": "C m #5","Hewit Name PCL": "2192","Hewitt Name": "C dur-Dreiklang","Betrag von": "3","von nr": "3","von": "D#","nach": "D ","nach PCL": "2568","nach Rep PCL": "2568","nach Name PCL": "2208","nach Name": "C dur-verminderter Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "33:G#  24:C#","Oberton nachher": "29:G#  28:D","Oberton Rang vorher": "33","Oberton Rang nachher": "29","Oberton Rang Verbesserung": "-4","": "" },
+{ "Hew Rep PCL": "2312","Hew Rep Name": "C m #5","Hewit Name PCL": "2192","Hewitt Name": "C dur-Dreiklang","Betrag von": "3","von nr": "3","von": "D#","nach": "E ","nach PCL": "2184","nach Rep PCL": "2184","nach Name PCL": "2184","nach Name": "C +","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "33:G#  24:C#","Oberton nachher": "24:D , F#, A#  23:C , E , G#","Oberton Rang vorher": "33","Oberton Rang nachher": "24","Oberton Rang Verbesserung": "-9","": "" },
+{ "Hew Rep PCL": "2312","Hew Rep Name": "C m #5","Hewit Name PCL": "2192","Hewitt Name": "C dur-Dreiklang","Betrag von": "3","von nr": "8","von": "G#","nach": "G ","nach PCL": "2320","nach Rep PCL": "2320","nach Name PCL": "2320","nach Name": "C m","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "33:G#  24:C#","Oberton nachher": "28:D#, F   26:C , G#","Oberton Rang vorher": "33","Oberton Rang nachher": "28","Oberton Rang Verbesserung": "-5","": "" },
+{ "Hew Rep PCL": "2312","Hew Rep Name": "C m #5","Hewit Name PCL": "2192","Hewitt Name": "C dur-Dreiklang","Betrag von": "3","von nr": "8","von": "G#","nach": "A ","nach PCL": "2308","nach Rep PCL": "2336","nach Name PCL": "2336","nach Name": "C dim","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "33:G#  24:C#","Oberton nachher": "30:F   25:D#, G#","Oberton Rang vorher": "33","Oberton Rang nachher": "30","Oberton Rang Verbesserung": "-3","": "" },
+{ "Hew Rep PCL": "2320","Hew Rep Name": "C m","Hewit Name PCL": "2320","Hewitt Name": "C m","Betrag von": "3","von nr": "0","von": "C ","nach": "B ","nach PCL": "273","nach Rep PCL": "2184","nach Name PCL": "2184","nach Name": "C +","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "28:D#, F   26:C , G#","Oberton nachher": "24:C#, F , A   23:D#, G , B","Oberton Rang vorher": "28","Oberton Rang nachher": "24","Oberton Rang Verbesserung": "-4","": "" },
+{ "Hew Rep PCL": "2320","Hew Rep Name": "C m","Hewit Name PCL": "2320","Hewitt Name": "C m","Betrag von": "3","von nr": "0","von": "C ","nach": "C#","nach PCL": "1296","nach Rep PCL": "2592","nach Name PCL": "2178","nach Name": "C Italienischer Sextakkord","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "28:D#, F   26:C , G#","Oberton nachher": "31:D#  27:C#","Oberton Rang vorher": "28","Oberton Rang nachher": "31","Oberton Rang Verbesserung": "3","": "" },
+{ "Hew Rep PCL": "2320","Hew Rep Name": "C m","Hewit Name PCL": "2320","Hewitt Name": "C m","Betrag von": "3","von nr": "3","von": "D#","nach": "D ","nach PCL": "2576","nach Rep PCL": "2576","nach Name PCL": "2576","nach Name": "C 5 9","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "28:D#, F   26:C , G#","Oberton nachher": "31:C   25:F , G","Oberton Rang vorher": "28","Oberton Rang nachher": "31","Oberton Rang Verbesserung": "3","": "" },
+{ "Hew Rep PCL": "2320","Hew Rep Name": "C m","Hewit Name PCL": "2320","Hewitt Name": "C m","Betrag von": "3","von nr": "3","von": "D#","nach": "E ","nach PCL": "2192","nach Rep PCL": "2312","nach Name PCL": "2192","nach Name": "C dur-Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "28:D#, F   26:C , G#","Oberton nachher": "33:C   24:F","Oberton Rang vorher": "28","Oberton Rang nachher": "33","Oberton Rang Verbesserung": "5","": "" },
+{ "Hew Rep PCL": "2320","Hew Rep Name": "C m","Hewit Name PCL": "2320","Hewitt Name": "C m","Betrag von": "3","von nr": "7","von": "G ","nach": "F#","nach PCL": "2336","nach Rep PCL": "2336","nach Name PCL": "2336","nach Name": "C dim","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "28:D#, F   26:C , G#","Oberton nachher": "30:G#  25:F#, B","Oberton Rang vorher": "28","Oberton Rang nachher": "30","Oberton Rang Verbesserung": "2","": "" },
+{ "Hew Rep PCL": "2320","Hew Rep Name": "C m","Hewit Name PCL": "2320","Hewitt Name": "C m","Betrag von": "3","von nr": "7","von": "G ","nach": "G#","nach PCL": "2312","nach Rep PCL": "2312","nach Name PCL": "2192","nach Name": "C dur-Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "28:D#, F   26:C , G#","Oberton nachher": "33:G#  24:C#","Oberton Rang vorher": "28","Oberton Rang nachher": "33","Oberton Rang Verbesserung": "5","": "" },
+{ "Hew Rep PCL": "2336","Hew Rep Name": "C dim","Hewit Name PCL": "2336","Hewitt Name": "C dim","Betrag von": "3","von nr": "0","von": "C ","nach": "B ","nach PCL": "289","nach Rep PCL": "2312","nach Name PCL": "2192","nach Name": "C dur-Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:G#  25:F#, B","Oberton nachher": "33:B   24:E","Oberton Rang vorher": "30","Oberton Rang nachher": "33","Oberton Rang Verbesserung": "3","": "" },
+{ "Hew Rep PCL": "2336","Hew Rep Name": "C dim","Hewit Name PCL": "2336","Hewitt Name": "C dim","Betrag von": "3","von nr": "0","von": "C ","nach": "C#","nach PCL": "1312","nach Rep PCL": "2624","nach Name PCL": "2306","nach Name": "C unvollständiger kleiner Moll-Septakkord ","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:G#  25:F#, B","Oberton nachher": "29:F#, B   24:D#","Oberton Rang vorher": "30","Oberton Rang nachher": "29","Oberton Rang Verbesserung": "-1","": "" },
+{ "Hew Rep PCL": "2336","Hew Rep Name": "C dim","Hewit Name PCL": "2336","Hewitt Name": "C dim","Betrag von": "3","von nr": "3","von": "D#","nach": "D ","nach PCL": "2592","nach Rep PCL": "2592","nach Name PCL": "2178","nach Name": "C Italienischer Sextakkord","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:G#  25:F#, B","Oberton nachher": "31:D   27:C","Oberton Rang vorher": "30","Oberton Rang nachher": "31","Oberton Rang Verbesserung": "1","": "" },
+{ "Hew Rep PCL": "2336","Hew Rep Name": "C dim","Hewit Name PCL": "2336","Hewitt Name": "C dim","Betrag von": "3","von nr": "3","von": "D#","nach": "E ","nach PCL": "2208","nach Rep PCL": "2568","nach Name PCL": "2208","nach Name": "C dur-verminderter Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:G#  25:F#, B","Oberton nachher": "29:C   28:F#","Oberton Rang vorher": "30","Oberton Rang nachher": "29","Oberton Rang Verbesserung": "-1","": "" },
+{ "Hew Rep PCL": "2336","Hew Rep Name": "C dim","Hewit Name PCL": "2336","Hewitt Name": "C dim","Betrag von": "3","von nr": "6","von": "F#","nach": "F ","nach PCL": "2368","nach Rep PCL": "2564","nach Name PCL": "2066","nach Name": "C 5 7","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:G#  25:F#, B","Oberton nachher": "32:F   27:G#","Oberton Rang vorher": "30","Oberton Rang nachher": "32","Oberton Rang Verbesserung": "2","": "" },
+{ "Hew Rep PCL": "2336","Hew Rep Name": "C dim","Hewit Name PCL": "2336","Hewitt Name": "C dim","Betrag von": "3","von nr": "6","von": "F#","nach": "G ","nach PCL": "2320","nach Rep PCL": "2320","nach Name PCL": "2320","nach Name": "C m","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:G#  25:F#, B","Oberton nachher": "28:D#, F   26:C , G#","Oberton Rang vorher": "30","Oberton Rang nachher": "28","Oberton Rang Verbesserung": "-2","": "" },
+{ "Hew Rep PCL": "2564","Hew Rep Name": "C NN","Hewit Name PCL": "2066","Hewitt Name": "C 5 7","Betrag von": "3","von nr": "0","von": "C ","nach": "B ","nach PCL": "517","nach Rep PCL": "2624","nach Name PCL": "2306","nach Name": "C unvollständiger kleiner Moll-Septakkord ","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "32:D   27:F","Oberton nachher": "29:D , G   24:B","Oberton Rang vorher": "32","Oberton Rang nachher": "29","Oberton Rang Verbesserung": "-3","": "" },
+{ "Hew Rep PCL": "2564","Hew Rep Name": "C NN","Hewit Name PCL": "2066","Hewitt Name": "C 5 7","Betrag von": "3","von nr": "0","von": "C ","nach": "C#","nach PCL": "1540","nach Rep PCL": "3080","nach Name PCL": "2065","nach Name": "C 5 j7","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "32:D   27:F","Oberton nachher": "28:D   26:G","Oberton Rang vorher": "32","Oberton Rang nachher": "28","Oberton Rang Verbesserung": "-4","": "" },
+{ "Hew Rep PCL": "2564","Hew Rep Name": "C NN","Hewit Name PCL": "2066","Hewitt Name": "C 5 7","Betrag von": "3","von nr": "2","von": "D ","nach": "C#","nach PCL": "3076","nach Rep PCL": "3076","nach Name PCL": "2432","nach Name": "C Doppelterz Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "32:D   27:F","Oberton nachher": "25:D , A   22:C , D#, F","Oberton Rang vorher": "32","Oberton Rang nachher": "25","Oberton Rang Verbesserung": "-7","": "" },
+{ "Hew Rep PCL": "2564","Hew Rep Name": "C NN","Hewit Name PCL": "2066","Hewitt Name": "C 5 7","Betrag von": "3","von nr": "2","von": "D ","nach": "D#","nach PCL": "2308","nach Rep PCL": "2336","nach Name PCL": "2336","nach Name": "C dim","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "32:D   27:F","Oberton nachher": "30:F   25:D#, G#","Oberton Rang vorher": "32","Oberton Rang nachher": "30","Oberton Rang Verbesserung": "-2","": "" },
+{ "Hew Rep PCL": "2564","Hew Rep Name": "C NN","Hewit Name PCL": "2066","Hewitt Name": "C 5 7","Betrag von": "3","von nr": "9","von": "A ","nach": "G#","nach PCL": "2568","nach Rep PCL": "2568","nach Name PCL": "2208","nach Name": "C dur-verminderter Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "32:D   27:F","Oberton nachher": "29:G#  28:D","Oberton Rang vorher": "32","Oberton Rang nachher": "29","Oberton Rang Verbesserung": "-3","": "" },
+{ "Hew Rep PCL": "2564","Hew Rep Name": "C NN","Hewit Name PCL": "2066","Hewitt Name": "C 5 7","Betrag von": "3","von nr": "9","von": "A ","nach": "A#","nach PCL": "2562","nach Rep PCL": "2688","nach Name PCL": "2688","nach Name": "C Ganzton Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "32:D   27:F","Oberton nachher": "30:A#  29:C","Oberton Rang vorher": "32","Oberton Rang nachher": "30","Oberton Rang Verbesserung": "-2","": "" },
+{ "Hew Rep PCL": "2568","Hew Rep Name": "C NN","Hewit Name PCL": "2208","Hewitt Name": "C dur-verminderter Dreiklang","Betrag von": "3","von nr": "0","von": "C ","nach": "B ","nach PCL": "521","nach Rep PCL": "2336","nach Name PCL": "2336","nach Name": "C dim","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "29:G#  28:D","Oberton nachher": "30:E   25:D , G","Oberton Rang vorher": "29","Oberton Rang nachher": "30","Oberton Rang Verbesserung": "1","": "" },
+{ "Hew Rep PCL": "2568","Hew Rep Name": "C NN","Hewit Name PCL": "2208","Hewitt Name": "C dur-verminderter Dreiklang","Betrag von": "3","von nr": "0","von": "C ","nach": "C#","nach PCL": "1544","nach Rep PCL": "3088","nach Name PCL": "3088","nach Name": "C 5 add b9","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "29:G#  28:D","Oberton nachher": "27:C#  25:E","Oberton Rang vorher": "29","Oberton Rang nachher": "27","Oberton Rang Verbesserung": "-2","": "" },
+{ "Hew Rep PCL": "2568","Hew Rep Name": "C NN","Hewit Name PCL": "2208","Hewitt Name": "C dur-verminderter Dreiklang","Betrag von": "3","von nr": "2","von": "D ","nach": "C#","nach PCL": "3080","nach Rep PCL": "3080","nach Name PCL": "2065","nach Name": "C 5 j7","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "29:G#  28:D","Oberton nachher": "28:C#  26:F#","Oberton Rang vorher": "29","Oberton Rang nachher": "28","Oberton Rang Verbesserung": "-1","": "" },
+{ "Hew Rep PCL": "2568","Hew Rep Name": "C NN","Hewit Name PCL": "2208","Hewitt Name": "C dur-verminderter Dreiklang","Betrag von": "3","von nr": "2","von": "D ","nach": "D#","nach PCL": "2312","nach Rep PCL": "2312","nach Name PCL": "2192","nach Name": "C dur-Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "29:G#  28:D","Oberton nachher": "33:G#  24:C#","Oberton Rang vorher": "29","Oberton Rang nachher": "33","Oberton Rang Verbesserung": "4","": "" },
+{ "Hew Rep PCL": "2568","Hew Rep Name": "C NN","Hewit Name PCL": "2208","Hewitt Name": "C dur-verminderter Dreiklang","Betrag von": "3","von nr": "8","von": "G#","nach": "G ","nach PCL": "2576","nach Rep PCL": "2576","nach Name PCL": "2576","nach Name": "C 5 9","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "29:G#  28:D","Oberton nachher": "31:C   25:F , G","Oberton Rang vorher": "29","Oberton Rang nachher": "31","Oberton Rang Verbesserung": "2","": "" },
+{ "Hew Rep PCL": "2568","Hew Rep Name": "C NN","Hewit Name PCL": "2208","Hewitt Name": "C dur-verminderter Dreiklang","Betrag von": "3","von nr": "8","von": "G#","nach": "A ","nach PCL": "2564","nach Rep PCL": "2564","nach Name PCL": "2066","nach Name": "C 5 7","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "29:G#  28:D","Oberton nachher": "32:D   27:F","Oberton Rang vorher": "29","Oberton Rang nachher": "32","Oberton Rang Verbesserung": "3","": "" },
+{ "Hew Rep PCL": "2576","Hew Rep Name": "C 5 9","Hewit Name PCL": "2576","Hewitt Name": "C 5 9","Betrag von": "3","von nr": "0","von": "C ","nach": "B ","nach PCL": "529","nach Rep PCL": "2312","nach Name PCL": "2192","nach Name": "C dur-Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "31:C   25:F , G","Oberton nachher": "33:G   24:C","Oberton Rang vorher": "31","Oberton Rang nachher": "33","Oberton Rang Verbesserung": "2","": "" },
+{ "Hew Rep PCL": "2576","Hew Rep Name": "C 5 9","Hewit Name PCL": "2576","Hewitt Name": "C 5 9","Betrag von": "3","von nr": "0","von": "C ","nach": "C#","nach PCL": "1552","nach Rep PCL": "3104","nach Name PCL": "2096","nach Name": "C Raga Ongkari","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "31:C   25:F , G","Oberton nachher": "30:G   24:D#","Oberton Rang vorher": "31","Oberton Rang nachher": "30","Oberton Rang Verbesserung": "-1","": "" },
+{ "Hew Rep PCL": "2576","Hew Rep Name": "C 5 9","Hewit Name PCL": "2576","Hewitt Name": "C 5 9","Betrag von": "3","von nr": "2","von": "D ","nach": "C#","nach PCL": "3088","nach Rep PCL": "3088","nach Name PCL": "3088","nach Name": "C 5 add b9","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "31:C   25:F , G","Oberton nachher": "27:C   25:D#","Oberton Rang vorher": "31","Oberton Rang nachher": "27","Oberton Rang Verbesserung": "-4","": "" },
+{ "Hew Rep PCL": "2576","Hew Rep Name": "C 5 9","Hewit Name PCL": "2576","Hewitt Name": "C 5 9","Betrag von": "3","von nr": "2","von": "D ","nach": "D#","nach PCL": "2320","nach Rep PCL": "2320","nach Name PCL": "2320","nach Name": "C m","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "31:C   25:F , G","Oberton nachher": "28:D#, F   26:C , G#","Oberton Rang vorher": "31","Oberton Rang nachher": "28","Oberton Rang Verbesserung": "-3","": "" },
+{ "Hew Rep PCL": "2576","Hew Rep Name": "C 5 9","Hewit Name PCL": "2576","Hewitt Name": "C 5 9","Betrag von": "3","von nr": "7","von": "G ","nach": "F#","nach PCL": "2592","nach Rep PCL": "2592","nach Name PCL": "2178","nach Name": "C Italienischer Sextakkord","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "31:C   25:F , G","Oberton nachher": "31:D   27:C","Oberton Rang vorher": "31","Oberton Rang nachher": "31","Oberton Rang Verbesserung": "0","": "" },
+{ "Hew Rep PCL": "2576","Hew Rep Name": "C 5 9","Hewit Name PCL": "2576","Hewitt Name": "C 5 9","Betrag von": "3","von nr": "7","von": "G ","nach": "G#","nach PCL": "2568","nach Rep PCL": "2568","nach Name PCL": "2208","nach Name": "C dur-verminderter Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "31:C   25:F , G","Oberton nachher": "29:G#  28:D","Oberton Rang vorher": "31","Oberton Rang nachher": "29","Oberton Rang Verbesserung": "-2","": "" },
+{ "Hew Rep PCL": "2592","Hew Rep Name": "C doppelt vermindert Dreiklang","Hewit Name PCL": "2178","Hewitt Name": "C Italienischer Sextakkord","Betrag von": "3","von nr": "0","von": "C ","nach": "B ","nach PCL": "545","nach Rep PCL": "2320","nach Name PCL": "2320","nach Name": "C m","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "31:D   27:C","Oberton nachher": "28:D , E   26:G , B","Oberton Rang vorher": "31","Oberton Rang nachher": "28","Oberton Rang Verbesserung": "-3","": "" },
+{ "Hew Rep PCL": "2592","Hew Rep Name": "C doppelt vermindert Dreiklang","Hewit Name PCL": "2178","Hewitt Name": "C Italienischer Sextakkord","Betrag von": "3","von nr": "0","von": "C ","nach": "C#","nach PCL": "1568","nach Rep PCL": "3136","nach Name PCL": "2177","nach Name": "C j7 om5","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "31:D   27:C","Oberton nachher": "27:D   24:F#","Oberton Rang vorher": "31","Oberton Rang nachher": "27","Oberton Rang Verbesserung": "-4","": "" },
+{ "Hew Rep PCL": "2592","Hew Rep Name": "C doppelt vermindert Dreiklang","Hewit Name PCL": "2178","Hewitt Name": "C Italienischer Sextakkord","Betrag von": "3","von nr": "2","von": "D ","nach": "C#","nach PCL": "3104","nach Rep PCL": "3104","nach Name PCL": "2096","nach Name": "C Raga Ongkari","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "31:D   27:C","Oberton nachher": "30:F#  24:D","Oberton Rang vorher": "31","Oberton Rang nachher": "30","Oberton Rang Verbesserung": "-1","": "" },
+{ "Hew Rep PCL": "2592","Hew Rep Name": "C doppelt vermindert Dreiklang","Hewit Name PCL": "2178","Hewitt Name": "C Italienischer Sextakkord","Betrag von": "3","von nr": "2","von": "D ","nach": "D#","nach PCL": "2336","nach Rep PCL": "2336","nach Name PCL": "2336","nach Name": "C dim","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "31:D   27:C","Oberton nachher": "30:G#  25:F#, B","Oberton Rang vorher": "31","Oberton Rang nachher": "30","Oberton Rang Verbesserung": "-1","": "" },
+{ "Hew Rep PCL": "2592","Hew Rep Name": "C doppelt vermindert Dreiklang","Hewit Name PCL": "2178","Hewitt Name": "C Italienischer Sextakkord","Betrag von": "3","von nr": "6","von": "F#","nach": "F ","nach PCL": "2624","nach Rep PCL": "2624","nach Name PCL": "2306","nach Name": "C unvollständiger kleiner Moll-Septakkord ","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "31:D   27:C","Oberton nachher": "29:F , A#  24:D","Oberton Rang vorher": "31","Oberton Rang nachher": "29","Oberton Rang Verbesserung": "-2","": "" },
+{ "Hew Rep PCL": "2592","Hew Rep Name": "C doppelt vermindert Dreiklang","Hewit Name PCL": "2178","Hewitt Name": "C Italienischer Sextakkord","Betrag von": "3","von nr": "6","von": "F#","nach": "G ","nach PCL": "2576","nach Rep PCL": "2576","nach Name PCL": "2576","nach Name": "C 5 9","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "31:D   27:C","Oberton nachher": "31:C   25:F , G","Oberton Rang vorher": "31","Oberton Rang nachher": "31","Oberton Rang Verbesserung": "0","": "" },
+{ "Hew Rep PCL": "2624","Hew Rep Name": "C dreifach verminderter Dreiklang","Hewit Name PCL": "2306","Hewitt Name": "C unvollständiger kleiner Moll-Septakkord ","Betrag von": "3","von nr": "0","von": "C ","nach": "B ","nach PCL": "577","nach Rep PCL": "2336","nach Name PCL": "2336","nach Name": "C dim","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "29:F , A#  24:D","Oberton nachher": "30:G   25:F , A#","Oberton Rang vorher": "29","Oberton Rang nachher": "30","Oberton Rang Verbesserung": "1","": "" },
+{ "Hew Rep PCL": "2624","Hew Rep Name": "C dreifach verminderter Dreiklang","Hewit Name PCL": "2306","Hewitt Name": "C unvollständiger kleiner Moll-Septakkord ","Betrag von": "3","von nr": "0","von": "C ","nach": "C#","nach PCL": "1600","nach Rep PCL": "3200","nach Name PCL": "2305","nach Name": "C unvollständiger großer Moll-Septakkord","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "29:F , A#  24:D","Oberton nachher": "27:G   26:C#","Oberton Rang vorher": "29","Oberton Rang nachher": "27","Oberton Rang Verbesserung": "-2","": "" },
+{ "Hew Rep PCL": "2624","Hew Rep Name": "C dreifach verminderter Dreiklang","Hewit Name PCL": "2306","Hewitt Name": "C unvollständiger kleiner Moll-Septakkord ","Betrag von": "3","von nr": "2","von": "D ","nach": "C#","nach PCL": "3136","nach Rep PCL": "3136","nach Name PCL": "2177","nach Name": "C j7 om5","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "29:F , A#  24:D","Oberton nachher": "27:C#  24:F","Oberton Rang vorher": "29","Oberton Rang nachher": "27","Oberton Rang Verbesserung": "-2","": "" },
+{ "Hew Rep PCL": "2624","Hew Rep Name": "C dreifach verminderter Dreiklang","Hewit Name PCL": "2306","Hewitt Name": "C unvollständiger kleiner Moll-Septakkord ","Betrag von": "3","von nr": "2","von": "D ","nach": "D#","nach PCL": "2368","nach Rep PCL": "2564","nach Name PCL": "2066","nach Name": "C 5 7","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "29:F , A#  24:D","Oberton nachher": "32:F   27:G#","Oberton Rang vorher": "29","Oberton Rang nachher": "32","Oberton Rang Verbesserung": "3","": "" },
+{ "Hew Rep PCL": "2624","Hew Rep Name": "C dreifach verminderter Dreiklang","Hewit Name PCL": "2306","Hewitt Name": "C unvollständiger kleiner Moll-Septakkord ","Betrag von": "3","von nr": "5","von": "F ","nach": "E ","nach PCL": "2688","nach Rep PCL": "2688","nach Name PCL": "2688","nach Name": "C Ganzton Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "29:F , A#  24:D","Oberton nachher": "30:C   29:D","Oberton Rang vorher": "29","Oberton Rang nachher": "30","Oberton Rang Verbesserung": "1","": "" },
+{ "Hew Rep PCL": "2624","Hew Rep Name": "C dreifach verminderter Dreiklang","Hewit Name PCL": "2306","Hewitt Name": "C unvollständiger kleiner Moll-Septakkord ","Betrag von": "3","von nr": "5","von": "F ","nach": "F#","nach PCL": "2592","nach Rep PCL": "2592","nach Name PCL": "2178","nach Name": "C Italienischer Sextakkord","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "29:F , A#  24:D","Oberton nachher": "31:D   27:C","Oberton Rang vorher": "29","Oberton Rang nachher": "31","Oberton Rang Verbesserung": "2","": "" },
+{ "Hew Rep PCL": "2688","Hew Rep Name": "C Ganzton Dreiklang","Hewit Name PCL": "2688","Hewitt Name": "C Ganzton Dreiklang","Betrag von": "3","von nr": "0","von": "C ","nach": "B ","nach PCL": "641","nach Rep PCL": "2564","nach Name PCL": "2066","nach Name": "C 5 7","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:C   29:D","Oberton nachher": "32:E   27:G","Oberton Rang vorher": "30","Oberton Rang nachher": "32","Oberton Rang Verbesserung": "2","": "" },
+{ "Hew Rep PCL": "2688","Hew Rep Name": "C Ganzton Dreiklang","Hewit Name PCL": "2688","Hewitt Name": "C Ganzton Dreiklang","Betrag von": "3","von nr": "0","von": "C ","nach": "C#","nach PCL": "1664","nach Rep PCL": "3328","nach Name PCL": "3328","nach Name": "C Halbton Ganzton Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:C   29:D","Oberton nachher": "27:E   25:D","Oberton Rang vorher": "30","Oberton Rang nachher": "27","Oberton Rang Verbesserung": "-3","": "" },
+{ "Hew Rep PCL": "2688","Hew Rep Name": "C Ganzton Dreiklang","Hewit Name PCL": "2688","Hewitt Name": "C Ganzton Dreiklang","Betrag von": "3","von nr": "2","von": "D ","nach": "C#","nach PCL": "3200","nach Rep PCL": "3200","nach Name PCL": "2305","nach Name": "C unvollständiger großer Moll-Septakkord","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:C   29:D","Oberton nachher": "27:F#  26:C","Oberton Rang vorher": "30","Oberton Rang nachher": "27","Oberton Rang Verbesserung": "-3","": "" },
+{ "Hew Rep PCL": "2688","Hew Rep Name": "C Ganzton Dreiklang","Hewit Name PCL": "2688","Hewitt Name": "C Ganzton Dreiklang","Betrag von": "3","von nr": "2","von": "D ","nach": "D#","nach PCL": "2432","nach Rep PCL": "3076","nach Name PCL": "2432","nach Name": "C Doppelterz Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:C   29:D","Oberton nachher": "25:C , F   22:D#, F#, G#","Oberton Rang vorher": "30","Oberton Rang nachher": "25","Oberton Rang Verbesserung": "-5","": "" },
+{ "Hew Rep PCL": "2688","Hew Rep Name": "C Ganzton Dreiklang","Hewit Name PCL": "2688","Hewitt Name": "C Ganzton Dreiklang","Betrag von": "3","von nr": "4","von": "E ","nach": "D#","nach PCL": "2816","nach Rep PCL": "3074","nach Name PCL": "2816","nach Name": "C Wholetone-Halftone Motiv","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:C   29:D","Oberton nachher": "28:G#  26:F","Oberton Rang vorher": "30","Oberton Rang nachher": "28","Oberton Rang Verbesserung": "-2","": "" },
+{ "Hew Rep PCL": "2688","Hew Rep Name": "C Ganzton Dreiklang","Hewit Name PCL": "2688","Hewitt Name": "C Ganzton Dreiklang","Betrag von": "3","von nr": "4","von": "E ","nach": "F ","nach PCL": "2624","nach Rep PCL": "2624","nach Name PCL": "2306","nach Name": "C unvollständiger kleiner Moll-Septakkord ","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:C   29:D","Oberton nachher": "29:F , A#  24:D","Oberton Rang vorher": "30","Oberton Rang nachher": "29","Oberton Rang Verbesserung": "-1","": "" },
+{ "Hew Rep PCL": "3074","Hew Rep Name": "C NN","Hewit Name PCL": "2816","Hewitt Name": "C Wholetone-Halftone Motiv","Betrag von": "3","von nr": "0","von": "C ","nach": "B ","nach PCL": "1027","nach Rep PCL": "3328","nach Name PCL": "3328","nach Name": "C Halbton Ganzton Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "28:F#  26:D#","Oberton nachher": "27:C#  25:B","Oberton Rang vorher": "28","Oberton Rang nachher": "27","Oberton Rang Verbesserung": "-1","": "" },
+{ "Hew Rep PCL": "3074","Hew Rep Name": "C NN","Hewit Name PCL": "2816","Hewitt Name": "C Wholetone-Halftone Motiv","Betrag von": "3","von nr": "1","von": "C#","nach": "D ","nach PCL": "2562","nach Rep PCL": "2688","nach Name PCL": "2688","nach Name": "C Ganzton Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "28:F#  26:D#","Oberton nachher": "30:A#  29:C","Oberton Rang vorher": "28","Oberton Rang nachher": "30","Oberton Rang Verbesserung": "2","": "" },
+{ "Hew Rep PCL": "3074","Hew Rep Name": "C NN","Hewit Name PCL": "2816","Hewitt Name": "C Wholetone-Halftone Motiv","Betrag von": "3","von nr": "10","von": "A#","nach": "A ","nach PCL": "3076","nach Rep PCL": "3076","nach Name PCL": "2432","nach Name": "C Doppelterz Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "28:F#  26:D#","Oberton nachher": "25:D , A   22:C , D#, F","Oberton Rang vorher": "28","Oberton Rang nachher": "25","Oberton Rang Verbesserung": "-3","": "" },
+{ "Hew Rep PCL": "3074","Hew Rep Name": "C NN","Hewit Name PCL": "2816","Hewitt Name": "C Wholetone-Halftone Motiv","Betrag von": "3","von nr": "10","von": "A#","nach": "B ","nach PCL": "3073","nach Rep PCL": "3584","nach Name PCL": "3584","nach Name": "C Dreiton Cluster","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "28:F#  26:D#","Oberton nachher": "26:C#  24:B","Oberton Rang vorher": "28","Oberton Rang nachher": "26","Oberton Rang Verbesserung": "-2","": "" },
+{ "Hew Rep PCL": "3076","Hew Rep Name": "C NN","Hewit Name PCL": "2432","Hewitt Name": "C Doppelterz Dreiklang","Betrag von": "3","von nr": "0","von": "C ","nach": "B ","nach PCL": "1029","nach Rep PCL": "2688","nach Name PCL": "2688","nach Name": "C Ganzton Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "25:D , A   22:C , D#, F","Oberton nachher": "30:A   29:B","Oberton Rang vorher": "25","Oberton Rang nachher": "30","Oberton Rang Verbesserung": "5","": "" },
+{ "Hew Rep PCL": "3076","Hew Rep Name": "C NN","Hewit Name PCL": "2432","Hewitt Name": "C Doppelterz Dreiklang","Betrag von": "3","von nr": "1","von": "C#","nach": "D ","nach PCL": "2564","nach Rep PCL": "2564","nach Name PCL": "2066","nach Name": "C 5 7","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "25:D , A   22:C , D#, F","Oberton nachher": "32:D   27:F","Oberton Rang vorher": "25","Oberton Rang nachher": "32","Oberton Rang Verbesserung": "7","": "" },
+{ "Hew Rep PCL": "3076","Hew Rep Name": "C NN","Hewit Name PCL": "2432","Hewitt Name": "C Doppelterz Dreiklang","Betrag von": "3","von nr": "9","von": "A ","nach": "G#","nach PCL": "3080","nach Rep PCL": "3080","nach Name PCL": "2065","nach Name": "C 5 j7","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "25:D , A   22:C , D#, F","Oberton nachher": "28:C#  26:F#","Oberton Rang vorher": "25","Oberton Rang nachher": "28","Oberton Rang Verbesserung": "3","": "" },
+{ "Hew Rep PCL": "3076","Hew Rep Name": "C NN","Hewit Name PCL": "2432","Hewitt Name": "C Doppelterz Dreiklang","Betrag von": "3","von nr": "9","von": "A ","nach": "A#","nach PCL": "3074","nach Rep PCL": "3074","nach Name PCL": "2816","nach Name": "C Wholetone-Halftone Motiv","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "25:D , A   22:C , D#, F","Oberton nachher": "28:F#  26:D#","Oberton Rang vorher": "25","Oberton Rang nachher": "28","Oberton Rang Verbesserung": "3","": "" },
+{ "Hew Rep PCL": "3080","Hew Rep Name": "C NN","Hewit Name PCL": "2065","Hewitt Name": "C 5 j7","Betrag von": "3","von nr": "0","von": "C ","nach": "B ","nach PCL": "1033","nach Rep PCL": "2564","nach Name PCL": "2066","nach Name": "C 5 7","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "28:C#  26:F#","Oberton nachher": "32:C#  27:E","Oberton Rang vorher": "28","Oberton Rang nachher": "32","Oberton Rang Verbesserung": "4","": "" },
+{ "Hew Rep PCL": "3080","Hew Rep Name": "C NN","Hewit Name PCL": "2065","Hewitt Name": "C 5 j7","Betrag von": "3","von nr": "1","von": "C#","nach": "D ","nach PCL": "2568","nach Rep PCL": "2568","nach Name PCL": "2208","nach Name": "C dur-verminderter Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "28:C#  26:F#","Oberton nachher": "29:G#  28:D","Oberton Rang vorher": "28","Oberton Rang nachher": "29","Oberton Rang Verbesserung": "1","": "" },
+{ "Hew Rep PCL": "3080","Hew Rep Name": "C NN","Hewit Name PCL": "2065","Hewitt Name": "C 5 j7","Betrag von": "3","von nr": "8","von": "G#","nach": "G ","nach PCL": "3088","nach Rep PCL": "3088","nach Name PCL": "3088","nach Name": "C 5 add b9","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "28:C#  26:F#","Oberton nachher": "27:C   25:D#","Oberton Rang vorher": "28","Oberton Rang nachher": "27","Oberton Rang Verbesserung": "-1","": "" },
+{ "Hew Rep PCL": "3080","Hew Rep Name": "C NN","Hewit Name PCL": "2065","Hewitt Name": "C 5 j7","Betrag von": "3","von nr": "8","von": "G#","nach": "A ","nach PCL": "3076","nach Rep PCL": "3076","nach Name PCL": "2432","nach Name": "C Doppelterz Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "28:C#  26:F#","Oberton nachher": "25:D , A   22:C , D#, F","Oberton Rang vorher": "28","Oberton Rang nachher": "25","Oberton Rang Verbesserung": "-3","": "" },
+{ "Hew Rep PCL": "3088","Hew Rep Name": "C 5 add b9","Hewit Name PCL": "3088","Hewitt Name": "C 5 add b9","Betrag von": "3","von nr": "0","von": "C ","nach": "B ","nach PCL": "1041","nach Rep PCL": "2568","nach Name PCL": "2208","nach Name": "C dur-verminderter Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "27:C   25:D#","Oberton nachher": "29:G   28:C#","Oberton Rang vorher": "27","Oberton Rang nachher": "29","Oberton Rang Verbesserung": "2","": "" },
+{ "Hew Rep PCL": "3088","Hew Rep Name": "C 5 add b9","Hewit Name PCL": "3088","Hewitt Name": "C 5 add b9","Betrag von": "3","von nr": "1","von": "C#","nach": "D ","nach PCL": "2576","nach Rep PCL": "2576","nach Name PCL": "2576","nach Name": "C 5 9","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "27:C   25:D#","Oberton nachher": "31:C   25:F , G","Oberton Rang vorher": "27","Oberton Rang nachher": "31","Oberton Rang Verbesserung": "4","": "" },
+{ "Hew Rep PCL": "3088","Hew Rep Name": "C 5 add b9","Hewit Name PCL": "3088","Hewitt Name": "C 5 add b9","Betrag von": "3","von nr": "7","von": "G ","nach": "F#","nach PCL": "3104","nach Rep PCL": "3104","nach Name PCL": "2096","nach Name": "C Raga Ongkari","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "27:C   25:D#","Oberton nachher": "30:F#  24:D","Oberton Rang vorher": "27","Oberton Rang nachher": "30","Oberton Rang Verbesserung": "3","": "" },
+{ "Hew Rep PCL": "3088","Hew Rep Name": "C 5 add b9","Hewit Name PCL": "3088","Hewitt Name": "C 5 add b9","Betrag von": "3","von nr": "7","von": "G ","nach": "G#","nach PCL": "3080","nach Rep PCL": "3080","nach Name PCL": "2065","nach Name": "C 5 j7","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "27:C   25:D#","Oberton nachher": "28:C#  26:F#","Oberton Rang vorher": "27","Oberton Rang nachher": "28","Oberton Rang Verbesserung": "1","": "" },
+{ "Hew Rep PCL": "3104","Hew Rep Name": "C NN","Hewit Name PCL": "2096","Hewitt Name": "C Raga Ongkari","Betrag von": "3","von nr": "0","von": "C ","nach": "B ","nach PCL": "1057","nach Rep PCL": "2576","nach Name PCL": "2576","nach Name": "C 5 9","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:F#  24:D","Oberton nachher": "31:B   25:E , F#","Oberton Rang vorher": "30","Oberton Rang nachher": "31","Oberton Rang Verbesserung": "1","": "" },
+{ "Hew Rep PCL": "3104","Hew Rep Name": "C NN","Hewit Name PCL": "2096","Hewitt Name": "C Raga Ongkari","Betrag von": "3","von nr": "1","von": "C#","nach": "D ","nach PCL": "2592","nach Rep PCL": "2592","nach Name PCL": "2178","nach Name": "C Italienischer Sextakkord","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:F#  24:D","Oberton nachher": "31:D   27:C","Oberton Rang vorher": "30","Oberton Rang nachher": "31","Oberton Rang Verbesserung": "1","": "" },
+{ "Hew Rep PCL": "3104","Hew Rep Name": "C NN","Hewit Name PCL": "2096","Hewitt Name": "C Raga Ongkari","Betrag von": "3","von nr": "6","von": "F#","nach": "F ","nach PCL": "3136","nach Rep PCL": "3136","nach Name PCL": "2177","nach Name": "C j7 om5","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:F#  24:D","Oberton nachher": "27:C#  24:F","Oberton Rang vorher": "30","Oberton Rang nachher": "27","Oberton Rang Verbesserung": "-3","": "" },
+{ "Hew Rep PCL": "3104","Hew Rep Name": "C NN","Hewit Name PCL": "2096","Hewitt Name": "C Raga Ongkari","Betrag von": "3","von nr": "6","von": "F#","nach": "G ","nach PCL": "3088","nach Rep PCL": "3088","nach Name PCL": "3088","nach Name": "C 5 add b9","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:F#  24:D","Oberton nachher": "27:C   25:D#","Oberton Rang vorher": "30","Oberton Rang nachher": "27","Oberton Rang Verbesserung": "-3","": "" },
+{ "Hew Rep PCL": "3136","Hew Rep Name": "C NN","Hewit Name PCL": "2177","Hewitt Name": "C j7 om5","Betrag von": "3","von nr": "0","von": "C ","nach": "B ","nach PCL": "1089","nach Rep PCL": "2592","nach Name PCL": "2178","nach Name": "C Italienischer Sextakkord","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "27:C#  24:F","Oberton nachher": "31:C#  27:B","Oberton Rang vorher": "27","Oberton Rang nachher": "31","Oberton Rang Verbesserung": "4","": "" },
+{ "Hew Rep PCL": "3136","Hew Rep Name": "C NN","Hewit Name PCL": "2177","Hewitt Name": "C j7 om5","Betrag von": "3","von nr": "1","von": "C#","nach": "D ","nach PCL": "2624","nach Rep PCL": "2624","nach Name PCL": "2306","nach Name": "C unvollständiger kleiner Moll-Septakkord ","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "27:C#  24:F","Oberton nachher": "29:F , A#  24:D","Oberton Rang vorher": "27","Oberton Rang nachher": "29","Oberton Rang Verbesserung": "2","": "" },
+{ "Hew Rep PCL": "3136","Hew Rep Name": "C NN","Hewit Name PCL": "2177","Hewitt Name": "C j7 om5","Betrag von": "3","von nr": "5","von": "F ","nach": "E ","nach PCL": "3200","nach Rep PCL": "3200","nach Name PCL": "2305","nach Name": "C unvollständiger großer Moll-Septakkord","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "27:C#  24:F","Oberton nachher": "27:F#  26:C","Oberton Rang vorher": "27","Oberton Rang nachher": "27","Oberton Rang Verbesserung": "0","": "" },
+{ "Hew Rep PCL": "3136","Hew Rep Name": "C NN","Hewit Name PCL": "2177","Hewitt Name": "C j7 om5","Betrag von": "3","von nr": "5","von": "F ","nach": "F#","nach PCL": "3104","nach Rep PCL": "3104","nach Name PCL": "2096","nach Name": "C Raga Ongkari","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "27:C#  24:F","Oberton nachher": "30:F#  24:D","Oberton Rang vorher": "27","Oberton Rang nachher": "30","Oberton Rang Verbesserung": "3","": "" },
+{ "Hew Rep PCL": "3200","Hew Rep Name": "C NN","Hewit Name PCL": "2305","Hewitt Name": "C unvollständiger großer Moll-Septakkord","Betrag von": "3","von nr": "0","von": "C ","nach": "B ","nach PCL": "1153","nach Rep PCL": "2624","nach Name PCL": "2306","nach Name": "C unvollständiger kleiner Moll-Septakkord ","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "27:F#  26:C","Oberton nachher": "29:E , A   24:C#","Oberton Rang vorher": "27","Oberton Rang nachher": "29","Oberton Rang Verbesserung": "2","": "" },
+{ "Hew Rep PCL": "3200","Hew Rep Name": "C NN","Hewit Name PCL": "2305","Hewitt Name": "C unvollständiger großer Moll-Septakkord","Betrag von": "3","von nr": "1","von": "C#","nach": "D ","nach PCL": "2688","nach Rep PCL": "2688","nach Name PCL": "2688","nach Name": "C Ganzton Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "27:F#  26:C","Oberton nachher": "30:C   29:D","Oberton Rang vorher": "27","Oberton Rang nachher": "30","Oberton Rang Verbesserung": "3","": "" },
+{ "Hew Rep PCL": "3200","Hew Rep Name": "C NN","Hewit Name PCL": "2305","Hewitt Name": "C unvollständiger großer Moll-Septakkord","Betrag von": "3","von nr": "4","von": "E ","nach": "D#","nach PCL": "3328","nach Rep PCL": "3328","nach Name PCL": "3328","nach Name": "C Halbton Ganzton Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "27:F#  26:C","Oberton nachher": "27:D#  25:C#","Oberton Rang vorher": "27","Oberton Rang nachher": "27","Oberton Rang Verbesserung": "0","": "" },
+{ "Hew Rep PCL": "3200","Hew Rep Name": "C NN","Hewit Name PCL": "2305","Hewitt Name": "C unvollständiger großer Moll-Septakkord","Betrag von": "3","von nr": "4","von": "E ","nach": "F ","nach PCL": "3136","nach Rep PCL": "3136","nach Name PCL": "2177","nach Name": "C j7 om5","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "27:F#  26:C","Oberton nachher": "27:C#  24:F","Oberton Rang vorher": "27","Oberton Rang nachher": "27","Oberton Rang Verbesserung": "0","": "" },
+{ "Hew Rep PCL": "3328","Hew Rep Name": "C Halbton Ganzton Dreiklang","Hewit Name PCL": "3328","Hewitt Name": "C Halbton Ganzton Dreiklang","Betrag von": "3","von nr": "0","von": "C ","nach": "B ","nach PCL": "1281","nach Rep PCL": "2688","nach Name PCL": "2688","nach Name": "C Ganzton Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "27:D#  25:C#","Oberton nachher": "30:B   29:C#","Oberton Rang vorher": "27","Oberton Rang nachher": "30","Oberton Rang Verbesserung": "3","": "" },
+{ "Hew Rep PCL": "3328","Hew Rep Name": "C Halbton Ganzton Dreiklang","Hewit Name PCL": "3328","Hewitt Name": "C Halbton Ganzton Dreiklang","Betrag von": "3","von nr": "1","von": "C#","nach": "D ","nach PCL": "2816","nach Rep PCL": "3074","nach Name PCL": "2816","nach Name": "C Wholetone-Halftone Motiv","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "27:D#  25:C#","Oberton nachher": "28:G#  26:F","Oberton Rang vorher": "27","Oberton Rang nachher": "28","Oberton Rang Verbesserung": "1","": "" },
+{ "Hew Rep PCL": "3328","Hew Rep Name": "C Halbton Ganzton Dreiklang","Hewit Name PCL": "3328","Hewitt Name": "C Halbton Ganzton Dreiklang","Betrag von": "3","von nr": "3","von": "D#","nach": "D ","nach PCL": "3584","nach Rep PCL": "3584","nach Name PCL": "3584","nach Name": "C Dreiton Cluster","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "27:D#  25:C#","Oberton nachher": "26:D   24:C","Oberton Rang vorher": "27","Oberton Rang nachher": "26","Oberton Rang Verbesserung": "-1","": "" },
+{ "Hew Rep PCL": "3328","Hew Rep Name": "C Halbton Ganzton Dreiklang","Hewit Name PCL": "3328","Hewitt Name": "C Halbton Ganzton Dreiklang","Betrag von": "3","von nr": "3","von": "D#","nach": "E ","nach PCL": "3200","nach Rep PCL": "3200","nach Name PCL": "2305","nach Name": "C unvollständiger großer Moll-Septakkord","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "27:D#  25:C#","Oberton nachher": "27:F#  26:C","Oberton Rang vorher": "27","Oberton Rang nachher": "27","Oberton Rang Verbesserung": "0","": "" },
+{ "Hew Rep PCL": "3584","Hew Rep Name": "C Dreiton Cluster","Hewit Name PCL": "3584","Hewitt Name": "C Dreiton Cluster","Betrag von": "3","von nr": "0","von": "C ","nach": "B ","nach PCL": "1537","nach Rep PCL": "3074","nach Name PCL": "2816","nach Name": "C Wholetone-Halftone Motiv","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "26:D   24:C","Oberton nachher": "28:G   26:E","Oberton Rang vorher": "26","Oberton Rang nachher": "28","Oberton Rang Verbesserung": "2","": "" },
+{ "Hew Rep PCL": "3584","Hew Rep Name": "C Dreiton Cluster","Hewit Name PCL": "3584","Hewitt Name": "C Dreiton Cluster","Betrag von": "3","von nr": "2","von": "D ","nach": "D#","nach PCL": "3328","nach Rep PCL": "3328","nach Name PCL": "3328","nach Name": "C Halbton Ganzton Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "26:D   24:C","Oberton nachher": "27:D#  25:C#","Oberton Rang vorher": "26","Oberton Rang nachher": "27","Oberton Rang Verbesserung": "1","": "" }
+];
+
+
+  </script>
+  <!-- ====== ENDE DATENBLOCK ====== -->
+
+  <script>
+  // ---------- JSON einlesen ----------
+  const RAW     = JSON.parse(document.getElementById('data').textContent);
+  const COLDEFS = RAW.columns || [];
+
+  // Daten-Keys = identifier (oder name als Fallback)
+  const DATA_KEYS     = COLDEFS.map(c => c.identifier || c.name);
+  // Anzeige-Namen = name
+  const DISPLAY_NAMES = COLDEFS.map(c => c.name);
+
+  const ROWS = RAW.rows || [];
+
+  // Mappings aus Spalten-Meta: auf IDENTIFIER keyen!
+  const RENDERAS = Object.fromEntries(
+    COLDEFS.map(c => [
+      (c.identifier || c.name),
+      String(c.renderAs || 'text').toLowerCase()
+    ])
+  );
+
+  // col_types: sowohl tfType (CamelCase) als auch tftype (lower) akzeptieren
+  const COLTYPES = COLDEFS.map(c => {
+    const tfType = (c.tfType ?? c.tftype ?? 'string').toString().toLowerCase();
+    return tfType === 'number' ? 'number' : 'string';
+  });
+
+  const COLWIDTHS = COLDEFS.map(c => {
+    const w = (c.width || '').toString().trim();
+    return (w && w.toLowerCase() !== 'auto') ? w : '';
+  });
+
+  // ---------- DOM-Grundlagen ----------
+  const table = document.getElementById('myTable');
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+
+  // Lazy Image Loader
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      const img = e.target;
+      const src = img.dataset.src;
+      if (src){
+        img.src = src;
+        img.removeAttribute('data-src');
+      }
+      io.unobserve(img);
+    }
+  }, { root:null, rootMargin:'300px' });
+
+  function padLeft(val, len){
+    const s = String(val ?? '');
+    return s.length >= len ? s : ('0'.repeat(len - s.length) + s);
+  }
+
+  // ---------- Header (Tooltip = description) ----------
+  {
+    const tr = document.createElement('tr');
+    for (const c of COLDEFS){
+      const th = document.createElement('th');
+      th.textContent = c.name;           // Nutzer sieht weiter die Namen
+      if (c.description) th.title = c.description;
+      tr.appendChild(th);
+    }
+    thead.appendChild(tr);
+  }
+
+  // ---------- Body ----------
+  const frag = document.createDocumentFragment();
+  ROWS.forEach((row, i) => {
+    const tr = document.createElement('tr');
+    tr.dataset.dataIndex = i;
+
+    // wir laufen über die Spaltendefs, nicht über die Row-Keys
+    COLDEFS.forEach((c) => {
+      const key = c.identifier || c.name;   // DAS ist in rows
+      const label = c.name;                 // schön lesbarer Name
+      const td = document.createElement('td');
+      const val = row[key];
+      const renderAs = RENDERAS[key];
+
+      switch (renderAs) {
+        case 'image': {
+          if (val){
+            const a = document.createElement('a');
+            a.href = val;
+            a.target = '_blank';
+            a.rel = 'noopener';
+            a.title = val;
+
+            const img = document.createElement('img');
+            img.className = 'thumb';
+            img.alt = label;
+            img.loading = 'lazy';
+            // winziges Platzhalter-GIF
+            img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
+            img.dataset.src = val;
+
+            a.appendChild(img);
+            td.appendChild(a);
+            io.observe(img);
+          }
+          break;
+        }
+
+        case 'midi': {
+          if (val){
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn-play';
+            btn.textContent = '▶︎ Play';
+            btn.setAttribute('data-action','playChord');
+            btn.setAttribute('data-arg', val);
+            td.appendChild(btn);
+          }
+          break;
+        }
+
+        case 'pcl': {
+          if (val !== undefined && val !== null) {
+            const pcl  = padLeft(val, 4);
+            const href = `../../Pocket/HTML/${pcl}.htm`;
+            const a = document.createElement('a');
+            a.href = href;
+            a.textContent = String(val);
+            a.title = href;
+            td.appendChild(a);
+          }
+          break;
+        }
+
+        case 'html': {
+          td.innerHTML = val ?? '';
+          break;
+        }
+
+        default: {
+          td.textContent = (val ?? '').toString();
+        }
+      }
+
+      tr.appendChild(td);
+    });
+
+    frag.appendChild(tr);
+  });
+  tbody.appendChild(frag);
+
+  // ---------- TableFilter mit grid_layout + col_widths/col_types ----------
+  const filtersConfig = {
+    base_path: 'dist/tablefilter/',
+    grid_layout: {
+      width: '100%',
+      height: '70vh',
+      default_col_width: '120px'
+    },
+    alternate_rows: true,
+    btn_reset: true,
+    rows_counter: true,
+    loader: true,
+    status_bar: true,
+    col_types: COLTYPES,
+    col_widths: COLWIDTHS,
+    state: {
+      types: ['hash'],
+      filters: true,
+      sort: true,
+      columns_visibility: true,
+      filters_visibility: true,
+    },
+    extensions: [
+      { name: 'sort' },
+      {
+        name: 'colsVisibility',
+        btn_text: 'Spalten verstecken▼',
+        enable_hover: true,
+        tick_to_hide: true,
+        enable_tick_all: false,
+        btn_close_text: 'Schließen',
+        toolbar_position: 'right'
+      }
+    ]
+  };
+  const tf = new TableFilter('myTable', filtersConfig);
+  tf.init();
+
+  // ---------- Play-Delegation (nutzt PlayScript.js) ----------
+  tbody.addEventListener('click', (ev) => {
+    const el = ev.target.closest('[data-action]');
+    if (!el) return;
+    const action = el.getAttribute('data-action');
+    const arg = el.getAttribute('data-arg');
+    try {
+      if (action === 'playChord')      playChord(isNaN(arg) ? arg : Number(arg));
+      else if (action === 'playScale') playScale(isNaN(arg) ? arg : Number(arg));
+    } catch (e) { console.warn(e); }
+  });
+
+  // ---------- Optional: Validierung ----------
+  const KNOWN_KEYS = new Set(DATA_KEYS);
+  for (const [ri, row] of ROWS.entries()){
+    for (const key of Object.keys(row)){
+      if (!KNOWN_KEYS.has(key)){
+        console.warn(`Row ${ri}: unbekannte Spalte "${key}" – in columns nicht definiert (identifier).`);
+      }
+    }
+  }
+  </script>
+</body>
+</html>
+

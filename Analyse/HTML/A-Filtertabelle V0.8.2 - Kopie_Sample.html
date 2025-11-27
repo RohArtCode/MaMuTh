@@ -1,0 +1,215 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>A-Filtertabelle V0.8.2 - Kopie: Sample</title>
+
+  <!-- Dein ausgelagertes Stylesheet -->
+  <link rel="stylesheet" href="css/main.css"/>
+
+  <!-- Minimal nötige Inline-Notfallstyles (kannst du auch komplett in css/main.css legen) -->
+  <style>
+    table#myTable { table-layout:auto; width:100%; border-collapse:collapse; }
+    #myTable th,#myTable td{
+      padding:2px 4px; border-bottom:1px solid #eee;
+      white-space:normal; word-break:normal; overflow-wrap:break-word; hyphens:auto;
+      min-width:2ch; vertical-align:top;
+    }
+    #myTable th{ white-space:normal; word-break:normal; overflow-wrap:normal; }
+    .thumb{ max-height:56px; max-width:120px; width:120px; height:56px; object-fit:contain; }
+    .btn-play{ cursor:pointer; font-size:12px; padding:2px 6px; }
+  </style>
+</head>
+<body>
+  <h1 id="pageTitle">A-Filtertabelle V0.8.2 - Kopie: Sample</h1>
+  <p style="font-size:10px;text-align:left;">
+    <a href="../Inhalt.html" style="text-decoration:none;color:gray;">zurück zum Inhaltsverzeichnis</a>
+  </p>
+
+  <table id="myTable">
+    <thead></thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- Libs (lokal) -->
+  <script src="dist/tablefilter/tablefilter.js"></script>
+  <script src="dist/surikov/WebAudioFontPlayer.js"></script>
+  <script src="dist/surikov/0000_JCLive_sf2_file.js"></script>
+  <script src="js/PlayScript.js"></script>
+
+  <!-- Daten: lokal & ohne fetch() via file:// -->
+  <script id="data" type="application/json">
+  {
+  "title": "A-Filtertabelle V0.8.2 - Kopie: Sample",
+  "meta": {
+    "colTypes": {
+      "Betrag von": "number"
+    },
+    "renderAs": {
+      "Hew Rep PCL": "pcl",
+      "nach Name PCL": "pcl",
+      "Image": "image",
+      "Midi": "midi"
+    }
+     },
+  "rows": [
+    {
+      "Hew Rep PCL": "2336",
+      "nach Name PCL": "2184",
+      "Betrag von": "3",
+      "Image": "../../Hewitt/Diagram/2_Overtone_100000100000.jpg",
+      "Midi": "../../Hewitt/Lilypond/1_Scale.2Octave_100000000000.png"
+    },
+    {
+      "Hew Rep PCL": "2336",
+      "nach Name PCL": "2688",
+      "Betrag von": "3",
+      "Image": "../../Hewitt/Diagram/2_Overtone_100000100000.jpg",
+      "Midi": "../../Hewitt/Lilypond/1_Scale.2Octave_100000000000.png"
+    }
+  ]
+}
+
+  </script>
+
+  <script>
+  // --- JSON lesen ---
+  const RAW = JSON.parse(document.getElementById('data').textContent);
+  const TITLE = RAW.title || 'Liste';
+  const META = RAW.meta || {};
+  const ROWS = RAW.rows || [];
+  const COLTYPES = META.colTypes || {};
+  const RENDERAS = META.renderAs || {};
+  document.getElementById('pageTitle').textContent = TITLE;
+  document.title = TITLE;
+
+  // --- Helpers ---
+  const table = document.getElementById('myTable');
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+  const columns = Object.keys(ROWS[0] || {});
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      const img = e.target;
+      const src = img.dataset.src;
+      if (src){ img.src = src; img.removeAttribute('data-src'); }
+      io.unobserve(img);
+    }
+  }, {root:null, rootMargin:'300px'});
+
+  function padLeft(val, len){
+    const s = String(val ?? '');
+    return s.length >= len ? s : ('0'.repeat(len - s.length) + s);
+  }
+
+  // --- Header bauen ---
+  {
+    const tr = document.createElement('tr');
+    for (const col of columns){
+      const th = document.createElement('th');
+      th.textContent = col;
+      tr.appendChild(th);
+    }
+    thead.appendChild(tr);
+  }
+
+  // --- Body bauen (DocumentFragment) ---
+  const frag = document.createDocumentFragment();
+
+  ROWS.forEach((row, i) => {
+    const tr = document.createElement('tr');
+    tr.dataset.dataIndex = i;
+
+    for (const col of columns){
+      const td = document.createElement('td');
+      const val = row[col];
+
+      switch (RENDERAS[col]) {
+        case 'image': {
+          if (val){
+            const a = document.createElement('a');
+            a.href = val; a.target = '_blank'; a.rel = 'noopener'; a.title = val;
+            const img = document.createElement('img');
+            img.className = 'thumb';
+            img.alt = col;
+            img.loading = 'lazy';
+            img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
+            img.dataset.src = val;
+            a.appendChild(img);
+            td.appendChild(a);
+            io.observe(img);
+          }
+          break;
+        }
+        case 'midi': {
+          if (val){
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn-play';
+            btn.textContent = '▶︎ Play';
+            btn.setAttribute('data-action','playChord');
+            btn.setAttribute('data-arg', val);
+            td.appendChild(btn);
+          }
+          break;
+        }
+        case 'pcl': {
+          if (val !== undefined && val !== null) {
+            const pcl = padLeft(val, 4); // führende Nullen bis 4 Stellen
+            const href = `../../Pocket/HTML/${pcl}.htm`; // fester Pfad und Endung
+            const a = document.createElement('a');
+            a.href = href;
+            a.textContent = String(val);
+            a.title = href;
+            td.appendChild(a);
+          }
+          break;
+        }
+        case 'html': {
+          td.innerHTML = val ?? '';
+          break;
+        }
+        default: {
+          td.textContent = (val ?? '').toString();
+        }
+      }
+
+      tr.appendChild(td);
+    }
+
+    frag.appendChild(tr);
+  });
+
+  tbody.appendChild(frag);
+
+  // --- TableFilter initialisieren (col_types aus META) ---
+  const col_types = columns.map(col => (COLTYPES[col] === 'number' ? 'number' : 'string'));
+  const tf = new TableFilter('myTable', {
+    base_path: 'dist/tablefilter/',
+    alternate_rows: true,
+    btn_reset: true,
+    rows_counter: true,
+    loader: true,
+    status_bar: true,
+    extensions: [{ name: 'sort' }],
+    col_types
+  });
+  tf.init();
+
+  // --- Play-Delegation (nutzt PlayScript.js) ---
+  tbody.addEventListener('click', (ev) => {
+    const el = ev.target.closest('[data-action]');
+    if (!el) return;
+    const action = el.getAttribute('data-action');
+    const arg = el.getAttribute('data-arg');
+    try {
+      if (action === 'playChord') playChord(isNaN(arg) ? arg : Number(arg));
+      else if (action === 'playScale') playScale(isNaN(arg) ? arg : Number(arg));
+    } catch (e) { console.warn(e); }
+  });
+  </script>
+</body>
+</html>
+

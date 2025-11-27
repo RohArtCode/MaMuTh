@@ -1,0 +1,476 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>G-vergleich: 0-12_All_PCSets_AllAttributes</title>
+
+  <!-- Optional global stylesheet (can be missing during local testing) -->
+  <link rel="stylesheet" href="stylesheet.css"/>
+
+  <style>
+    /* =========================
+       1) Layout-Optimierungen obere Tabelle
+       ========================= */
+    table#demo {
+      table-layout: auto;      /* Browser bestimmt Spaltenbreiten nach Inhalt */
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    #demo th,
+    #demo td {
+      padding: 2px 4px;
+      border-bottom: 1px solid #eee;
+
+      /* Wortumbruch nur an sinnvollen Stellen */
+      white-space: normal;
+      word-break: normal;
+      overflow-wrap: break-word;
+      hyphens: auto;
+
+      min-width: 3ch;          /* verhindert ultradünne Spalten */
+      vertical-align: top;
+    }
+
+    /* Header-Texte: besser lesbar – kein Wortsplit */
+    #demo th {
+      white-space: normal;
+      word-break: normal;
+      overflow-wrap: normal;
+    }
+
+    /* Sortpfeile (nur Optik) */
+    #demo thead th.sort-asc::after  { content: "▲"; margin-left: .35em; font-size: .8em; opacity: .7; }
+    #demo thead th.sort-desc::after { content: "▼"; margin-left: .35em; font-size: .8em; opacity: .7; }
+
+    /* Bildvorschau */
+    .thumb {
+      max-height: 56px;
+      max-width: 120px;
+      width: 120px;
+      height: 56px;
+      object-fit: contain;
+    }
+
+    /* Buttons */
+    .btn-play {
+      cursor: pointer;
+      font-size: 12px;
+      padding: 2px 6px;
+    }
+
+    /* =========================
+       2) Vergleichstabelle (unten)
+       ========================= */
+    /* Vergleich zunächst ausgeblendet; wird per Button ein-/ausgeblendet */
+    #compare { display: none; }
+
+    /* Zebra-Linien */
+    #compareTable tbody tr:nth-child(odd)  { background: #fafafa; }
+    #compareTable tbody tr:nth-child(even) { background: #ffffff; }
+
+    /* Sticky-Kopf der Vergleichstabelle */
+    #compareTable thead th {
+      position: sticky;
+      top: 0;
+      background: #fff;
+      z-index: 1;
+      border-bottom: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>G-vergleich: 0-12_All_PCSets_AllAttributes</h1>
+  <p style="font-size: 10px; text-align: left;">
+    <a href="../Inhalt.html" style="text-decoration: none; color: gray;">zurück zum Inhaltsverzeichnis</a>
+  </p>
+
+  <!-- Obere, filter-/sortierbare Tabelle (TableFilter) -->
+  <table id="demo">
+    <thead></thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- Button zum Ein-/Ausblenden der Vergleichsansicht -->
+  <p>
+    <button id="toggleCompareBtn" type="button">Vergleich anzeigen</button>
+  </p>
+
+  <!-- Vergleichsansicht: transponierte Tabelle (Produkte = Spalten, Merkmale = Zeilen) -->
+  <section id="compare" style="margin-top:1rem;">
+    <h2>Vergleich (Produkte nebeneinander)</h2>
+    <div style="overflow:auto;">
+      <table id="compareTable" style="border-collapse:collapse;min-width:700px;">
+        <thead></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- =========================
+       3) Scripts
+       ========================= -->
+
+  <!-- TableFilter (lokal) -->
+  <script src="dist/tablefilter/tablefilter.js"></script>
+
+  <!-- Audio-Kram (OPTIONAL) – vorerst auskommentieren, solange Dateien fehlen
+  <script src="surikov/WebAudioFontPlayer.js"></script>
+  <script src="surikov/0000_JCLive_sf2_file.js"></script>
+  <script src="js/PlayScript.js"></script>
+  -->
+
+
+
+</body>
+</html>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  /* ========= Daten (BEISPIEL – ersetze durch deine echten) ========= */
+  const data = [
+    { "Hew Rep PCL": "2336","Hew Rep Name": "C dim","Hewit Name PCL": "2336","Hewitt Name": "C dim","Betrag von": "3","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G","nach PCL": "273","nach Rep PCL": "2184","nach Name PCL": "2184","nach Name": "C +","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:G#  25:F#, B","Oberton nachher": "24:C#, F , A   23:D#, G , B","Oberton Rang vorher": "30","Oberton Rang nachher": "24","Oberton Rang Verbesserung": "-6","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+    { "Hew Rep PCL": "2336","Hew Rep Name": "C dim","Hewit Name PCL": "2336","Hewitt Name": "C dim","Betrag von": "3","tritonus auf": "6","Tritonus": "F#-C","Auflösung": "F -C#","nach PCL": "1344","nach Rep PCL": "2688","nach Name PCL": "2688","nach Name": "C Ganzton Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:G#  25:F#, B","Oberton nachher": "30:C#  29:D#","Oberton Rang vorher": "30","Oberton Rang nachher": "30","Oberton Rang Verbesserung": "0","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" }
+  ];
+
+  /* ========= Helfer ========= */
+  function isImageColumn(name) {
+    return String(name).toLowerCase().includes('image');
+  }
+  function fixPath(v) {
+    return String(v || '').trim().replace(/^\.\.\//, '../../Hewitt/');
+  }
+  function normalizeNumber(str) {
+    const txt = String(str ?? '').trim();
+    const norm = txt.replace(/\s/g, '').replace(/\./g, '').replace(',', '.');
+    return /^-?\d+(\.\d+)?$/.test(norm) ? parseFloat(norm) : NaN;
+  }
+  function looksNumericFromData(colName) {
+    const sample = data.slice(0, 50);
+    let hits = 0, checks = 0;
+    for (const row of sample) {
+      const n = normalizeNumber(row[colName]);
+      if (!Number.isNaN(n)) hits++;
+      checks++;
+    }
+    return checks > 0 && hits / checks >= 0.6;
+  }
+  function looksLikeImage(val){
+    const s = String(val || '').trim().toLowerCase();
+    return /^data:image\//.test(s) || /\.(png|jpe?g|gif|webp|svg)$/.test(s);
+  }
+
+  /* ========= Obere Tabelle aufbauen ========= */
+  const table = document.getElementById('demo');
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+  const columns = Object.keys(data[0] || {});
+
+  // Header
+  {
+    const tr = document.createElement('tr');
+    for (const column of columns) {
+      const th = document.createElement('th');
+      th.textContent = column;
+      tr.appendChild(th);
+    }
+    thead.appendChild(tr);
+  }
+
+  // Body
+  {
+    const frag = document.createDocumentFragment();
+    data.forEach((row, i) => {
+      const tr = document.createElement('tr');
+      tr.dataset.dataIndex = i;
+
+      for (const column of columns) {
+        const td = document.createElement('td');
+        const val = row[column];
+
+        if (column.includes('PCL')) {
+          const pclValue = String(val).padStart(4, '0');
+          const filePath = '../../Pocket/HTML/' + pclValue + '.htm';
+          td.innerHTML =
+            '<img border="0" src="../../Pocket/gif/Kreise/' + pclValue + '.gif" height="24" ' +
+            '     data-action="playChord" data-arg="1' + pclValue + '" style="cursor: pointer;">' +
+            '<a href="' + filePath + '" style="font-size: 10px; color: gray;" target="_blank">' + pclValue + '</a>' +
+            '<img border="0" src="../../Pocket/gif/Score/Scale/' + pclValue + '.gif" height="24" ' +
+            '     data-action="playScale" data-arg="1' + pclValue + '" style="cursor: pointer;"><br>';
+        } else if (isImageColumn(column) && val) {
+          const corrected = fixPath(val);
+          const a = document.createElement('a');
+          a.href = corrected; a.target = '_blank'; a.rel = 'noopener'; a.title = corrected;
+
+          const img = document.createElement('img');
+          img.className = 'thumb';
+          img.alt = column;
+          img.loading = 'lazy';
+          img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
+          img.dataset.src = corrected;
+
+          a.appendChild(img);
+          td.appendChild(a);
+        } else if (String(column).toLowerCase().includes('midi') && val) {
+          const midiPath = fixPath(val);
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'btn-play';
+          btn.textContent = '▶︎ Play';
+          btn.setAttribute('data-action', 'playChord');
+          btn.setAttribute('data-arg', midiPath);
+          td.appendChild(btn);
+        } else {
+          td.textContent = (val ?? '').toString();
+        }
+
+        tr.appendChild(td);
+      }
+
+      frag.appendChild(tr);
+    });
+    tbody.appendChild(frag);
+  }
+
+  // Lazy-Loading oben
+  {
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        const img = e.target;
+        const src = img.dataset.src;
+        if (src) {
+          img.src = src;
+          img.removeAttribute('data-src');
+        }
+        io.unobserve(img);
+      }
+    }, { root: null, rootMargin: '300px' });
+    tbody.querySelectorAll('img[data-src]').forEach(img => io.observe(img));
+  }
+
+  // Play-Delegation (falls Audio später wieder aktiv)
+  tbody.addEventListener('click', (ev) => {
+    const el = ev.target.closest('[data-action]');
+    if (!el) return;
+    const action = el.getAttribute('data-action');
+    const arg = el.getAttribute('data-arg');
+    if (action === 'playChord') {
+      try { playChord(isNaN(arg) ? arg : Number(arg)); } catch (e) { /* optional warn */ }
+    } else if (action === 'playScale') {
+      try { playScale(isNaN(arg) ? arg : Number(arg)); } catch (e) { /* optional warn */ }
+    }
+  });
+
+  // TableFilter initialisieren (falls dist/tablefilter vorhanden)
+  const col_types = columns.map(col => looksNumericFromData(col) ? 'number' : 'string');
+  if (window.TableFilter) {
+    const filtersConfig = {
+      base_path: 'dist/tablefilter/',
+      grid_layout: true,
+      alternate_rows: true,
+      btn_reset: true,
+      rows_counter: true,
+      loader: true,
+      status_bar: true,
+      extensions: [{ name: 'sort' }],
+      col_types
+    };
+    const tf = new TableFilter('demo', filtersConfig);
+    tf.init();
+  }
+
+  // Optische Sortpfeile (nur Optik)
+  function clearAllSortIcons() {
+    thead.querySelectorAll('th').forEach(th => th.classList.remove('sort-asc','sort-desc'));
+  }
+  function setSortIcon(colIndex, dir) {
+    const th = thead.querySelectorAll('th')[colIndex];
+    if (!th) return;
+    th.classList.remove('sort-asc','sort-desc');
+    th.classList.add(dir === 'desc' ? 'sort-desc' : 'sort-asc');
+  }
+  thead.addEventListener('click', (e) => {
+    const th = e.target.closest('th');
+    if (!th) return;
+    const idx = Array.from(thead.querySelectorAll('th')).indexOf(th);
+    const asc = th.classList.contains('sort-asc');
+    clearAllSortIcons();
+    setSortIcon(idx, asc ? 'desc' : 'asc');
+  });
+
+  /* ========= Vergleich (unten) ========= */
+  function getVisibleDataIndices(){
+    const rows = Array.from(document.querySelectorAll('#demo tbody tr'));
+    const visible = rows.filter(r => getComputedStyle(r).display !== 'none');
+    return visible.map(r => parseInt(r.dataset.dataIndex, 10)).filter(Number.isFinite);
+  }
+
+  function buildComparison(indices){
+    const products = (indices && indices.length ? indices : []).map(i => data[i]).filter(Boolean);
+    const cTable = document.getElementById('compareTable');
+    const cThead = cTable.querySelector('thead');
+    const cTbody = cTable.querySelector('tbody');
+
+    cThead.textContent = '';
+    cTbody.textContent = '';
+
+    if (!products.length){
+      const trh = document.createElement('tr');
+      const th = document.createElement('th');
+      th.textContent = 'Keine sichtbaren Datensätze';
+      trh.appendChild(th);
+      cThead.appendChild(trh);
+      return;
+    }
+
+    const features = Object.keys(products[0] || {});
+    const headRow = document.createElement('tr');
+    headRow.appendChild(document.createElement('th')); // Ecke leer
+
+    products.forEach((p, idx) => {
+      const th = document.createElement('th');
+      th.textContent = p['Hew Rep Name'] || p['Hewitt Name'] || ('#' + (idx+1));
+      th.dataset.colIndex = idx;
+      headRow.appendChild(th);
+    });
+    cThead.appendChild(headRow);
+
+    const frag = document.createDocumentFragment();
+    features.forEach(feat => {
+      const tr = document.createElement('tr');
+
+      const rth = document.createElement('th');
+      rth.textContent = feat;
+      rth.style.textAlign = 'left';
+      rth.style.borderRight = '1px solid #eee';
+      tr.appendChild(rth);
+
+      products.forEach((p, colIdx) => {
+        const td = document.createElement('td');
+        const v = p[feat];
+        td.style.padding = '4px 6px';
+        td.dataset.colIndex = colIdx;
+
+        if (v && (isImageColumn(feat) || looksLikeImage(v))) {
+          const url = fixPath(v);
+          const a = document.createElement('a');
+          a.href = url; a.target = '_blank'; a.rel = 'noopener'; a.title = url;
+
+          const img = document.createElement('img');
+          img.className = 'thumb';
+          img.alt = feat;
+          img.loading = 'lazy';
+          img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
+          img.dataset.src = url;
+
+          a.appendChild(img);
+          td.appendChild(a);
+        } else if (feat.includes('PCL') && v) {
+          const pclValue = String(v).padStart(4, '0');
+          const filePath = '../../Pocket/HTML/' + pclValue + '.htm';
+          td.innerHTML =
+            '<img border="0" src="../../Pocket/gif/Kreise/' + pclValue + '.gif" height="24" ' +
+            '     data-action="playChord" data-arg="1' + pclValue + '" style="cursor:pointer;">' +
+            '<a href="' + filePath + '" style="font-size:10px; color:gray;" target="_blank">' + pclValue + '</a>' +
+            '<img border="0" src="../../Pocket/gif/Score/Scale/' + pclValue + '.gif" height="24" ' +
+            '     data-action="playScale" data-arg="1' + pclValue + '" style="cursor:pointer;">';
+        } else {
+          td.textContent = (v ?? '').toString();
+        }
+
+        tr.appendChild(td);
+      });
+
+      frag.appendChild(tr);
+    });
+    cTbody.appendChild(frag);
+
+    // Lazy nur für Vergleich
+    const compareRoot = document.getElementById('compare');
+    const io2 = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        const img = e.target;
+        const src = img.dataset.src;
+        if (src) {
+          img.src = src;
+          img.removeAttribute('data-src');
+        }
+        io2.unobserve(img);
+      }
+    }, { root: compareRoot, rootMargin: '300px' });
+    cTable.querySelectorAll('img[data-src]').forEach(img => io2.observe(img));
+  }
+
+// Toggle-Button
+const toggleBtn = document.getElementById('toggleCompareBtn');
+const compareSection = document.getElementById('compare');
+
+if (!toggleBtn || !compareSection) {
+  console.warn('Toggle-Button oder Vergleichssektion nicht gefunden!');
+} else {
+  // Initialzustand
+  compareSection.style.display = 'none';
+  toggleBtn.textContent = 'Vergleich anzeigen';
+
+  toggleBtn.addEventListener('click', () => {
+    const isHidden = getComputedStyle(compareSection).display === 'none';
+
+    if (isHidden){
+      // <- WICHTIG: 'block' statt ''
+      compareSection.style.display = 'block';
+      toggleBtn.textContent = 'Vergleich ausblenden';
+
+      // frisch aus oben sichtbaren Zeilen bauen (mit Fallback)
+      let indices = getVisibleDataIndices();
+      if (!indices.length && Array.isArray(data) && data.length){
+        indices = data.map((_, i) => i);
+      }
+      buildComparison(indices);
+    } else {
+      compareSection.style.display = 'none';
+      toggleBtn.textContent = 'Vergleich anzeigen';
+    }
+  });
+}
+
+
+    // Sync bei Filter/Sort oben (nur wenn sichtbar)
+    const demoTbodyEl = document.querySelector('#demo tbody');
+    if (demoTbodyEl){
+      const mo = new MutationObserver(() => {
+        if (getComputedStyle(compareSection).display !== 'none'){
+          cancelAnimationFrame(mo._raf);
+          mo._raf = requestAnimationFrame(() => {
+            let indices = getVisibleDataIndices();
+            if (!indices.length && data.length){ indices = data.map((_, i) => i); }
+            buildComparison(indices);
+          });
+        }
+      });
+      mo.observe(demoTbodyEl, {
+        attributes: true, attributeFilter: ['style', 'class'],
+        childList: true, subtree: false
+      });
+    }
+
+    const demoTheadEl = document.querySelector('#demo thead');
+    if (demoTheadEl){
+      demoTheadEl.addEventListener('click', () => {
+        if (getComputedStyle(compareSection).display !== 'none'){
+          requestAnimationFrame(() => {
+            let indices = getVisibleDataIndices();
+            if (!indices.length && data.length){ indices = data.map((_, i) => i); }
+            buildComparison(indices);
+          });
+        }
+      });
+    }
+  } else {
+    console.warn('#toggleCompareBtn oder #compare nicht gefunden.');
+  }
+});
+</script>
+

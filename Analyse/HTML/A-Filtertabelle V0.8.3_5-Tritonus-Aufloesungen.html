@@ -1,0 +1,302 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>A-Filtertabelle V0.8.3: 5-Tritonus-Aufloesungen</title>
+  <link rel="stylesheet" href="css/main.css"/>
+</head>
+<body>
+  <h1>A-Filtertabelle V0.8.3: 5-Tritonus-Aufloesungen</h1>
+  <p class="backlink">
+    <a href="../Inhalt.html">zurück zum Inhaltsverzeichnis</a>
+  </p>
+
+  <table id="myTable">
+    <thead></thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- Libs (lokal) -->
+  <script src="dist/tablefilter/tablefilter.js"></script>
+  <script src="dist/surikov/WebAudioFontPlayer.js"></script>
+  <script src="dist/surikov/0000_JCLive_sf2_file.js"></script>
+  <script src="js/PlayScript.js"></script>
+
+  <!-- ====== DATENBLOCK: nur columns + rows ====== -->
+  <!-- WICHTIG: rows benutzen jetzt die identifier als Keys -->
+  <script id="data" type="application/json">
+  const data = [
+{ "Hew Rep PCL": "2724","Hew Rep Name": "C Kung tiao","Hewit Name PCL": "2706","Hewitt Name": "C akustischer Nonenakkord","Betrag von": "5","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "661","nach Rep PCL": "2708","nach Name PCL": "2708","nach Name": "C Dur-Pentatonik","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "50:D   43:C","Oberton nachher": "47:G   42:A","Oberton Rang vorher": "50","Oberton Rang nachher": "47","Oberton Rang Verbesserung": "-3","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2724","Hew Rep Name": "C Kung tiao","Hewit Name PCL": "2706","Hewitt Name": "C akustischer Nonenakkord","Betrag von": "5","tritonus auf": "6","Tritonus": "F#-C ","Auflösung": "F -C#","nach PCL": "1732","nach Rep PCL": "3464","nach Name PCL": "2833","nach Name": "C m j7 9","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "50:D   43:C","Oberton nachher": "41:G   39:D","Oberton Rang vorher": "50","Oberton Rang nachher": "41","Oberton Rang Verbesserung": "-9","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2728","Hew Rep Name": "C + 9 #11","Hewit Name PCL": "2722","Hewitt Name": "C b5 7 9","Betrag von": "5","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "665","nach Rep PCL": "3220","nach Name PCL": "3220","nach Name": "C Scriabin","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "46:D   40:E","Oberton nachher": "45:E   43:G","Oberton Rang vorher": "46","Oberton Rang nachher": "45","Oberton Rang Verbesserung": "-1","Anz. Tritonus vorher": "2","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2728","Hew Rep Name": "C + 9 #11","Hewit Name PCL": "2722","Hewitt Name": "C b5 7 9","Betrag von": "5","tritonus auf": "2","Tritonus": "D -G#","Auflösung": "C#-A ","nach PCL": "3236","nach Rep PCL": "3236","nach Name PCL": "3236","nach Name": "C b5 07 b9","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "46:D   40:E","Oberton nachher": "43:D   42:F#, A","Oberton Rang vorher": "46","Oberton Rang nachher": "43","Oberton Rang Verbesserung": "-3","Anz. Tritonus vorher": "2","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2728","Hew Rep Name": "C + 9 #11","Hewit Name PCL": "2722","Hewitt Name": "C b5 7 9","Betrag von": "5","tritonus auf": "6","Tritonus": "F#-C ","Auflösung": "F -C#","nach PCL": "1736","nach Rep PCL": "3472","nach Name PCL": "3472","nach Name": "C m  b9 b11","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "46:D   40:E","Oberton nachher": "41:E   40:C#, A#","Oberton Rang vorher": "46","Oberton Rang nachher": "41","Oberton Rang Verbesserung": "-5","Anz. Tritonus vorher": "2","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2728","Hew Rep Name": "C + 9 #11","Hewit Name PCL": "2722","Hewitt Name": "C b5 7 9","Betrag von": "5","tritonus auf": "8","Tritonus": "G#-D ","Auflösung": "G -D#","nach PCL": "2480","nach Rep PCL": "3460","nach Name PCL": "2825","nach Name": "C m #5 j7 9","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "46:D   40:E","Oberton nachher": "43:C   38:F#","Oberton Rang vorher": "46","Oberton Rang nachher": "43","Oberton Rang Verbesserung": "-3","Anz. Tritonus vorher": "2","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "3114","Hew Rep Name": "C NN","Hewit Name PCL": "2736","Hewitt Name": "C add 9 #11","Betrag von": "5","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "1051","nach Rep PCL": "3488","nach Name PCL": "3488","nach Name": "C 0  b9 b11","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "48:F#  41:G#","Oberton nachher": "45:C#  37:E","Oberton Rang vorher": "48","Oberton Rang nachher": "45","Oberton Rang Verbesserung": "-3","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3154","Hew Rep Name": "C Raga Vibhavari (Revati)","Hewit Name PCL": "2836","Hewitt Name": "C Dorian Pentatonic","Betrag von": "5","tritonus auf": "7","Tritonus": "G -C#","Auflösung": "F#-D ","nach PCL": "2658","nach Rep PCL": "3156","nach Name PCL": "2442","nach Name": "C + 7 #9","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "44:D#  40:C#, A#","Oberton nachher": "42:A#  40:G#","Oberton Rang vorher": "44","Oberton Rang nachher": "42","Oberton Rang Verbesserung": "-2","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3156","Hew Rep Name": "C NN","Hewit Name PCL": "2442","Hewitt Name": "C + 7 #9","Betrag von": "5","tritonus auf": "7","Tritonus": "G -C#","Auflösung": "F#-D ","nach PCL": "2660","nach Rep PCL": "3220","nach Name PCL": "3220","nach Name": "C Scriabin","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "42:F   40:D#","Oberton nachher": "45:D   43:F","Oberton Rang vorher": "42","Oberton Rang nachher": "45","Oberton Rang Verbesserung": "3","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3170","Hew Rep Name": "C Iwato","Hewit Name PCL": "2840","Hewitt Name": "C Hira-joshi","Betrag von": "5","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "1107","nach Rep PCL": "3348","nach Name PCL": "2466","nach Name": "C b5 7 #9","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "45:F#  37:D#","Oberton nachher": "44:C#  41:G","Oberton Rang vorher": "45","Oberton Rang nachher": "44","Oberton Rang Verbesserung": "-1","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "2","Anz. Tritonus Delta": "1" },
+{ "Hew Rep PCL": "3210","Hew Rep Name": "C + 7 b9","Hewit Name PCL": "2325","Hewitt Name": "C m j7   13","Betrag von": "5","tritonus auf": "4","Tritonus": "E -A#","Auflösung": "D#-B ","nach PCL": "3337","nach Rep PCL": "3716","nach Name PCL": "3337","nach Name": "C NN","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "45:F#  39:A#","Oberton nachher": "45:C#  40:B","Oberton Rang vorher": "45","Oberton Rang nachher": "45","Oberton Rang Verbesserung": "0","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "3210","Hew Rep Name": "C + 7 b9","Hewit Name PCL": "2325","Hewitt Name": "C m j7   13","Betrag von": "5","tritonus auf": "10","Tritonus": "A#-E ","Auflösung": "A -F ","nach PCL": "3148","nach Rep PCL": "3268","nach Name PCL": "2441","nach Name": "C + j7 #9","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "45:F#  39:A#","Oberton nachher": "39:C#  37:F","Oberton Rang vorher": "45","Oberton Rang nachher": "39","Oberton Rang Verbesserung": "-6","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "3218","Hew Rep Name": "C kleiner Dur-Nonenakkord","Hewit Name PCL": "3218","Hewitt Name": "C kleiner Dur-Nonenakkord","Betrag von": "5","tritonus auf": "4","Tritonus": "E -A#","Auflösung": "D#-B ","nach PCL": "3345","nach Rep PCL": "3720","nach Name PCL": "3345","nach Name": "C m j7 b9","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "46:C   41:F#","Oberton nachher": "41:C#  38:D#","Oberton Rang vorher": "46","Oberton Rang nachher": "41","Oberton Rang Verbesserung": "-5","Anz. Tritonus vorher": "2","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "3218","Hew Rep Name": "C kleiner Dur-Nonenakkord","Hewit Name PCL": "3218","Hewitt Name": "C kleiner Dur-Nonenakkord","Betrag von": "5","tritonus auf": "7","Tritonus": "G -C#","Auflösung": "F#-D ","nach PCL": "2722","nach Rep PCL": "2728","nach Name PCL": "2722","nach Name": "C b5 7 9","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "46:C   41:F#","Oberton nachher": "46:C   40:D","Oberton Rang vorher": "46","Oberton Rang nachher": "46","Oberton Rang Verbesserung": "0","Anz. Tritonus vorher": "2","Anz. Tritonus nachher": "2","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3218","Hew Rep Name": "C kleiner Dur-Nonenakkord","Hewit Name PCL": "3218","Hewitt Name": "C kleiner Dur-Nonenakkord","Betrag von": "5","tritonus auf": "10","Tritonus": "A#-E ","Auflösung": "A -F ","nach PCL": "3156","nach Rep PCL": "3156","nach Name PCL": "2442","nach Name": "C + 7 #9","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "46:C   41:F#","Oberton nachher": "42:F   40:D#","Oberton Rang vorher": "46","Oberton Rang nachher": "42","Oberton Rang Verbesserung": "-4","Anz. Tritonus vorher": "2","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "3220","Hew Rep Name": "C Scriabin","Hewit Name PCL": "3220","Hewitt Name": "C Scriabin","Betrag von": "5","tritonus auf": "7","Tritonus": "G -C#","Auflösung": "F#-D ","nach PCL": "2724","nach Rep PCL": "2724","nach Name PCL": "2706","nach Name": "C akustischer Nonenakkord","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "45:A   43:C","Oberton nachher": "50:D   43:C","Oberton Rang vorher": "45","Oberton Rang nachher": "50","Oberton Rang Verbesserung": "5","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3224","Hew Rep Name": "C Raga Reva","Hewit Name PCL": "2444","Hewitt Name": "C + 07 #9","Betrag von": "5","tritonus auf": "7","Tritonus": "G -C#","Auflösung": "F#-D ","nach PCL": "2728","nach Rep PCL": "2728","nach Name PCL": "2722","nach Name": "C b5 7 9","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "39:F#  38:C , C#, A","Oberton nachher": "46:D   40:E","Oberton Rang vorher": "39","Oberton Rang nachher": "46","Oberton Rang Verbesserung": "7","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "2","Anz. Tritonus Delta": "1" },
+{ "Hew Rep PCL": "3234","Hew Rep Name": "C b5 7 b9","Hewit Name PCL": "2226","Hewitt Name": "C 7  #11","Betrag von": "5","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "1171","nach Rep PCL": "3364","nach Name PCL": "2356","nach Name": "C m 07  #11","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "49:F#  42:C","Oberton nachher": "42:A   39:C , E","Oberton Rang vorher": "49","Oberton Rang nachher": "42","Oberton Rang Verbesserung": "-7","Anz. Tritonus vorher": "2","Anz. Tritonus nachher": "2","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3234","Hew Rep Name": "C b5 7 b9","Hewit Name PCL": "2226","Hewitt Name": "C 7  #11","Betrag von": "5","tritonus auf": "4","Tritonus": "E -A#","Auflösung": "D#-B ","nach PCL": "3361","nach Rep PCL": "3728","nach Name PCL": "3361","nach Name": "C 0 j7 b9","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "49:F#  42:C","Oberton nachher": "45:B   38:F#","Oberton Rang vorher": "49","Oberton Rang nachher": "45","Oberton Rang Verbesserung": "-4","Anz. Tritonus vorher": "2","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "3234","Hew Rep Name": "C b5 7 b9","Hewit Name PCL": "2226","Hewitt Name": "C 7  #11","Betrag von": "5","tritonus auf": "10","Tritonus": "A#-E ","Auflösung": "A -F ","nach PCL": "3172","nach Rep PCL": "3224","nach Name PCL": "2444","nach Name": "C + 07 #9","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "49:F#  42:C","Oberton nachher": "39:B   38:D , F , F#","Oberton Rang vorher": "49","Oberton Rang nachher": "39","Oberton Rang Verbesserung": "-10","Anz. Tritonus vorher": "2","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "3236","Hew Rep Name": "C b5 07 b9","Hewit Name PCL": "3236","Hewitt Name": "C b5 07 b9","Betrag von": "5","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "1173","nach Rep PCL": "2724","nach Name PCL": "2706","nach Name": "C akustischer Nonenakkord","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "43:D   42:F#, A","Oberton nachher": "50:A   43:G","Oberton Rang vorher": "43","Oberton Rang nachher": "50","Oberton Rang Verbesserung": "7","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3240","Hew Rep Name": "C + add b9 #11","Hewit Name PCL": "2250","Hewitt Name": "C + 7  11","Betrag von": "5","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "1177","nach Rep PCL": "3236","nach Name PCL": "3236","nach Name": "C b5 07 b9","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "47:F#  39:D","Oberton nachher": "43:A   42:C#, E","Oberton Rang vorher": "47","Oberton Rang nachher": "43","Oberton Rang Verbesserung": "-4","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3266","Hew Rep Name": "C NN","Hewit Name PCL": "2864","Hewitt Name": "C m  9 #11","Betrag von": "5","tritonus auf": "4","Tritonus": "E -A#","Auflösung": "D#-B ","nach PCL": "3393","nach Rep PCL": "3744","nach Name PCL": "2106","nach Name": "C 7b6 +#11 (om3)","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "42:F#  41:A#","Oberton nachher": "44:C#  41:B","Oberton Rang vorher": "42","Oberton Rang nachher": "44","Oberton Rang Verbesserung": "2","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3340","Hew Rep Name": "C m #5 07 b9","Hewit Name PCL": "2465","Hewitt Name": "C b5 j7 #9","Betrag von": "5","tritonus auf": "3","Tritonus": "D#-A ","Auflösung": "D -A#","nach PCL": "3594","nach Rep PCL": "3594","nach Name PCL": "2784","nach Name": "C b5  9 11","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "39:G#  37:C#, A , B","Oberton nachher": "42:A#  39:G#","Oberton Rang vorher": "39","Oberton Rang nachher": "42","Oberton Rang Verbesserung": "3","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3346","Hew Rep Name": "C Pelog","Hewit Name PCL": "2408","Hewitt Name": "C 0   11 b13","Betrag von": "5","tritonus auf": "7","Tritonus": "G -C#","Auflösung": "F#-D ","nach PCL": "2850","nach Rep PCL": "3210","nach Name PCL": "2325","nach Name": "C m j7   13","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "48:D#  39:C","Oberton nachher": "45:G#  39:C","Oberton Rang vorher": "48","Oberton Rang nachher": "45","Oberton Rang Verbesserung": "-3","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3348","Hew Rep Name": "C NN","Hewit Name PCL": "2466","Hewitt Name": "C b5 7 #9","Betrag von": "5","tritonus auf": "3","Tritonus": "D#-A ","Auflösung": "D -A#","nach PCL": "3602","nach Rep PCL": "3602","nach Name PCL": "3602","nach Name": "C sus2 7 b9","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "44:D#  41:A","Oberton nachher": "44:C   41:D#","Oberton Rang vorher": "44","Oberton Rang nachher": "44","Oberton Rang Verbesserung": "0","Anz. Tritonus vorher": "2","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "3348","Hew Rep Name": "C NN","Hewit Name PCL": "2466","Hewitt Name": "C b5 7 #9","Betrag von": "5","tritonus auf": "7","Tritonus": "G -C#","Auflösung": "F#-D ","nach PCL": "2852","nach Rep PCL": "3218","nach Name PCL": "3218","nach Name": "C kleiner Dur-Nonenakkord","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "44:D#  41:A","Oberton nachher": "46:D   41:G#","Oberton Rang vorher": "44","Oberton Rang nachher": "46","Oberton Rang Verbesserung": "2","Anz. Tritonus vorher": "2","Anz. Tritonus nachher": "2","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3348","Hew Rep Name": "C NN","Hewit Name PCL": "2466","Hewitt Name": "C b5 7 #9","Betrag von": "5","tritonus auf": "9","Tritonus": "A -D#","Auflösung": "G#-E ","nach PCL": "3224","nach Rep PCL": "3224","nach Name PCL": "2444","nach Name": "C + 07 #9","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "44:D#  41:A","Oberton nachher": "39:F#  38:C , C#, A","Oberton Rang vorher": "44","Oberton Rang nachher": "39","Oberton Rang Verbesserung": "-5","Anz. Tritonus vorher": "2","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "3352","Hew Rep Name": "C Raga Bhupalam","Hewit Name PCL": "3352","Hewitt Name": "C Raga Bhupalam","Betrag von": "5","tritonus auf": "7","Tritonus": "G -C#","Auflösung": "F#-D ","nach PCL": "2856","nach Rep PCL": "3234","nach Name PCL": "2226","nach Name": "C 7  #11","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "43:C#  40:G#","Oberton nachher": "49:G#  42:D","Oberton Rang vorher": "43","Oberton Rang nachher": "49","Oberton Rang Verbesserung": "6","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "2","Anz. Tritonus Delta": "1" },
+{ "Hew Rep PCL": "3362","Hew Rep Name": "C dim 7 b9","Hewit Name PCL": "2326","Hewitt Name": "C m 7   13","Betrag von": "5","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "1299","nach Rep PCL": "3396","nach Name PCL": "2697","nach Name": "C + j7 9","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "46:F#  41:D#","Oberton nachher": "43:D#  42:C#","Oberton Rang vorher": "46","Oberton Rang nachher": "43","Oberton Rang Verbesserung": "-3","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3364","Hew Rep Name": "C NN","Hewit Name PCL": "2356","Hewitt Name": "C m 07  #11","Betrag von": "5","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "1301","nach Rep PCL": "2728","nach Name PCL": "2722","nach Name": "C b5 7 9","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "42:B   39:D , F#","Oberton nachher": "46:A   40:B","Oberton Rang vorher": "42","Oberton Rang nachher": "46","Oberton Rang Verbesserung": "4","Anz. Tritonus vorher": "2","Anz. Tritonus nachher": "2","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3364","Hew Rep Name": "C NN","Hewit Name PCL": "2356","Hewitt Name": "C m 07  #11","Betrag von": "5","tritonus auf": "3","Tritonus": "D#-A ","Auflösung": "D -A#","nach PCL": "3618","nach Rep PCL": "3618","nach Name PCL": "2232","nach Name": "C #11 b13","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "42:B   39:D , F#","Oberton nachher": "41:F#  40:C","Oberton Rang vorher": "42","Oberton Rang nachher": "41","Oberton Rang Verbesserung": "-1","Anz. Tritonus vorher": "2","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "3364","Hew Rep Name": "C NN","Hewit Name PCL": "2356","Hewitt Name": "C m 07  #11","Betrag von": "5","tritonus auf": "9","Tritonus": "A -D#","Auflösung": "G#-E ","nach PCL": "3240","nach Rep PCL": "3240","nach Name PCL": "2250","nach Name": "C + 7  11","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "42:B   39:D , F#","Oberton nachher": "47:F#  39:D","Oberton Rang vorher": "42","Oberton Rang nachher": "47","Oberton Rang Verbesserung": "5","Anz. Tritonus vorher": "2","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "3368","Hew Rep Name": "C Raga Chhaya Todi","Hewit Name PCL": "2258","Hewitt Name": "C Mixolydian Pentatonic","Betrag von": "5","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "1305","nach Rep PCL": "3240","nach Name PCL": "2250","nach Name": "C + 7  11","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "44:F#, G#  39:B","Oberton nachher": "47:C#  39:A","Oberton Rang vorher": "44","Oberton Rang nachher": "47","Oberton Rang Verbesserung": "3","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3396","Hew Rep Name": "C NN","Hewit Name PCL": "2697","Hewitt Name": "C + j7 9","Betrag von": "5","tritonus auf": "3","Tritonus": "D#-A ","Auflösung": "D -A#","nach PCL": "3650","nach Rep PCL": "3650","nach Name PCL": "2960","nach Name": "C m  9 b11","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "43:F   42:D#","Oberton nachher": "44:A#  39:D#","Oberton Rang vorher": "43","Oberton Rang nachher": "44","Oberton Rang Verbesserung": "1","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "3396","Hew Rep Name": "C NN","Hewit Name PCL": "2697","Hewitt Name": "C + j7 9","Betrag von": "5","tritonus auf": "9","Tritonus": "A -D#","Auflösung": "G#-E ","nach PCL": "3272","nach Rep PCL": "3272","nach Name PCL": "2449","nach Name": "C j7 #9","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "43:F   42:D#","Oberton nachher": "41:C#  40:F#","Oberton Rang vorher": "43","Oberton Rang nachher": "41","Oberton Rang Verbesserung": "-2","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "3408","Hew Rep Name": "C m b9 11","Hewit Name PCL": "3408","Hewitt Name": "C m b9 11","Betrag von": "5","tritonus auf": "7","Tritonus": "G -C#","Auflösung": "F#-D ","nach PCL": "2912","nach Rep PCL": "3458","nach Name PCL": "2912","nach Name": "C 0  9 11","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "45:D#  42:C#","Oberton nachher": "43:G#  42:F","Oberton Rang vorher": "45","Oberton Rang nachher": "43","Oberton Rang Verbesserung": "-2","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3424","Hew Rep Name": "C dim b9 11","Hewit Name PCL": "3424","Hewitt Name": "C dim b9 11","Betrag von": "5","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "1361","nach Rep PCL": "2728","nach Name PCL": "2722","nach Name": "C b5 7 9","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "41:F#  40:B","Oberton nachher": "46:C#  40:D#","Oberton Rang vorher": "41","Oberton Rang nachher": "46","Oberton Rang Verbesserung": "5","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "2","Anz. Tritonus Delta": "1" },
+{ "Hew Rep PCL": "3458","Hew Rep Name": "C NN","Hewit Name PCL": "2912","Hewitt Name": "C 0  9 11","Betrag von": "5","tritonus auf": "10","Tritonus": "A#-E ","Auflösung": "A -F ","nach PCL": "3396","nach Rep PCL": "3396","nach Name PCL": "2697","nach Name": "C + j7 9","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "43:F#  42:D#","Oberton nachher": "43:F   42:D#","Oberton Rang vorher": "43","Oberton Rang nachher": "43","Oberton Rang Verbesserung": "0","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3460","Hew Rep Name": "C NN","Hewit Name PCL": "2825","Hewitt Name": "C m #5 j7 9","Betrag von": "5","tritonus auf": "3","Tritonus": "D#-A ","Auflösung": "D -A#","nach PCL": "3714","nach Rep PCL": "3714","nach Name PCL": "2976","nach Name": "C 0  9 b11","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "43:A   38:D#","Oberton nachher": "43:C   40:A#","Oberton Rang vorher": "43","Oberton Rang nachher": "43","Oberton Rang Verbesserung": "0","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3472","Hew Rep Name": "C m  b9 b11","Hewit Name PCL": "3472","Hewitt Name": "C m  b9 b11","Betrag von": "5","tritonus auf": "7","Tritonus": "G -C#","Auflösung": "F#-D ","nach PCL": "2976","nach Rep PCL": "3714","nach Name PCL": "2976","nach Name": "C 0  9 b11","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "41:D#  40:C , A","Oberton nachher": "43:D   40:C","Oberton Rang vorher": "41","Oberton Rang nachher": "43","Oberton Rang Verbesserung": "2","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3488","Hew Rep Name": "C 0  b9 b11","Hewit Name PCL": "3488","Hewitt Name": "C 0  b9 b11","Betrag von": "5","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "1425","nach Rep PCL": "3210","nach Name PCL": "2325","nach Name": "C m j7   13","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "45:F#  37:A","Oberton nachher": "45:A   39:C#","Oberton Rang vorher": "45","Oberton Rang nachher": "45","Oberton Rang Verbesserung": "0","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3594","Hew Rep Name": "C NN","Hewit Name PCL": "2784","Hewitt Name": "C b5  9 11","Betrag von": "5","tritonus auf": "8","Tritonus": "G#-D ","Auflösung": "G -D#","nach PCL": "3346","nach Rep PCL": "3346","nach Name PCL": "2408","nach Name": "C 0   11 b13","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "42:A#  39:G#","Oberton nachher": "48:D#  39:C","Oberton Rang vorher": "42","Oberton Rang nachher": "48","Oberton Rang Verbesserung": "6","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3596","Hew Rep Name": "C NN","Hewit Name PCL": "3296","Hewitt Name": "C b5  b9 11","Betrag von": "5","tritonus auf": "8","Tritonus": "G#-D ","Auflösung": "G -D#","nach PCL": "3348","nach Rep PCL": "3348","nach Name PCL": "2466","nach Name": "C b5 7 #9","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "44:D   35:G#, A#","Oberton nachher": "44:D#  41:A","Oberton Rang vorher": "44","Oberton Rang nachher": "44","Oberton Rang Verbesserung": "0","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "2","Anz. Tritonus Delta": "1" },
+{ "Hew Rep PCL": "3618","Hew Rep Name": "C NN","Hewit Name PCL": "2232","Hewitt Name": "C #11 b13","Betrag von": "5","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "1555","nach Rep PCL": "3460","nach Name PCL": "2825","nach Name": "C m #5 j7 9","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "41:F#  40:C","Oberton nachher": "43:G   38:C#","Oberton Rang vorher": "41","Oberton Rang nachher": "43","Oberton Rang Verbesserung": "2","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3620","Hew Rep Name": "C NN","Hewit Name PCL": "2195","Hewitt Name": "C j7   #13","Betrag von": "5","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "1557","nach Rep PCL": "3114","nach Name PCL": "2736","nach Name": "C add 9 #11","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "47:D   37:C","Oberton nachher": "48:G   41:A","Oberton Rang vorher": "47","Oberton Rang nachher": "48","Oberton Rang Verbesserung": "1","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3624","Hew Rep Name": "C NN","Hewit Name PCL": "2274","Hewitt Name": "C b5 7  11","Betrag von": "5","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "1561","nach Rep PCL": "3248","nach Name PCL": "2401","nach Name": "C 0 j7  11","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "43:D   40:G#","Oberton nachher": "44:G   43:C#","Oberton Rang vorher": "43","Oberton Rang nachher": "44","Oberton Rang Verbesserung": "1","Anz. Tritonus vorher": "2","Anz. Tritonus nachher": "2","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3624","Hew Rep Name": "C NN","Hewit Name PCL": "2274","Hewitt Name": "C b5 7  11","Betrag von": "5","tritonus auf": "8","Tritonus": "G#-D ","Auflösung": "G -D#","nach PCL": "3376","nach Rep PCL": "3376","nach Name PCL": "3376","nach Name": "C m b9 #11","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "43:D   40:G#","Oberton nachher": "40:D#, F#  37:C , G#","Oberton Rang vorher": "43","Oberton Rang nachher": "40","Oberton Rang Verbesserung": "-3","Anz. Tritonus vorher": "2","Anz. Tritonus nachher": "2","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3656","Hew Rep Name": "C NN","Hewit Name PCL": "3217","Hewitt Name": "C j7 b9","Betrag von": "5","tritonus auf": "8","Tritonus": "G#-D ","Auflösung": "G -D#","nach PCL": "3408","nach Rep PCL": "3408","nach Name PCL": "3408","nach Name": "C m b9 11","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "42:C#  41:A#","Oberton nachher": "45:D#  42:C#","Oberton Rang vorher": "42","Oberton Rang nachher": "45","Oberton Rang Verbesserung": "3","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3680","Hew Rep Name": "C NN","Hewit Name PCL": "3265","Hewitt Name": "C Raga Megharanji","Betrag von": "5","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "1617","nach Rep PCL": "3234","nach Name PCL": "2226","nach Name": "C 7  #11","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "39:D   36:F#","Oberton nachher": "49:G   42:C#","Oberton Rang vorher": "39","Oberton Rang nachher": "49","Oberton Rang Verbesserung": "10","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "2","Anz. Tritonus Delta": "1" },
+{ "Hew Rep PCL": "3714","Hew Rep Name": "C NN","Hewit Name PCL": "2976","Hewitt Name": "C 0  9 b11","Betrag von": "5","tritonus auf": "4","Tritonus": "E -A#","Auflösung": "D#-B ","nach PCL": "3841","nach Rep PCL": "3968","nach Name PCL": "3968","nach Name": "C Fünfton Cluster","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "43:C   40:A#","Oberton nachher": "38:C#  37:B","Oberton Rang vorher": "43","Oberton Rang nachher": "38","Oberton Rang Verbesserung": "-5","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "3714","Hew Rep Name": "C NN","Hewit Name PCL": "2976","Hewitt Name": "C 0  9 b11","Betrag von": "5","tritonus auf": "10","Tritonus": "A#-E ","Auflösung": "A -F ","nach PCL": "3652","nach Rep PCL": "3652","nach Name PCL": "3209","nach Name": "C + j7 b9","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "43:C   40:A#","Oberton nachher": "40:D , F   37:G , A#","Oberton Rang vorher": "43","Oberton Rang nachher": "40","Oberton Rang Verbesserung": "-3","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "3720","Hew Rep Name": "C NN","Hewit Name PCL": "3345","Hewitt Name": "C m j7 b9","Betrag von": "5","tritonus auf": "8","Tritonus": "G#-D ","Auflösung": "G -D#","nach PCL": "3472","nach Rep PCL": "3472","nach Name PCL": "3472","nach Name": "C m  b9 b11","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "41:D   38:E","Oberton nachher": "41:D#  40:C , A","Oberton Rang vorher": "41","Oberton Rang nachher": "41","Oberton Rang Verbesserung": "0","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3744","Hew Rep Name": "C NN","Hewit Name PCL": "2106","Hewitt Name": "C 7b6 +#11 (om3)","Betrag von": "5","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "1681","nach Rep PCL": "3362","nach Name PCL": "2326","nach Name": "C m 7   13","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "44:D   41:C","Oberton nachher": "46:G   41:E","Oberton Rang vorher": "44","Oberton Rang nachher": "46","Oberton Rang Verbesserung": "2","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3844","Hew Rep Name": "C NN","Hewit Name PCL": "2528","Hewitt Name": "C b5  #9 11","Betrag von": "5","tritonus auf": "9","Tritonus": "A -D#","Auflösung": "G#-E ","nach PCL": "3720","nach Rep PCL": "3720","nach Name PCL": "3345","nach Name": "C m j7 b9","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "41:D   39:D#","Oberton nachher": "41:D   38:E","Oberton Rang vorher": "41","Oberton Rang nachher": "41","Oberton Rang Verbesserung": "0","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3872","Hew Rep Name": "C NN","Hewit Name PCL": "2108","Hewitt Name": "C 5 6 +#11 +b13","Betrag von": "5","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "1809","nach Rep PCL": "3618","nach Name PCL": "2232","nach Name": "C #11 b13","Betrag nach": "5","Betrag Delta": "0","Oberton vorher": "40:D   39:G#","Oberton nachher": "41:G   40:C#","Oberton Rang vorher": "40","Oberton Rang nachher": "41","Oberton Rang Verbesserung": "1","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" }
+];
+
+
+  </script>
+  <!-- ====== ENDE DATENBLOCK ====== -->
+
+  <script>
+  // ---------- JSON einlesen ----------
+  const RAW     = JSON.parse(document.getElementById('data').textContent);
+  const COLDEFS = RAW.columns || [];
+
+  // Daten-Keys = identifier (oder name als Fallback)
+  const DATA_KEYS     = COLDEFS.map(c => c.identifier || c.name);
+  // Anzeige-Namen = name
+  const DISPLAY_NAMES = COLDEFS.map(c => c.name);
+
+  const ROWS = RAW.rows || [];
+
+  // Mappings aus Spalten-Meta: auf IDENTIFIER keyen!
+  const RENDERAS = Object.fromEntries(
+    COLDEFS.map(c => [
+      (c.identifier || c.name),
+      String(c.renderAs || 'text').toLowerCase()
+    ])
+  );
+
+  // col_types: sowohl tfType (CamelCase) als auch tftype (lower) akzeptieren
+  const COLTYPES = COLDEFS.map(c => {
+    const tfType = (c.tfType ?? c.tftype ?? 'string').toString().toLowerCase();
+    return tfType === 'number' ? 'number' : 'string';
+  });
+
+  const COLWIDTHS = COLDEFS.map(c => {
+    const w = (c.width || '').toString().trim();
+    return (w && w.toLowerCase() !== 'auto') ? w : '';
+  });
+
+  // ---------- DOM-Grundlagen ----------
+  const table = document.getElementById('myTable');
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+
+  // Lazy Image Loader
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      const img = e.target;
+      const src = img.dataset.src;
+      if (src){
+        img.src = src;
+        img.removeAttribute('data-src');
+      }
+      io.unobserve(img);
+    }
+  }, { root:null, rootMargin:'300px' });
+
+  function padLeft(val, len){
+    const s = String(val ?? '');
+    return s.length >= len ? s : ('0'.repeat(len - s.length) + s);
+  }
+
+  // ---------- Header (Tooltip = description) ----------
+  {
+    const tr = document.createElement('tr');
+    for (const c of COLDEFS){
+      const th = document.createElement('th');
+      th.textContent = c.name;           // Nutzer sieht weiter die Namen
+      if (c.description) th.title = c.description;
+      tr.appendChild(th);
+    }
+    thead.appendChild(tr);
+  }
+
+  // ---------- Body ----------
+  const frag = document.createDocumentFragment();
+  ROWS.forEach((row, i) => {
+    const tr = document.createElement('tr');
+    tr.dataset.dataIndex = i;
+
+    // wir laufen über die Spaltendefs, nicht über die Row-Keys
+    COLDEFS.forEach((c) => {
+      const key = c.identifier || c.name;   // DAS ist in rows
+      const label = c.name;                 // schön lesbarer Name
+      const td = document.createElement('td');
+      const val = row[key];
+      const renderAs = RENDERAS[key];
+
+      switch (renderAs) {
+        case 'image': {
+          if (val){
+            const a = document.createElement('a');
+            a.href = val;
+            a.target = '_blank';
+            a.rel = 'noopener';
+            a.title = val;
+
+            const img = document.createElement('img');
+            img.className = 'thumb';
+            img.alt = label;
+            img.loading = 'lazy';
+            // winziges Platzhalter-GIF
+            img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
+            img.dataset.src = val;
+
+            a.appendChild(img);
+            td.appendChild(a);
+            io.observe(img);
+          }
+          break;
+        }
+
+        case 'midi': {
+          if (val){
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn-play';
+            btn.textContent = '▶︎ Play';
+            btn.setAttribute('data-action','playChord');
+            btn.setAttribute('data-arg', val);
+            td.appendChild(btn);
+          }
+          break;
+        }
+
+        case 'pcl': {
+          if (val !== undefined && val !== null) {
+            const pcl  = padLeft(val, 4);
+            const href = `../../Pocket/HTML/${pcl}.htm`;
+            const a = document.createElement('a');
+            a.href = href;
+            a.textContent = String(val);
+            a.title = href;
+            td.appendChild(a);
+          }
+          break;
+        }
+
+        case 'html': {
+          td.innerHTML = val ?? '';
+          break;
+        }
+
+        default: {
+          td.textContent = (val ?? '').toString();
+        }
+      }
+
+      tr.appendChild(td);
+    });
+
+    frag.appendChild(tr);
+  });
+  tbody.appendChild(frag);
+
+  // ---------- TableFilter mit grid_layout + col_widths/col_types ----------
+  const filtersConfig = {
+    base_path: 'dist/tablefilter/',
+    grid_layout: {
+      width: '100%',
+      height: '70vh',
+      default_col_width: '120px'
+    },
+    alternate_rows: true,
+    btn_reset: true,
+    rows_counter: true,
+    loader: true,
+    status_bar: true,
+    col_types: COLTYPES,
+    col_widths: COLWIDTHS,
+    state: {
+      types: ['hash'],
+      filters: true,
+      sort: true,
+      columns_visibility: true,
+      filters_visibility: true,
+    },
+    extensions: [
+      { name: 'sort' },
+      {
+        name: 'colsVisibility',
+        btn_text: 'Spalten verstecken▼',
+        enable_hover: true,
+        tick_to_hide: true,
+        enable_tick_all: false,
+        btn_close_text: 'Schließen',
+        toolbar_position: 'right'
+      }
+    ]
+  };
+  const tf = new TableFilter('myTable', filtersConfig);
+  tf.init();
+
+  // ---------- Play-Delegation (nutzt PlayScript.js) ----------
+  tbody.addEventListener('click', (ev) => {
+    const el = ev.target.closest('[data-action]');
+    if (!el) return;
+    const action = el.getAttribute('data-action');
+    const arg = el.getAttribute('data-arg');
+    try {
+      if (action === 'playChord')      playChord(isNaN(arg) ? arg : Number(arg));
+      else if (action === 'playScale') playScale(isNaN(arg) ? arg : Number(arg));
+    } catch (e) { console.warn(e); }
+  });
+
+  // ---------- Optional: Validierung ----------
+  const KNOWN_KEYS = new Set(DATA_KEYS);
+  for (const [ri, row] of ROWS.entries()){
+    for (const key of Object.keys(row)){
+      if (!KNOWN_KEYS.has(key)){
+        console.warn(`Row ${ri}: unbekannte Spalte "${key}" – in columns nicht definiert (identifier).`);
+      }
+    }
+  }
+  </script>
+</body>
+</html>
+

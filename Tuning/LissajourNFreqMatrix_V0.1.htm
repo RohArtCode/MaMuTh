@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Lissajous-Matrix aus Frequenzen</title>
+<style>
+  :root{
+    --bg:#111; --fg:#ddd; --grid:#2a2a2a; --accent:#8aa;
+  }
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);
+            font:14px/1.35 system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  header{display:flex;gap:.5rem;align-items:center;padding:.75rem 1rem;border-bottom:1px solid #222;flex-wrap:wrap}
+  header input{flex:1 1 360px;min-width:220px;padding:.5rem .6rem;border-radius:.5rem;border:1px solid #333;background:#181818;color:var(--fg)}
+  header button{padding:.55rem .8rem;border:1px solid #3a3a3a;background:#1f1f1f;color:var(--fg);border-radius:.5rem;cursor:pointer}
+  header small{opacity:.75}
+  #wrap{position:relative;height:calc(100% - 64px);padding:10px;box-sizing:border-box}
+  canvas{display:block;margin:0 auto;background:linear-gradient(#101010,#0e0e0e);border-radius:10px;box-shadow:0 0 0 1px #202020 inset}
+  .note{opacity:.7;font-size:12px}
+</style>
+</head>
+<body>
+<header>
+  <strong>Frequenzen:</strong>
+  <input id="freqInput" placeholder="1-1.5-4/3-2" />
+  <button id="applyBtn" title="Neu zeichnen">Zeichnen</button>
+  <button id="copyBtn" title="Link mit Parametern kopieren">Link kopieren</button>
+  <small class="note">Format: Werte &gt; 0 mit <b>-</b> trennen, Brüche erlaubt (z.&nbsp;B. <code>4/3</code>).</small>
+</header>
+<div id="wrap"><canvas id="c"></canvas></div>
+
+<script>
+/* ---------- URL & Parsing ---------- */
+function readParamString(){
+  const qs = new URLSearchParams(location.search).get("f");
+  const hs = location.hash ? decodeURIComponent(location.hash.slice(1)) : "";
+  return (qs && qs.trim()) || (hs && hs.trim()) || "1-4/3-3/2-2";
+}
+function parseToken(tok){
+  tok = tok.trim();
+  // akzeptiere Bruch "a/b" oder Zahl
+  if (/^[+-]?\d+(\.\d+)?\/\d+(\.\d+)?$/.test(tok)){
+    const [n,d] = tok.split("/");
+    const num = parseFloat(n), den = parseFloat(d);
+    if (!isFinite(num) || !isFinite(den) || den === 0) return null;
+    return { label: tok, value: num/den };
+  }
+  const v = parseFloat(tok.replace(",", ".")); // Komma tolerieren
+  if (!isFinite(v)) return null;
+  return { label: tok, value: v };
+}
+function parseFreqs(str){
+  const parts = str.split(/-+/).map(s => s.trim()).filter(Boolean);
+  const out = [];
+  for (const p of parts){
+    const f = parseToken(p);
+    if (f && f.value > 0) out.push(f);
+  }
+  return out;
+}
+/* ---------- Mathe-Helfer ---------- */
+// beste rationale Approximation mit Begrenzung (Continued Fraction)
+function approxFraction(x, maxDen=64){
+  let a0 = Math.floor(x), p0 = 1, q0 = 0, p1 = a0, q1 = 1, x1 = x - a0;
+  if (x === a0) return {num: a0, den: 1};
+  for (let i=0; i<20 && q1 <= maxDen; i++){
+    const a = Math.floor(1/x1);
+    const p2 = a*p1 + p0;
+    const q2 = a*q1 + q0;
+    const val = p2/q2;
+    if (q2 > maxDen) break;
+    if (Math.abs(val - x) < 1e-12) return {num: p2, den: q2};
+    p0=p1; q0=q1; p1=p2; q1=q2; x1 = 1/x1 - a;
+    if (!isFinite(x1) || x1 === 0) break;
+  }
+  return {num:p1, den:q1};
+}
+const gcd = (a,b)=> b ? gcd(b, a%b) : Math.abs(a);
+const lcm = (a,b)=> Math.abs(a*b)/gcd(a,b);
+
+/* ---------- Zeichnen ---------- */
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+
+function fitCanvasForGrid(n, labelSpace){
+  const pad = 10;
+  const wAvail = document.getElementById("wrap").clientWidth - pad*2;
+  const hAvail = document.getElementById("wrap").clientHeight - pad*2;
+  const s = Math.floor(Math.min((wAvail - labelSpace)/n, (hAvail - labelSpace)/n));
+  const width  = s*n + labelSpace + 1;
+  const height = s*n + labelSpace + 1;
+  canvas.width = width * devicePixelRatio;
+  canvas.height = height * devicePixelRatio;
+  canvas.style.width = width + "px";
+  canvas.style.height = height + "px";
+  ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+  return {cell:s, width, height};
+}
+
+function drawGrid(freqs){
+  const N = freqs.length;
+  if (N === 0) return;
+  const labelSpace = 42; // Platz für Achsenlabels
+  const {cell, width, height} = fitCanvasForGrid(N, labelSpace);
+  ctx.clearRect(0,0,width,height);
+
+  // Hintergrund-Raster
+  ctx.strokeStyle = "#202020"; ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let i=0;i<=N;i++){
+    const x = labelSpace + i*cell + .5;
+    const y = labelSpace + i*cell + .5;
+    ctx.moveTo(labelSpace + .5, y); ctx.lineTo(labelSpace + N*cell + .5, y);
+    ctx.moveTo(x, labelSpace + .5); ctx.lineTo(x, labelSpace + N*cell + .5);
+  }
+  ctx.stroke();
+
+  // Labels
+  ctx.fillStyle = "#bfbfbf";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.font = "12px system-ui, sans-serif";
+  for (let i=0;i<N;i++){
+    // oben
+    const cx = labelSpace + i*cell + cell/2;
+    ctx.fillText(freqs[i].label, cx, labelSpace/2);
+    // links
+    const cy = labelSpace + i*cell + cell/2;
+    ctx.save();
+    ctx.translate(labelSpace/2, cy);
+    ctx.rotate(-Math.PI/2);
+    ctx.fillText(freqs[i].label, 0, 0);
+    ctx.restore();
+  }
+
+  // Zellen
+  for (let r=0;r<N;r++){
+    for (let c=0;c<N;c++){
+      drawLissajousCell(
+        labelSpace + c*cell,
+        labelSpace + r*cell,
+        cell,
+        freqs[r].value,
+        freqs[c].value,
+        r, c, N
+      );
+    }
+  }
+}
+
+function drawLissajousCell(x,y,size,a,b,ri,ci,N){
+  const pad = 8;
+  const w = size, h = size;
+  const ox = x + w/2, oy = y + h/2;
+  const R = Math.min(w,h)/2 - pad;
+
+  // Farbton über Matrix verteilen
+  const hue = (ri*N+ci) / (N*N) * 360;
+  const stroke = `hsl(${hue} 70% 65%)`;
+
+  // Kreisrahmen (optional für Look & Diagonale)
+  ctx.strokeStyle = ri===ci ? "hsl(0 0% 40% / .35)" : "hsl(0 0% 27% / .25)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.arc(ox, oy, R, 0, Math.PI*2);
+  ctx.stroke();
+
+  // Periodenlänge: nimm kleinstes gemeinsames Vielfaches der (approximierten) Nenner
+  const fa = approxFraction(a, 64), fb = approxFraction(b, 64);
+  const L = lcm(fa.den, fb.den);               // Anzahl "Grund-Zeiteinheiten"
+  const tMax = Math.max(1, L);                  // sicherheitshalber
+  const steps = Math.min(4000, Math.max(900, 300 * L)); // mehr Punkte bei komplizierteren Verhältnissen
+
+  // Pfad zeichnen
+  ctx.strokeStyle = stroke;
+  ctx.lineWidth = 1.25;
+  ctx.beginPath();
+  for (let i=0;i<=steps;i++){
+    const t = (i/steps) * tMax;
+    const X = Math.sin(2*Math.PI * a * t);
+    const Y = Math.sin(2*Math.PI * b * t + Math.PI/2); // 90° => Kreis auf Diagonale
+    const px = ox + X * R;
+    const py = oy - Y * R;
+    if (i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+  }
+  ctx.stroke();
+}
+
+/* ---------- UI ---------- */
+const input = document.getElementById("freqInput");
+const applyBtn = document.getElementById("applyBtn");
+const copyBtn = document.getElementById("copyBtn");
+
+function applyFromInput(){
+  const s = input.value.trim().replace(/\s+/g,"");
+  if (!s) return;
+  // Hash bevorzugen – gut für lokale Dateien
+  history.replaceState(null,"", location.pathname + "#" + encodeURIComponent(s));
+  drawGrid(parseFreqs(s));
+}
+applyBtn.addEventListener("click", applyFromInput);
+input.addEventListener("keydown", (e)=>{ if (e.key==="Enter") applyFromInput(); });
+
+copyBtn.addEventListener("click", ()=>{
+  const s = input.value.trim().replace(/\s+/g,"");
+  const url = location.origin ? (location.origin + location.pathname + "#" + encodeURIComponent(s)) : (location.pathname + "#" + encodeURIComponent(s));
+  navigator.clipboard.writeText(url).then(()=> {
+    copyBtn.textContent = "Link kopiert ✓";
+    setTimeout(()=>copyBtn.textContent="Link kopieren",1200);
+  });
+});
+
+function init(){
+  const paramStr = readParamString();
+  input.value = paramStr;
+  drawGrid(parseFreqs(paramStr));
+}
+window.addEventListener("resize", ()=>{ drawGrid(parseFreqs(input.value)); });
+window.addEventListener("hashchange", init);
+init();
+</script>
+</body>
+</html>

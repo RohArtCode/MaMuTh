@@ -1,0 +1,198 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C-Farbmatrix V0.9: ModiMaster</title>
+	<link rel="stylesheet" href="css/ColorMatrixStyles.css">
+    
+</head>
+<body>
+
+<h1>C-Farbmatrix V0.9: ModiMaster</h1>
+<p style="font-size: 10px; text-align: left;">
+    <a href="../Inhalt.html" style="text-decoration: none; color: gray;">zurück zum Inhaltsverzeichnis</a>
+</p>
+<div id="matrix-container-wrapper"></div>
+<script src="dist/tablefilter/tablefilter.js"></script>
+<script src="https://surikov.github.io/webaudiofont/npm/dist/WebAudioFontPlayer.js"></script>
+<script src="https://surikov.github.io/webaudiofontdata/sound/0000_JCLive_sf2_file.js"></script>
+<script src="js/PlayScript.js"></script>
+
+<script>
+
+const data = [
+{ "Hew Rep PCL": "2336","Hew Rep Name": "C dim","Hewit Name PCL": "2336","Hewitt Name": "C dim","Betrag von": "3","tritonus auf": "0","Tritonus": "C -F#","Aufl�sung": "B -G ","nach PCL": "273","nach Rep PCL": "2184","nach Name PCL": "2184","nach Name": "C +","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:G#  25:F#, B","Oberton nachher": "24:C#, F , A   23:D#, G , B","Oberton Rang vorher": "30","Oberton Rang nachher": "24","Oberton Rang Verbesserung": "-6","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2336","Hew Rep Name": "C dim","Hewit Name PCL": "2336","Hewitt Name": "C dim","Betrag von": "3","tritonus auf": "6","Tritonus": "F#-C ","Aufl�sung": "F -C#","nach PCL": "1344","nach Rep PCL": "2688","nach Name PCL": "2688","nach Name": "C Ganzton Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:G#  25:F#, B","Oberton nachher": "30:C#  29:D#","Oberton Rang vorher": "30","Oberton Rang nachher": "30","Oberton Rang Verbesserung": "0","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" }
+];
+
+    // Hilfsfunktion, um die PCL-Werte in eine 12-Bit-Binärdarstellung zu konvertieren
+    function to12BitBinary(num) {
+        return num.toString(2).padStart(12, '0');
+    }
+
+    // Funktion, um den Inhalt für eine einzelne Matrix-Zelle zu erstellen
+    function createMatrixCellContent(item) {
+        const content = document.createElement('div');
+        content.classList.add('matrix-cell-content');
+
+        // Überschrift erstellen
+        const header = document.createElement('div');
+        header.classList.add('text-container');
+        header.textContent = `${item["Hew Rep Name"]} → ${item["nach Name"]}`;
+        content.appendChild(header);
+
+        // Bild-Container erstellen
+        const imageWrapper = document.createElement('div');
+        imageWrapper.classList.add('image-wrapper');
+
+        // Erstes Bild erstellen
+        const img1 = document.createElement('img');
+        img1.classList.add('clip');
+        img1.alt = 'clip';
+        img1.src = `../../Hewitt/svg/${parseFloat(item["Betrag von"])}_Circle_${to12BitBinary(parseFloat(item["Hew Rep PCL"]))}.svg`
+        img1.onclick = () => playChord(10000+parseInt(item["Hew Rep PCL"]));
+        img1.style.cursor="pointer";
+        imageWrapper.appendChild(img1);
+
+        // Zweites Bild erstellen
+        const img2 = document.createElement('img');
+        img2.classList.add('clip');
+        img2.alt = 'clip';
+        img2.src = `../../Hewitt/svg/${parseFloat(item["Betrag von"])}_Circle_${to12BitBinary(parseFloat(item["nach PCL"]))}.svg`;
+		img2.onclick = () => playChord(10000+parseInt(item["nach PCL"]));
+        img2.style.cursor="pointer";
+        imageWrapper.appendChild(img2);
+
+        // Bilder dem Inhalt hinzufügen
+        content.appendChild(imageWrapper);
+
+        // Beschreibung unterhalb der Bilder
+        const description = document.createElement('div');
+        description.classList.add('description');
+
+        // Link für den ursprünglichen PCL-Wert
+        const link1 = document.createElement('a');
+        link1.href = `../../Pocket/HTML/${item["Hew Rep PCL"]}.htm`;
+        link1.textContent = item["Hew Rep PCL"];
+        description.appendChild(link1);
+
+        description.appendChild(document.createTextNode(` (${item["Oberton Rang vorher"]}) → `));
+
+        // Link für den nachfolgenden PCL-Wert
+        const link2 = document.createElement('a');
+        link2.href = `../../Pocket/HTML/${item["nach PCL"]}.htm`;
+        link2.textContent = item["nach PCL"];
+        description.appendChild(link2);
+
+        description.appendChild(document.createTextNode(` (${item["Oberton Rang nachher"]})`));
+        content.appendChild(description);
+
+        return content;
+    }
+
+    // Bestimme minimale und maximale Werte für Zeilen und Spalten
+    let minRow = Infinity, maxRow = -Infinity, minCol = Infinity, maxCol = -Infinity;
+    data.forEach(item => {
+        const row = parseInt(item["Oberton Rang nachher"], 10);
+        const col = parseInt(item["Oberton Rang vorher"], 10);
+        if (row < minRow) minRow = row;
+        if (row > maxRow) maxRow = row;
+        if (col < minCol) minCol = col;
+        if (col > maxCol) maxCol = col;
+    });
+
+    // Matrix erstellen
+    const matrixContainerWrapper = document.getElementById('matrix-container-wrapper');
+
+    // Matrix-Container erstellen
+    const matrixContainer = document.createElement('div');
+    matrixContainer.classList.add('matrix-container');
+    matrixContainer.style.gridTemplateColumns = `repeat(${maxCol - minCol + 2}, 220px)`; // +2 für die Zeilen- und Spaltenbeschriftungen
+
+    // Platzhalter für die obere linke Ecke
+    matrixContainer.appendChild(document.createElement('div'));
+
+    // Spaltenbeschriftungen hinzufügen
+    for (let col = minCol; col <= maxCol; col++) {
+        const colLabel = document.createElement('div');
+        colLabel.classList.add('matrix-col-label');
+        colLabel.textContent = `von Rang ${col}`;
+        matrixContainer.appendChild(colLabel);
+    }
+
+    const cellMap = {};
+
+    // Zeilen hinzufügen (in absteigender Reihenfolge)
+    for (let row = maxRow; row >= minRow; row--) {
+        // Zeilenbeschriftung hinzufügen
+        const rowLabel = document.createElement('div');
+        rowLabel.classList.add('matrix-row-label');
+        rowLabel.textContent = `nach Rang ${row}`;
+        matrixContainer.appendChild(rowLabel);
+
+        // Spalten für diese Zeile hinzufügen
+        for (let col = minCol; col <= maxCol; col++) {
+            const cellKey = `${row}-${col}`;
+            const cell = document.createElement('div');
+            cell.classList.add('matrix-cell');
+
+            // Hintergrundfarbe basierend auf dem Unterschied zwischen Spalte und Zeile
+            const difference = col - row;
+            if (difference < 0) {
+                cell.style.backgroundColor = `rgba(144, 238, 144, ${0.1 + Math.min(-difference * 0.1, 0.9)})`; // Blassgrün, intensiver bei größerem Unterschied
+            } else if (difference > 0) {
+                cell.style.backgroundColor = `rgba(255, 182, 193, ${0.1 + Math.min(+difference * 0.1, 0.9)})`; // Blassrot, intensiver bei größerem Unterschied
+            } else {
+                cell.style.backgroundColor = `rgba(211, 211, 211, 0.5)`; // Blassgrau für gleiche Werte
+            }
+
+            matrixContainer.appendChild(cell);
+            cellMap[cellKey] = cell;
+        }
+    }
+
+    // Füge Daten in die Matrixzellen ein
+    const cellContentCount = {};
+    data.forEach(item => {
+        const row = parseInt(item["Oberton Rang nachher"], 10);
+        const col = parseInt(item["Oberton Rang vorher"], 10);
+        const cellKey = `${row}-${col}`;
+
+        if (!cellContentCount[cellKey]) {
+            cellContentCount[cellKey] = 0;
+        }
+        cellContentCount[cellKey]++;
+    });
+
+    // Daten zu den Zellen hinzufügen
+    data.forEach(item => {
+        const row = parseInt(item["Oberton Rang nachher"], 10);
+        const col = parseInt(item["Oberton Rang vorher"], 10);
+        const cellKey = `${row}-${col}`;
+        const itemCount = cellContentCount[cellKey];
+
+        // Container erstellen, falls noch nicht vorhanden
+        if (!cellMap[cellKey].querySelector('.matrix-cell-content-container')) {
+            const container = document.createElement('div');
+            container.classList.add('matrix-cell-content-container');
+            // Anpassung des Layouts basierend auf der Anzahl der Elemente
+            const rows = Math.ceil(Math.sqrt(itemCount));
+            const cols = Math.ceil(itemCount / rows);
+            container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            container.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+            cellMap[cellKey].appendChild(container);
+        }
+
+        const container = cellMap[cellKey].querySelector('.matrix-cell-content-container');
+        const content = createMatrixCellContent(item);
+        container.appendChild(content);
+    });
+
+    // Matrix-Container in den Wrapper einfügen
+    matrixContainerWrapper.appendChild(matrixContainer);
+</script>
+
+</body>
+</html>
+

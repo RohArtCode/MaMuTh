@@ -1,0 +1,428 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>B-InteractiveTable_V0.6: 4-Tritonus-Aufloesungen</title>
+  <style>
+    :root{
+      --bg:#0b0d10;
+      --panel:#12161b;
+      --text:#ecf1f6;
+      --muted:#8aa0b5;
+      --border:#1f2630;
+      --accent:#6ab0ff;
+      --accent2:#ffd166;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font:14px/1.4 system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    }
+    a{color:var(--muted);}
+    h1{margin:16px 0 4px;font-size:20px;}
+    .app{max-width:1200px;margin:0 auto;padding:16px;}
+    .panel{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:12px 14px;
+      box-shadow:0 6px 24px rgba(0,0,0,.25);
+    }
+
+    /* obere Leiste: Spalten, Zeilen, Button */
+    .topbar{
+      display:flex;
+      gap:10px;
+      align-items:flex-end;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      min-width:140px;
+    }
+    label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+    select,input[type="text"]{
+      background:#0d1116;
+      border:1px solid #242b35;
+      border-radius:10px;
+      padding:6px 8px;
+      color:var(--text);
+      min-height:32px;
+    }
+    button{
+      background:linear-gradient(180deg,#1b2332,#0f141e);
+      border:1px solid #243043;
+      border-radius:10px;
+      padding:7px 14px;
+      color:var(--text);
+      cursor:pointer;
+      min-height:32px;
+    }
+    button:hover{filter:brightness(1.08);}
+
+    /* Anzeigeattribute: eine Zeile 1–4 */
+    .value-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:8px;
+    }
+    .value-row .field{min-width:130px;}
+
+    /* Filter: Spalte/Wert je in einer Zeile */
+    .filter-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:6px;
+    }
+    .filter-row .field{min-width:140px;}
+
+    /* Matrix */
+    #matrixContainer{
+      margin-top:14px;
+      overflow:auto;
+      max-height:70vh;
+    }
+    table.matrix{
+      border-collapse:collapse;
+      width:100%;
+      min-width:400px;
+    }
+    .matrix th,
+    .matrix td{
+      border:1px solid #1d242e;
+      padding:4px 6px;
+      vertical-align:top;
+      background:rgba(7,9,11,.45);
+    }
+    .matrix thead th{
+      background:rgba(12,16,20,.8);
+      position:sticky;
+      top:0;
+      z-index:2;
+    }
+    .matrix tbody th{
+      background:rgba(12,16,20,.65);
+      position:sticky;
+      left:0;
+      z-index:1;
+      text-align:left;
+      min-width:90px;
+    }
+    .cell-pcl span{
+      white-space:nowrap;
+      display:inline-flex;
+      gap:4px;
+      align-items:center;
+    }
+    .backlink{font-size:10px;margin-bottom:10px;}
+    @media (max-width:820px){
+      .topbar{flex-direction:column;align-items:stretch;}
+      .filter-row,.value-row{flex-direction:column;}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>B-InteractiveTable_V0.6: 4-Tritonus-Aufloesungen</h1>
+    <p class="backlink"><a href="./Inhalt.html">zurück zum Inhaltsverzeichnis</a></p>
+
+    <div class="panel">
+      <!-- erste Zeile: Achsen + Button -->
+      <div class="topbar">
+        <div class="field">
+          <label for="xAxis">Spalten (X-Achse)</label>
+          <select id="xAxis" onchange="updateURL()"></select>
+        </div>
+        <div class="field">
+          <label for="yAxis">Zeilen (Y-Achse)</label>
+          <select id="yAxis" onchange="updateURL()"></select>
+        </div>
+        <div class="field" style="min-width:110px;">
+          <label style="visibility:hidden;">.</label>
+          <button id="btnGen" onclick="generateMatrix()">Matrix generieren</button>
+        </div>
+      </div>
+
+      <!-- zweite Zeile: Anzeigeattribute kompakt -->
+      <div class="value-row">
+        <div class="field">
+          <label for="valueColumn1">Anzeigeattribut 1</label>
+          <select id="valueColumn1" onchange="updateURL()"></select>
+        </div>
+        <div class="field">
+          <label for="valueColumn2">Anzeigeattribut 2</label>
+          <select id="valueColumn2" onchange="updateURL()"></select>
+        </div>
+        <div class="field">
+          <label for="valueColumn3">Anzeigeattribut 3</label>
+          <select id="valueColumn3" onchange="updateURL()"></select>
+        </div>
+        <div class="field">
+          <label for="valueColumn4">Anzeigeattribut 4</label>
+          <select id="valueColumn4" onchange="updateURL()"></select>
+        </div>
+      </div>
+
+      <!-- dritte Zeile: beide Filter in EINER Zeile -->
+      <div class="filter-row">
+        <div class="field">
+          <label for="filterColumn1">Filterspalte 1</label>
+          <select id="filterColumn1" onchange="updateURL()"></select>
+        </div>
+        <div class="field">
+          <label for="filterValue1">Filterwert 1</label>
+          <input type="text" id="filterValue1" oninput="updateURL()">
+        </div>
+        <div class="field">
+          <label for="filterColumn2">Filterspalte 2</label>
+          <select id="filterColumn2" onchange="updateURL()"></select>
+        </div>
+        <div class="field">
+          <label for="filterValue2">Filterwert 2</label>
+          <input type="text" id="filterValue2" oninput="updateURL()">
+        </div>
+      </div>
+
+      <div id="matrixContainer"></div>
+    </div>
+  </div>
+
+  <!-- Libs wie in der alten Version -->
+  <script src="dist/tablefilter/tablefilter.js"></script>
+  <script src="https://surikov.github.io/webaudiofont/npm/dist/WebAudioFontPlayer.js"></script>
+  <script src="https://surikov.github.io/webaudiofontdata/sound/0000_JCLive_sf2_file.js"></script>
+  <script src="js/PlayScript.js"></script>
+
+  <!-- ====== DATENBLOCK: 1:1 wie A-Filtertabelle V0.8.3 ====== -->
+  <!-- WICHTIG: bitte so lassen, hier greift dein externes Script -->
+  <script id="data" type="application/json">
+   const data = [
+{ "Hew Rep PCL": "2340","Hew Rep Name": "C vermindeter Septimakkord","Hewit Name PCL": "2340","Hewitt Name": "C vermindeter Septimakkord","Betrag von": "4","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "277","nach Rep PCL": "2696","nach Name PCL": "2186","nach Name": "C 7/#5","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "34:D , F , G#, B   28:C , D#, F#, A","Oberton nachher": "36:A   34:F","Oberton Rang vorher": "34","Oberton Rang nachher": "36","Oberton Rang Verbesserung": "2","Anz. Tritonus vorher": "2","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2340","Hew Rep Name": "C vermindeter Septimakkord","Hewit Name PCL": "2340","Hewitt Name": "C vermindeter Septimakkord","Betrag von": "4","tritonus auf": "3","Tritonus": "D#-A ","Auflösung": "D -A#","nach PCL": "2594","nach Rep PCL": "2696","nach Name PCL": "2186","nach Name": "C 7/#5","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "34:D , F , G#, B   28:C , D#, F#, A","Oberton nachher": "36:C   34:G#","Oberton Rang vorher": "34","Oberton Rang nachher": "36","Oberton Rang Verbesserung": "2","Anz. Tritonus vorher": "2","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2340","Hew Rep Name": "C vermindeter Septimakkord","Hewit Name PCL": "2340","Hewitt Name": "C vermindeter Septimakkord","Betrag von": "4","tritonus auf": "6","Tritonus": "F#-C ","Auflösung": "F -C#","nach PCL": "1348","nach Rep PCL": "2696","nach Name PCL": "2186","nach Name": "C 7/#5","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "34:D , F , G#, B   28:C , D#, F#, A","Oberton nachher": "36:D#  34:B","Oberton Rang vorher": "34","Oberton Rang nachher": "36","Oberton Rang Verbesserung": "2","Anz. Tritonus vorher": "2","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2340","Hew Rep Name": "C vermindeter Septimakkord","Hewit Name PCL": "2340","Hewitt Name": "C vermindeter Septimakkord","Betrag von": "4","tritonus auf": "9","Tritonus": "A -D#","Auflösung": "G#-E ","nach PCL": "2216","nach Rep PCL": "2696","nach Name PCL": "2186","nach Name": "C 7/#5","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "34:D , F , G#, B   28:C , D#, F#, A","Oberton nachher": "36:F#  34:D","Oberton Rang vorher": "34","Oberton Rang nachher": "36","Oberton Rang Verbesserung": "2","Anz. Tritonus vorher": "2","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2596","Hew Rep Name": "C dreifach vermindeter Septimakkord","Hewit Name PCL": "2194","Hewitt Name": "C 7","Betrag von": "4","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "533","nach Rep PCL": "2704","nach Name PCL": "2314","nach Name": "C m7/#5","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "42:D   33:C","Oberton nachher": "41:G   31:D , F , A","Oberton Rang vorher": "42","Oberton Rang nachher": "41","Oberton Rang Verbesserung": "-1","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2596","Hew Rep Name": "C dreifach vermindeter Septimakkord","Hewit Name PCL": "2194","Hewitt Name": "C 7","Betrag von": "4","tritonus auf": "6","Tritonus": "F#-C ","Auflösung": "F -C#","nach PCL": "1604","nach Rep PCL": "3208","nach Name PCL": "2321","nach Name": "C m j7","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "42:D   33:C","Oberton nachher": "35:G   31:D","Oberton Rang vorher": "42","Oberton Rang nachher": "35","Oberton Rang Verbesserung": "-7","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2600","Hew Rep Name": "C Messiaen's truncated mode 6","Hewit Name PCL": "2210","Hewitt Name": "C 7/b5","Betrag von": "4","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "537","nach Rep PCL": "3216","nach Name PCL": "2337","nach Name": "C m j7/b5","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "38:D , G#  28:C , E , F#, A#","Oberton nachher": "37:G   33:E","Oberton Rang vorher": "38","Oberton Rang nachher": "37","Oberton Rang Verbesserung": "-1","Anz. Tritonus vorher": "2","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2600","Hew Rep Name": "C Messiaen's truncated mode 6","Hewit Name PCL": "2210","Hewitt Name": "C 7/b5","Betrag von": "4","tritonus auf": "2","Tritonus": "D -G#","Auflösung": "C#-A ","nach PCL": "3108","nach Rep PCL": "3108","nach Name PCL": "2352","nach Name": "C m add #11","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "38:D , G#  28:C , E , F#, A#","Oberton nachher": "35:D   33:F#","Oberton Rang vorher": "38","Oberton Rang nachher": "35","Oberton Rang Verbesserung": "-3","Anz. Tritonus vorher": "2","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2600","Hew Rep Name": "C Messiaen's truncated mode 6","Hewit Name PCL": "2210","Hewitt Name": "C 7/b5","Betrag von": "4","tritonus auf": "6","Tritonus": "F#-C ","Auflösung": "F -C#","nach PCL": "1608","nach Rep PCL": "3216","nach Name PCL": "2337","nach Name": "C m j7/b5","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "38:D , G#  28:C , E , F#, A#","Oberton nachher": "37:C#  33:A#","Oberton Rang vorher": "38","Oberton Rang nachher": "37","Oberton Rang Verbesserung": "-1","Anz. Tritonus vorher": "2","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2600","Hew Rep Name": "C Messiaen's truncated mode 6","Hewit Name PCL": "2210","Hewitt Name": "C 7/b5","Betrag von": "4","tritonus auf": "8","Tritonus": "G#-D ","Auflösung": "G -D#","nach PCL": "2352","nach Rep PCL": "3108","nach Name PCL": "2352","nach Name": "C m add #11","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "38:D , G#  28:C , E , F#, A#","Oberton nachher": "35:G#  33:C","Oberton Rang vorher": "38","Oberton Rang nachher": "35","Oberton Rang Verbesserung": "-3","Anz. Tritonus vorher": "2","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2632","Hew Rep Name": "C NN","Hewit Name PCL": "2324","Hewitt Name": "C m6","Betrag von": "4","tritonus auf": "2","Tritonus": "D -G#","Auflösung": "C#-A ","nach PCL": "3140","nach Rep PCL": "3140","nach Name PCL": "2185","nach Name": "C j7/#5","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "38:A#  35:G#","Oberton nachher": "34:F   30:D#","Oberton Rang vorher": "38","Oberton Rang nachher": "34","Oberton Rang Verbesserung": "-4","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2632","Hew Rep Name": "C NN","Hewit Name PCL": "2324","Hewitt Name": "C m6","Betrag von": "4","tritonus auf": "8","Tritonus": "G#-D ","Auflösung": "G -D#","nach PCL": "2384","nach Rep PCL": "2692","nach Name PCL": "2384","nach Name": "C m   11","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "38:A#  35:G#","Oberton nachher": "40:F   36:D#","Oberton Rang vorher": "38","Oberton Rang nachher": "40","Oberton Rang Verbesserung": "2","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2696","Hew Rep Name": "C NN","Hewit Name PCL": "2186","Hewitt Name": "C 7/#5","Betrag von": "4","tritonus auf": "2","Tritonus": "D -G#","Auflösung": "C#-A ","nach PCL": "3204","nach Rep PCL": "3204","nach Name PCL": "2313","nach Name": "C m j7/#5","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "36:D   34:A#","Oberton nachher": "36:A   33:D","Oberton Rang vorher": "36","Oberton Rang nachher": "36","Oberton Rang Verbesserung": "0","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2696","Hew Rep Name": "C NN","Hewit Name PCL": "2186","Hewitt Name": "C 7/#5","Betrag von": "4","tritonus auf": "8","Tritonus": "G#-D ","Auflösung": "G -D#","nach PCL": "2448","nach Rep PCL": "3204","nach Name PCL": "2313","nach Name": "C m j7/#5","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "36:D   34:A#","Oberton nachher": "36:C   33:F","Oberton Rang vorher": "36","Oberton Rang nachher": "36","Oberton Rang Verbesserung": "0","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2720","Hew Rep Name": "C Lydian-Tetrachord","Hewit Name PCL": "2720","Hewitt Name": "C Lydian-Tetrachord","Betrag von": "4","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "657","nach Rep PCL": "2628","nach Name PCL": "2322","nach Name": "C m7","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "39:D   37:C","Oberton nachher": "39:G   35:E","Oberton Rang vorher": "39","Oberton Rang nachher": "39","Oberton Rang Verbesserung": "0","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2720","Hew Rep Name": "C Lydian-Tetrachord","Hewit Name PCL": "2720","Hewitt Name": "C Lydian-Tetrachord","Betrag von": "4","tritonus auf": "6","Tritonus": "F#-C ","Auflösung": "F -C#","nach PCL": "1728","nach Rep PCL": "3456","nach Name PCL": "3456","nach Name": "C Spanish-Tetrachord","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "39:D   37:C","Oberton nachher": "33:G   31:E , A#","Oberton Rang vorher": "39","Oberton Rang nachher": "33","Oberton Rang Verbesserung": "-6","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "3090","Hew Rep Name": "C 5 7 b9","Hewit Name PCL": "3090","Hewitt Name": "C 5 7 b9","Betrag von": "4","tritonus auf": "7","Tritonus": "G -C#","Auflösung": "F#-D ","nach PCL": "2594","nach Rep PCL": "2696","nach Name PCL": "2186","nach Name": "C 7/#5","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "36:C , D#  32:F#","Oberton nachher": "36:C   34:G#","Oberton Rang vorher": "36","Oberton Rang nachher": "36","Oberton Rang Verbesserung": "0","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3092","Hew Rep Name": "C NN","Hewit Name PCL": "2656","Hewitt Name": "C großer dreifach verminderter Septakkord","Betrag von": "4","tritonus auf": "7","Tritonus": "G -C#","Auflösung": "F#-D ","nach PCL": "2596","nach Rep PCL": "2596","nach Name PCL": "2194","nach Name": "C 7","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "34:A   33:C","Oberton nachher": "42:D   33:C","Oberton Rang vorher": "34","Oberton Rang nachher": "42","Oberton Rang Verbesserung": "8","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3106","Hew Rep Name": "C b5 7 b7 (om3)","Hewit Name PCL": "2824","Hewitt Name": "C m #5  9","Betrag von": "4","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "1043","nach Rep PCL": "3332","nach Name PCL": "2464","nach Name": "C Hungarian major-Tetrachord","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "40:F#  32:C","Oberton nachher": "34:C#  32:G","Oberton Rang vorher": "40","Oberton Rang nachher": "34","Oberton Rang Verbesserung": "-6","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3108","Hew Rep Name": "C NN","Hewit Name PCL": "2352","Hewitt Name": "C m add #11","Betrag von": "4","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "1045","nach Rep PCL": "2720","nach Name PCL": "2720","nach Name": "C Lydian-Tetrachord","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "35:D   33:F#","Oberton nachher": "39:A   37:G","Oberton Rang vorher": "35","Oberton Rang nachher": "39","Oberton Rang Verbesserung": "4","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3112","Hew Rep Name": "C NN","Hewit Name PCL": "2608","Hewitt Name": "C sus2 add#11","Betrag von": "4","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "1049","nach Rep PCL": "3232","nach Name PCL": "3232","nach Name": "C Hungarian Spanish-Tetrachord","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "38:F#  33:G#","Oberton nachher": "39:C#  33:G","Oberton Rang vorher": "38","Oberton Rang nachher": "39","Oberton Rang Verbesserung": "1","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3152","Hew Rep Name": "C sus4 add b9","Hewit Name PCL": "2209","Hewitt Name": "C j7/b5","Betrag von": "4","tritonus auf": "7","Tritonus": "G -C#","Auflösung": "F#-D ","nach PCL": "2656","nach Rep PCL": "3092","nach Name PCL": "2656","nach Name": "C großer dreifach verminderter Septakkord","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "34:C#  33:D#","Oberton nachher": "34:D   33:F","Oberton Rang vorher": "34","Oberton Rang nachher": "34","Oberton Rang Verbesserung": "0","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3168","Hew Rep Name": "C Double Fourth Tetramirror","Hewit Name PCL": "2097","Hewitt Name": "C j7 +#11 (om3)","Betrag von": "4","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "1105","nach Rep PCL": "2600","nach Name PCL": "2210","nach Name": "C 7/b5","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "35:F#  30:B","Oberton nachher": "38:C#, G   28:D#, F , A , B","Oberton Rang vorher": "35","Oberton Rang nachher": "38","Oberton Rang Verbesserung": "3","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "2","Anz. Tritonus Delta": "1" },
+{ "Hew Rep PCL": "3202","Hew Rep Name": "C NN","Hewit Name PCL": "2848","Hewitt Name": "C Hungarian minor-Tetrachord","Betrag von": "4","tritonus auf": "4","Tritonus": "E -A#","Auflösung": "D#-B ","nach PCL": "3329","nach Rep PCL": "3712","nach Name PCL": "3329","nach Name": "C m j7 b9 (om5)","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "37:F#  35:C","Oberton nachher": "34:C#, B   28:D#, F , A","Oberton Rang vorher": "37","Oberton Rang nachher": "34","Oberton Rang Verbesserung": "-3","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "3202","Hew Rep Name": "C NN","Hewit Name PCL": "2848","Hewitt Name": "C Hungarian minor-Tetrachord","Betrag von": "4","tritonus auf": "10","Tritonus": "A#-E ","Auflösung": "A -F ","nach PCL": "3140","nach Rep PCL": "3140","nach Name PCL": "2185","nach Name": "C j7/#5","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "37:F#  35:C","Oberton nachher": "34:F   30:D#","Oberton Rang vorher": "37","Oberton Rang nachher": "34","Oberton Rang Verbesserung": "-3","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "3216","Hew Rep Name": "C add b9","Hewit Name PCL": "2337","Hewitt Name": "C m j7/b5","Betrag von": "4","tritonus auf": "7","Tritonus": "G -C#","Auflösung": "F#-D ","nach PCL": "2720","nach Rep PCL": "2720","nach Name PCL": "2720","nach Name": "C Lydian-Tetrachord","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "37:C   33:A","Oberton nachher": "39:D   37:C","Oberton Rang vorher": "37","Oberton Rang nachher": "39","Oberton Rang Verbesserung": "2","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3232","Hew Rep Name": "C Hungarian Spanish-Tetrachord","Hewit Name PCL": "3232","Hewitt Name": "C Hungarian Spanish-Tetrachord","Betrag von": "4","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "1169","nach Rep PCL": "2632","nach Name PCL": "2324","nach Name": "C m6","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "39:F#  33:C","Oberton nachher": "38:A   35:G","Oberton Rang vorher": "39","Oberton Rang nachher": "38","Oberton Rang Verbesserung": "-1","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3332","Hew Rep Name": "C NN","Hewit Name PCL": "2464","Hewitt Name": "C Hungarian major-Tetrachord","Betrag von": "4","tritonus auf": "3","Tritonus": "D#-A ","Auflösung": "D -A#","nach PCL": "3586","nach Rep PCL": "3586","nach Name PCL": "2944","nach Name": "C Dorian b4-Tetrachord","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "34:D#  32:A","Oberton nachher": "33:C , A#  31:D#","Oberton Rang vorher": "34","Oberton Rang nachher": "33","Oberton Rang Verbesserung": "-1","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "3332","Hew Rep Name": "C NN","Hewit Name PCL": "2464","Hewitt Name": "C Hungarian major-Tetrachord","Betrag von": "4","tritonus auf": "9","Tritonus": "A -D#","Auflösung": "G#-E ","nach PCL": "3208","nach Rep PCL": "3208","nach Name PCL": "2321","nach Name": "C m j7","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "34:D#  32:A","Oberton nachher": "35:F#  31:C#","Oberton Rang vorher": "34","Oberton Rang nachher": "35","Oberton Rang Verbesserung": "1","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "3344","Hew Rep Name": "C m b9","Hewit Name PCL": "2182","Hewitt Name": "C Chopin Akkord","Betrag von": "4","tritonus auf": "7","Tritonus": "G -C#","Auflösung": "F#-D ","nach PCL": "2848","nach Rep PCL": "3202","nach Name PCL": "2848","nach Name": "C Hungarian minor-Tetrachord","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "37:D#  32:C#","Oberton nachher": "37:G#  35:D","Oberton Rang vorher": "37","Oberton Rang nachher": "37","Oberton Rang Verbesserung": "0","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3360","Hew Rep Name": "C Hungarian phrygian-Tetrachord","Hewit Name PCL": "3360","Hewitt Name": "C Hungarian phrygian-Tetrachord","Betrag von": "4","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "1297","nach Rep PCL": "2696","nach Name PCL": "2186","nach Name": "C 7/#5","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "36:F#  33:B","Oberton nachher": "36:C#  34:A","Oberton Rang vorher": "36","Oberton Rang nachher": "36","Oberton Rang Verbesserung": "0","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3592","Hew Rep Name": "C NN","Hewit Name PCL": "2272","Hewitt Name": "C Firebird II-Tetrachord","Betrag von": "4","tritonus auf": "8","Tritonus": "G#-D ","Auflösung": "G -D#","nach PCL": "3344","nach Rep PCL": "3344","nach Name PCL": "2182","nach Name": "C Chopin Akkord","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "33:D   32:C#","Oberton nachher": "37:D#  32:C#","Oberton Rang vorher": "33","Oberton Rang nachher": "37","Oberton Rang Verbesserung": "4","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3616","Hew Rep Name": "C Firebird I-Tetrachord","Hewit Name PCL": "3616","Hewitt Name": "C Firebird I-Tetrachord","Betrag von": "4","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "1553","nach Rep PCL": "3106","nach Name PCL": "2824","nach Name": "C m #5  9","Betrag nach": "4","Betrag Delta": "0","Oberton vorher": "36:D   31:C , F#","Oberton nachher": "40:G   32:C#","Oberton Rang vorher": "36","Oberton Rang nachher": "40","Oberton Rang Verbesserung": "4","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" }
+];
+
+
+  </script>
+  <!-- ====== ENDE DATENBLOCK ====== -->
+
+  <script>
+  // JSON wie in A-Filtertabelle lesen
+  const RAW     = JSON.parse(document.getElementById('data').textContent);
+  const COLDEFS = RAW.columns || [];
+  const ROWS    = RAW.rows || [];
+
+  // wir benutzen identifier intern, name als Anzeige
+  const COLUMNS = COLDEFS.map(c => ({
+    id: c.identifier || c.name,
+    label: c.name || c.identifier,
+    renderAs: (c.renderAs || 'text').toLowerCase()
+  }));
+
+  // Helper
+  const $ = id => document.getElementById(id);
+
+  function fillSelect(sel){
+    sel.innerHTML = '<option value=""></option>';
+    for(const c of COLUMNS){
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = c.label;
+      sel.appendChild(opt);
+    }
+  }
+
+  // alle Selects füllen
+  const selectsToFill = [
+    'xAxis','yAxis',
+    'valueColumn1','valueColumn2','valueColumn3','valueColumn4',
+    'filterColumn1','filterColumn2'
+  ];
+  selectsToFill.forEach(id => fillSelect($(id)));
+
+  // URL-Zustand übernehmen
+  function setDropdownValuesFromParams(){
+    const params = new URLSearchParams(window.location.search);
+    const ids = selectsToFill.concat(['filterValue1','filterValue2']);
+    ids.forEach(id => {
+      const el = $(id);
+      if(!el) return;
+      const v = params.get(id);
+      if(v !== null) el.value = v;
+    });
+  }
+  setDropdownValuesFromParams();
+
+  function updateURL(){
+    const params = new URLSearchParams();
+    selectsToFill.forEach(id => {
+      const val = $(id).value;
+      if(val) params.set(id, val);
+    });
+    const fv1 = $('filterValue1').value;
+    const fv2 = $('filterValue2').value;
+    if(fv1) params.set('filterValue1', fv1);
+    if(fv2) params.set('filterValue2', fv2);
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    history.replaceState(null, '', newUrl);
+  }
+
+  function smartSort(arr){
+    return arr.sort((a,b)=>{
+      const na = Number(a), nb = Number(b);
+      if(!Number.isNaN(na) && !Number.isNaN(nb)) return na - nb;
+      return String(a).localeCompare(String(b),'de',{numeric:true,sensitivity:'base'});
+    });
+  }
+
+  function renderCellValue(row, colId){
+    const colMeta = COLUMNS.find(c => c.id === colId);
+    const renderAs = colMeta ? colMeta.renderAs : 'text';
+    const val = row[colId];
+
+    if (renderAs === 'pcl') {
+      const pcl = (val ?? '').toString().trim();
+      if (!pcl) return '';
+      const padded = pcl.padStart(4,'0');
+      const filePath = `././Pocket/HTML/${padded}.htm`;
+      return `<span class="cell-pcl">
+                <a href="${filePath}" target="_blank" style="font-size:10px;color:var(--muted);">${padded}</a>
+                <img src="././Pocket/gif/Kreise/${padded}.gif" height="24" onclick="playChord(1${padded})" style="cursor:pointer;border:0;">
+                <img src="././Pocket/gif/Score/Scale/${padded}.gif" height="24" onclick="playScale(1${padded})" style="cursor:pointer;border:0;">
+              </span>`;
+    }
+    if (renderAs === 'image') {
+      if(!val) return '';
+      return `<img src="${val}" alt="" style="height:28px;max-width:80px;object-fit:contain;">`;
+    }
+    if (renderAs === 'midi') {
+      if(!val) return '';
+      const padded = String(val).padStart(4,'0');
+      return `<img src="././Pocket/gif/Kreise/${padded}.gif" height="24" onclick="playChord('${val}')" style="cursor:pointer;border:0;">`;
+    }
+    if (renderAs === 'html') {
+      return val ?? '';
+    }
+    return `<span style="font-size:11px;">${val ?? ''}</span>`;
+  }
+
+  function generateMatrix(){
+    const xAxis = $('xAxis').value;
+    const yAxis = $('yAxis').value;
+    if(!xAxis || !yAxis){
+      $('matrixContainer').innerHTML = '<p style="color:var(--muted);">Bitte zuerst Spalten- <strong>und</strong> Zeilen-Attribut wählen.</p>';
+      return;
+    }
+    const valueColumns = [
+      $('valueColumn1').value,
+      $('valueColumn2').value,
+      $('valueColumn3').value,
+      $('valueColumn4').value
+    ].filter(Boolean);
+
+    const filterColumn1 = $('filterColumn1').value;
+    const filterValue1  = $('filterValue1').value;
+    const filterColumn2 = $('filterColumn2').value;
+    const filterValue2  = $('filterValue2').value;
+
+    // filtern
+    const filtered = ROWS.filter(row => {
+      let ok = true;
+      if (filterColumn1 && filterValue1){
+        ok = ok && String(row[filterColumn1] ?? '') == filterValue1;
+      }
+      if (filterColumn2 && filterValue2){
+        ok = ok && String(row[filterColumn2] ?? '') == filterValue2;
+      }
+      return ok;
+    });
+
+    if(filtered.length === 0){
+      $('matrixContainer').innerHTML = '<p style="color:var(--muted);">Keine Daten gefunden (Filter zu eng?).</p>';
+      return;
+    }
+
+    const xValues = Array.from(new Set(filtered.map(r => r[xAxis]))).filter(v => v !== undefined);
+    const yValues = Array.from(new Set(filtered.map(r => r[yAxis]))).filter(v => v !== undefined);
+    smartSort(xValues);
+    smartSort(yValues);
+
+    let html = '<table class="matrix"><thead><tr><th></th>';
+    xValues.forEach(x => {
+      html += `<th>${x ?? ''}</th>`;
+    });
+    html += '</tr></thead><tbody>';
+
+    yValues.forEach(yVal => {
+      html += `<tr><th>${yVal ?? ''}</th>`;
+      xValues.forEach(xVal => {
+        const cellRows = filtered.filter(r => r[xAxis] === xVal && r[yAxis] === yVal);
+        const pieces = [];
+        cellRows.forEach(r => {
+          if(valueColumns.length === 0){
+            pieces.push('<span style="font-size:11px;color:var(--muted);">×</span>');
+          } else {
+            const rowParts = valueColumns.map(colId => renderCellValue(r, colId));
+            pieces.push(rowParts.filter(Boolean).join(' | '));
+          }
+        });
+        html += `<td>${pieces.join('<br>')}</td>`;
+      });
+      html += '</tr>';
+    });
+
+    html += '</tbody></table>';
+    $('matrixContainer').innerHTML = html;
+  }
+
+  // als kleinen Komfort: wenn der Nutzer nichts gewählt hat, versuchen wir, erste 2 Spalten zu nehmen
+  (function autoDefaults(){
+    const ids = COLUMNS.map(c=>c.id);
+    if(ids[0] && !$('xAxis').value) $('xAxis').value = ids[0];
+    if(ids[1] && !$('yAxis').value) $('yAxis').value = ids[1];
+  })();
+
+  // gleich mal initial rendern, damit was da ist
+  generateMatrix();
+  </script>
+</body>
+</html>
+

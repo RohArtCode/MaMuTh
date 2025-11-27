@@ -1,0 +1,174 @@
+﻿<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <title>Produktvergleich mit Tabulator (lokal)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Tabulator CSS (lokal) -->
+  <link rel="stylesheet" href="dist/css/tabulator.min.css">
+  <style>
+    body{font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin:16px;}
+    .toolbar{display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:12px}
+    .toolbar label{font-size:.9rem; color:#555}
+    .toolbar select{min-width:280px; min-height:5.5em}
+    #table{border:1px solid #e5e7eb}
+    /* Erste Spalte (Merkmal) optisch fixieren */
+    .tabulator .tabulator-row .tabulator-cell.feature-col{background:#fafafa; font-weight:600}
+    /* Überschriften dürfen schmal sein */
+    .tabulator-col[role="columnheader"]{white-space:nowrap}
+  </style>
+</head>
+<body>
+
+<h1 style="margin:0 0 8px">Produktvergleich nebeneinander (Tabulator)</h1>
+<p style="margin:0 0 16px; color:#555">Lokales Beispiel mit vertikalen Spaltenüberschriften &amp; Filtern.</p>
+
+<div class="toolbar">
+  <label>
+    Produkte wählen (Strg/Cmd für Mehrfachauswahl):<br>
+    <select id="productSelect" multiple></select>
+  </label>
+
+  <label>
+    Zeilen filtern (Merkmal/inhalt):<br>
+    <input id="rowSearch" type="search" placeholder="z.B. Tritonus oder Betrag ≥ 3" />
+  </label>
+
+  <label style="display:flex; gap:6px; align-items:center; margin-top:20px;">
+    <input type="checkbox" id="toggleVertical" checked>
+    vertikale Überschriften
+  </label>
+
+  <button id="buildBtn" style="height:2.2rem">Tabelle aktualisieren</button>
+</div>
+
+<div id="table"></div>
+
+<!-- Tabulator JS (lokal) -->
+<script src="dist/tabulator/js/tabulator.min.js"></script>
+<script>
+/** ====== 1) Beispiel-Daten (deine JSON-Objekte: je Objekt = 1 "Produkt") ====== */
+const data = [
+  { "Hew Rep PCL": "2336","Hew Rep Name":"C dim","Hewit Name PCL":"2336","Hewitt Name":"C dim","Betrag von":"3","tritonus auf":"0","Tritonus":"C -F#","Auflösung":"B -G","nach PCL":"273","nach Name":"C +","Betrag nach":"3","Anz. Tritonus vorher":"1","Anz. Tritonus nachher":"0" },
+  { "Hew Rep PCL": "2336","Hew Rep Name":"C dim","Hewit Name PCL":"2336","Hewitt Name":"C dim","Betrag von":"3","tritonus auf":"6","Tritonus":"F#-C","Auflösung":"F -C#","nach PCL":"1344","nach Name":"C Ganzton Dreiklang","Betrag nach":"3","Anz. Tritonus vorher":"1","Anz. Tritonus nachher":"0" }
+];
+
+/** ====== 2) Produktliste füllen ====== */
+const productSelect = document.getElementById('productSelect');
+data.forEach((row, idx) => {
+  const label = (row['Hew Rep Name'] || row['Hewitt Name'] || 'Produkt') + ' [' + (row['Hew Rep PCL']||'') + ']';
+  const opt = document.createElement('option');
+  opt.value = String(idx);
+  opt.textContent = label;
+  productSelect.appendChild(opt);
+});
+// standardmäßig die ersten 2 wählen
+[0,1].forEach(i => productSelect.options[i] && (productSelect.options[i].selected = true));
+
+/** ====== 3) Hilfsfunktionen: Transponieren (Merkmale -> Zeilen, Produkte -> Spalten) ====== */
+function normalizeNumber(str){
+  const txt = String(str ?? '').trim().replace(/\s/g,'').replace(/\./g,'').replace(',', '.');
+  const n = parseFloat(txt);
+  return Number.isFinite(n) ? n : NaN;
+}
+function buildComparison(selectedIdx, verticalHeaders){
+  // Welche "Produktspalten" sollen entstehen?
+  const selected = selectedIdx.map(i => data[i]).filter(Boolean);
+
+  // Feature-Liste (alle Keys, außer offensichtliche Produkt-IDs, kannst du anpassen)
+  const allKeys = new Set();
+  selected.forEach(obj => Object.keys(obj||{}).forEach(k => allKeys.add(k)));
+
+  const ignore = new Set(['id']); // hier ggf. weitere Produkt-ID Felder ignorieren
+  const features = [...allKeys].filter(k => !ignore.has(k));
+
+  // Tabulator-Spalten: erste Spalte ist das Merkmal, danach je Produkt eine Spalte
+  const columns = [
+    {
+      title:"Merkmal", field:"__feature", frozen:true, headerSort:false,
+      headerFilter:"input", cssClass:"feature-col"
+    }
+  ];
+
+  selected.forEach((prod, colIdx) => {
+    const title = (prod['Hew Rep Name'] || prod['Hewitt Name'] || 'Produkt') + ' [' + (prod['Hew Rep PCL']||'') + ']';
+    columns.push({
+      title,
+      field: "p"+colIdx,
+      width: 70, // schmal, weil Header vertikal
+      headerSort:false,
+      headerVertical: verticalHeaders ? true : false, // Schlüssel für "column-vertical" Beispiel
+      hozAlign:"center",
+      // einfacher Formatter: Zahlen rechtsbündig, sonst Text
+      formatter:(cell)=>{
+        const v = cell.getValue();
+        const n = normalizeNumber(v);
+        cell.getElement().style.textAlign = Number.isNaN(n) ? "left" : "right";
+        return v ?? "";
+      }
+    });
+  });
+
+  // Tabulator-Daten (Zeilen): je Feature eine Zeile, Werte aus den ausgewählten Produkten
+  const rows = features.map(feat => {
+    const r = { "__feature": feat };
+    selected.forEach((prod, colIdx) => r["p"+colIdx] = prod ? prod[feat] : "");
+    return r;
+  });
+
+  return {columns, rows};
+}
+
+/** ====== 4) Tabelle initialisieren ====== */
+let table; // Referenz für späteres Update
+
+function buildTable(){
+  const vertical = document.getElementById('toggleVertical').checked;
+  const indices = [...productSelect.selectedOptions].map(o => parseInt(o.value,10));
+
+  const {columns, rows} = buildComparison(indices, vertical);
+
+  if (table){
+    // Update existierender Tabelle (performant)
+    table.setColumns(columns);
+    table.setData(rows);
+    return;
+  }
+
+  table = new Tabulator("#table", {
+    data: rows,
+    columns: columns,
+    height: "70vh",
+    layout: "fitDataFill",
+    // viele Spalten? → horizontaler Virtual DOM
+    renderHorizontal: "virtual",
+    // schönere Scrollbarkeit, ohne Header zu verlieren
+    columnHeaderVertAlign: "top"
+  });
+}
+
+// Initialer Build
+buildTable();
+
+/** ====== 5) UI-Events ====== */
+document.getElementById('buildBtn').addEventListener('click', buildTable);
+
+// Zeilenfilter (einfacher Text-Filter über alle sichtbaren Zellen)
+const rowSearch = document.getElementById('rowSearch');
+rowSearch.addEventListener('input', () => {
+  const q = rowSearch.value.trim().toLowerCase();
+  if (!q){
+    table.clearFilter(true);
+    return;
+  }
+  table.setFilter((row)=>{
+    // prüfe Merkmal + alle Produktspalten der aktuellen Tabelle
+    const d = row.getData();
+    if (String(d.__feature||'').toLowerCase().includes(q)) return true;
+    return row.getCells().some(c => String(c.getValue()??'').toLowerCase().includes(q));
+  });
+});
+</script>
+</body>
+</html>
+

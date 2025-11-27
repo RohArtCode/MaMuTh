@@ -1,0 +1,563 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>A-Filtertabelle V0.8.1 - Kopie: 3-Tritonus-Aufloesungen</title>
+  <link rel="stylesheet" href="stylesheet.css"/>
+
+  <style>
+  /* Layout-Optimierungen */
+  table#myTable {
+    table-layout: auto;        /* auto = Browser bestimmt Spaltenbreiten nach Inhalt */
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  #myTable th,
+  #myTable td {
+    padding: 2px 4px;
+    border-bottom: 1px solid #eee;
+
+    /* Wortumbruch nur an sinnvollen Stellen */
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: break-word;
+    hyphens: auto;
+
+    min-width: 2ch;            /* verhindert ultradünne Spalten */
+    vertical-align: top;
+  }
+
+  /* Header-Texte: besser lesbar – kein Wortsplit */
+  #myTable th {
+    white-space: normal;       /* nowrap falls du lieber kein Umbruch im Header willst */
+    word-break: normal;  /* keep-all */
+    overflow-wrap: normal;
+  }
+
+  /* Sortpfeile wie gehabt */
+  #myTable thead th.sort-asc::after  { content: "▲"; margin-left: .35em; font-size: .8em; opacity: .7; }
+  #myTable thead th.sort-desc::after { content: "▼"; margin-left: .35em; font-size: .8em; opacity: .7; }
+
+  /* Bildvorschau */
+  .thumb {
+    max-height: 56px;
+    max-width: 120px;
+    width: 120px;
+    height: 56px;
+    object-fit: contain;
+  }
+
+  /* Buttons */
+  .btn-play {
+    cursor: pointer;
+    font-size: 12px;
+    padding: 2px 6px;
+  }
+  
+  /* Vergleich zunächst ausblenden */
+#compare { display: none; }
+
+/* Zebra für Vergleichstabelle */
+#compareTable tbody tr:nth-child(odd)  { background: #fafafa; }
+#compareTable tbody tr:nth-child(even) { background: #ffffff; }
+
+/* Sticky-Kopf der Vergleichstabelle */
+#compareTable thead th {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 1;
+  border-bottom: 1px solid #ddd;
+}
+  
+  
+</style>
+</head>
+<body>
+
+<h1>A-Filtertabelle V0.8.1 - Kopie: 3-Tritonus-Aufloesungen</h1>
+<p style="font-size: 10px; text-align: left;">
+  <a href="../Inhalt.html" style="text-decoration: none; color: gray;">zurück zum Inhaltsverzeichnis</a>
+</p>
+
+<table id="myTable">
+  <thead></thead>
+  <tbody></tbody>
+</table>
+
+<p>
+  <button id="toggleCompareBtn" type="button">Vergleich anzeigen</button>
+</p>
+
+
+<!-- Vergleichsansicht-Container (zusätzlich zu deiner TableFilter-Tabelle) -->
+<section id="compare" style="margin-top:1rem;">
+  <h2>Vergleich (Produkte nebeneinander)</h2>
+  <div style="overflow:auto;">
+    <table id="compareTable" style="border-collapse:collapse;min-width:700px;">
+      <thead></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+
+
+
+
+<!-- Libs -->
+<script src="dist/tablefilter/tablefilter.js"></script>
+
+<!-- 
+<script src="https://surikov.github.io/webaudiofont/npm/dist/WebAudioFontPlayer.js"></script>
+<script src="https://surikov.github.io/webaudiofontdata/sound/0000_JCLive_sf2_file.js"></script>
+-->
+<script src="dist/surikov/WebAudioFontPlayer.js"></script>
+<script src="dist/surikov/0000_JCLive_sf2_file.js"></script>
+<script src="js/PlayScript.js"></script>
+
+<script>
+    // JSON-Daten
+
+const data = [
+{ "Hew Rep PCL": "2336","Hew Rep Name": "C dim","Hewit Name PCL": "2336","Hewitt Name": "C dim","Betrag von": "3","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "273","nach Rep PCL": "2184","nach Name PCL": "2184","nach Name": "C +","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:G#  25:F#, B","Oberton nachher": "24:C#, F , A   23:D#, G , B","Oberton Rang vorher": "30","Oberton Rang nachher": "24","Oberton Rang Verbesserung": "-6","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2336","Hew Rep Name": "C dim","Hewit Name PCL": "2336","Hewitt Name": "C dim","Betrag von": "3","tritonus auf": "6","Tritonus": "F#-C ","Auflösung": "F -C#","nach PCL": "1344","nach Rep PCL": "2688","nach Name PCL": "2688","nach Name": "C Ganzton Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:G#  25:F#, B","Oberton nachher": "30:C#  29:D#","Oberton Rang vorher": "30","Oberton Rang nachher": "30","Oberton Rang Verbesserung": "0","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2568","Hew Rep Name": "C NN","Hewit Name PCL": "2208","Hewitt Name": "C dur-verminderter Dreiklang","Betrag von": "3","tritonus auf": "2","Tritonus": "D -G#","Auflösung": "C#-A ","nach PCL": "3076","nach Rep PCL": "3076","nach Name PCL": "2432","nach Name": "C Doppelterz Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "29:G#  28:D","Oberton nachher": "25:D , A   22:C , D#, F","Oberton Rang vorher": "29","Oberton Rang nachher": "25","Oberton Rang Verbesserung": "-4","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2568","Hew Rep Name": "C NN","Hewit Name PCL": "2208","Hewitt Name": "C dur-verminderter Dreiklang","Betrag von": "3","tritonus auf": "8","Tritonus": "G#-D ","Auflösung": "G -D#","nach PCL": "2320","nach Rep PCL": "2320","nach Name PCL": "2320","nach Name": "C m","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "29:G#  28:D","Oberton nachher": "28:D#, F   26:C , G#","Oberton Rang vorher": "29","Oberton Rang nachher": "28","Oberton Rang Verbesserung": "-1","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2592","Hew Rep Name": "C doppelt vermindert Dreiklang","Hewit Name PCL": "2178","Hewitt Name": "C Italienischer Sextakkord","Betrag von": "3","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "529","nach Rep PCL": "2312","nach Name PCL": "2192","nach Name": "C dur-Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "31:D   27:C","Oberton nachher": "33:G   24:C","Oberton Rang vorher": "31","Oberton Rang nachher": "33","Oberton Rang Verbesserung": "2","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2592","Hew Rep Name": "C doppelt vermindert Dreiklang","Hewit Name PCL": "2178","Hewitt Name": "C Italienischer Sextakkord","Betrag von": "3","tritonus auf": "6","Tritonus": "F#-C ","Auflösung": "F -C#","nach PCL": "1600","nach Rep PCL": "3200","nach Name PCL": "2305","nach Name": "C unvollständiger großer Moll-Septakkord","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "31:D   27:C","Oberton nachher": "27:G   26:C#","Oberton Rang vorher": "31","Oberton Rang nachher": "27","Oberton Rang Verbesserung": "-4","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "3088","Hew Rep Name": "C 5 add b9","Hewit Name PCL": "3088","Hewitt Name": "C 5 add b9","Betrag von": "3","tritonus auf": "7","Tritonus": "G -C#","Auflösung": "F#-D ","nach PCL": "2592","nach Rep PCL": "2592","nach Name PCL": "2178","nach Name": "C Italienischer Sextakkord","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "27:C   25:D#","Oberton nachher": "31:D   27:C","Oberton Rang vorher": "27","Oberton Rang nachher": "31","Oberton Rang Verbesserung": "4","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" },
+{ "Hew Rep PCL": "3104","Hew Rep Name": "C NN","Hewit Name PCL": "2096","Hewitt Name": "C Raga Ongkari","Betrag von": "3","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "1041","nach Rep PCL": "2568","nach Name PCL": "2208","nach Name": "C dur-verminderter Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:F#  24:D","Oberton nachher": "29:G   28:C#","Oberton Rang vorher": "30","Oberton Rang nachher": "29","Oberton Rang Verbesserung": "-1","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "1","Anz. Tritonus Delta": "0" }
+];
+
+
+
+
+/* =========================
+   2) Helfer (klein & schnell)
+   ========================= */
+
+/** Nur Spaltennamen, die "image" enthalten, gelten als Bildspalten. */
+function isImageColumn(name) {
+  return String(name).toLowerCase().includes('image');
+}
+
+/** Pfadkorrektur: "../XYZ/..." -> "../../Hewitt/XYZ/..." */
+function fixPath(v) {
+  return String(v || '').trim().replace(/^\.\.\//, '../../Hewitt/');
+}
+
+/** String zu Zahl (DE-Format tolerant). */
+function normalizeNumber(str) {
+  const txt = String(str ?? '').trim();
+  const norm = txt.replace(/\s/g, '').replace(/\./g, '').replace(',', '.');
+  return /^-?\d+(\.\d+)?$/.test(norm) ? parseFloat(norm) : NaN;
+}
+
+/** Erkenne Zahlenspalten direkt aus den Rohdaten (nicht aus dem DOM). */
+function looksNumericFromData(colName) {
+  const sample = data.slice(0, 50); // ausreichend für Heuristik
+  let hits = 0, checks = 0;
+  for (const row of sample) {
+    const n = normalizeNumber(row[colName]);
+    if (!Number.isNaN(n)) hits++;
+    checks++;
+  }
+  return checks > 0 && hits / checks >= 0.6;
+}
+
+/* =========================
+   3) Tabelle aufbauen (performant)
+   ========================= */
+const table = document.getElementById('myTable');
+const thead = table.querySelector('thead');
+const tbody = table.querySelector('tbody');
+
+const columns = Object.keys(data[0] || {});
+
+/* Header in einem Rutsch */
+{
+  const tr = document.createElement('tr');
+  for (const column of columns) {
+    const th = document.createElement('th');
+    th.textContent = column;
+    tr.appendChild(th);
+  }
+  thead.appendChild(tr);
+}
+
+/* Body mit DocumentFragment (ein DOM-Write statt hunderten) */
+
+const frag = document.createDocumentFragment();
+
+data.forEach((row, i) => {
+  const tr = document.createElement('tr');
+  tr.dataset.dataIndex = i; // ← wichtig für die Spiegelung nach unten
+
+  for (const column of columns) {
+    const td = document.createElement('td');
+    const val = row[column];
+
+    if (column.includes('PCL')) {
+      const pclValue = String(val).padStart(4, '0');
+      const filePath = `../../Pocket/HTML/${pclValue}.htm`;
+      td.innerHTML = `
+        <img border="0" src="../../Pocket/gif/Kreise/${pclValue}.gif" height="24"
+             data-action="playChord" data-arg="1${pclValue}" style="cursor: pointer;">
+        <a href="${filePath}" style="font-size: 10px; color: gray;" target="_blank">${pclValue}</a>
+        <img border="0" src="../../Pocket/gif/Score/Scale/${pclValue}.gif" height="24"
+             data-action="playScale" data-arg="1${pclValue}" style="cursor: pointer;"><br>`;
+    } else if (isImageColumn(column) && val) {
+      const corrected = fixPath(val);
+      const a = document.createElement('a');
+      a.href = corrected; a.target = '_blank'; a.rel = 'noopener'; a.title = corrected;
+
+      const img = document.createElement('img');
+      img.className = 'thumb';
+      img.alt = column;
+      img.loading = 'lazy';
+      img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
+      img.dataset.src = corrected;
+
+      a.appendChild(img);
+      td.appendChild(a);
+    } else if (String(column).toLowerCase().includes('midi') && val) {
+      const midiPath = fixPath(val);
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn-play';
+      btn.textContent = '▶︎ Play';
+      btn.setAttribute('data-action', 'playChord');
+      btn.setAttribute('data-arg', midiPath);
+      td.appendChild(btn);
+    } else {
+      //td.textContent = (val ?? '').toString();
+	  td.innerHTML = (val ?? '').toString();
+    }
+
+    tr.appendChild(td);
+  }
+
+  frag.appendChild(tr);
+});
+
+tbody.appendChild(frag);
+
+
+/* =========================
+   4) Bilder NUR laden, wenn sichtbar
+   ========================= */
+const io = new IntersectionObserver((entries) => {
+  for (const e of entries) {
+    if (!e.isIntersecting) continue;
+    const img = e.target;
+    const src = img.dataset.src;
+    if (src) {
+      img.src = src;          // jetzt erst Netzwerkanfrage
+      img.removeAttribute('data-src');
+    }
+    io.unobserve(img);
+  }
+}, { root: null, rootMargin: '300px' }); // 300px Vorlauf ist smooth
+
+tbody.querySelectorAll('img[data-src]').forEach(img => io.observe(img));
+
+/* =========================
+   5) Event-Delegation für Play-Aktionen
+      (ein Listener statt Hunderter inline onclicks)
+   ========================= */
+tbody.addEventListener('click', (ev) => {
+  const el = ev.target.closest('[data-action]');
+  if (!el) return;
+  const action = el.getAttribute('data-action');
+  const arg = el.getAttribute('data-arg');
+
+  // vorhandene Funktionen aus PlayScript.js verwenden
+  if (action === 'playChord') {
+    // arg kann Zahl (1xxxx) oder Pfad (../../Hewitt/...) sein
+    try { playChord(isNaN(arg) ? arg : Number(arg)); } catch (e) { console.warn(e); }
+  } else if (action === 'playScale') {
+    try { playScale(isNaN(arg) ? arg : Number(arg)); } catch (e) { console.warn(e); }
+  }
+});
+
+/* =========================
+   6) TableFilter: col_types aus Daten ableiten
+   ========================= */
+const col_types = columns.map(col => looksNumericFromData(col) ? 'number' : 'string');
+
+const filtersConfig = {
+  base_path: 'dist/tablefilter/',
+  grid_layout: {
+    width: '100%',        // oder '100vw'
+    height: '70vh',       // optional: sichtbare Höhe mit Scroll
+    default_col_width: '150px' // optional: breitere Spalten
+  },
+  alternate_rows: true,
+  btn_reset: true,
+  rows_counter: true,
+  loader: true,
+  status_bar: true,
+  extensions: [{ name: 'sort' }],
+  col_types
+};
+
+const tf = new TableFilter('myTable', filtersConfig);
+tf.init();
+
+/* Sortpfeile synchron halten (nur Optik) */
+function clearAllSortIcons() {
+  thead.querySelectorAll('th').forEach(th => th.classList.remove('sort-asc','sort-desc'));
+}
+function setSortIcon(colIndex, dir) {
+  const th = thead.querySelectorAll('th')[colIndex];
+  if (!th) return;
+  th.classList.remove('sort-asc','sort-desc');
+  th.classList.add(dir === 'desc' ? 'sort-desc' : 'sort-asc');
+}
+thead.addEventListener('click', (e) => {
+  const th = e.target.closest('th');
+  if (!th) return;
+  const idx = Array.from(thead.querySelectorAll('th')).indexOf(th);
+  const asc = th.classList.contains('sort-asc');
+  clearAllSortIcons();
+  setSortIcon(idx, asc ? 'desc' : 'asc');
+});
+
+/* =========================
+   7) URL-Filter & -Sort (optional)
+   ========================= */
+(function applyFiltersAndSortFromURL() {
+  const params = new URLSearchParams(window.location.search);
+
+  // Filter per Spaltennamen (?Hew%20Rep%20Name=C%20dim)
+  let anyFilter = false;
+  columns.forEach((colName, i) => {
+    const value = params.get(colName);
+    if (value) {
+      tf.setFilterValue(i, value);
+      anyFilter = true;
+    }
+  });
+  if (anyFilter) tf.filter();
+
+  // Multi-Sort (?sort=SpalteA:asc,SpalteB:desc)
+  const sortParam = params.get('sort');
+  if (!sortParam) return;
+
+  const rows = Array.from(tbody.querySelectorAll('tr'));
+  const sortRules = sortParam.split(',').map(s => {
+    const [name, dirRaw] = s.split(':');
+    return { col: (name || '').trim(), dir: (dirRaw || 'asc').toLowerCase() };
+  }).filter(r => r.col);
+
+  function parseValue(cellText, colIdx) {
+    if (col_types[colIdx] === 'number') {
+      const n = normalizeNumber(cellText);
+      if (!isNaN(n)) return n;
+    }
+    return (cellText ?? '').toString();
+  }
+
+  rows.sort((a, b) => {
+    for (let { col, dir } of sortRules) {
+      const idx = columns.indexOf(col);
+      if (idx === -1) continue;
+
+      const av = parseValue(a.children[idx].textContent, idx);
+      const bv = parseValue(b.children[idx].textContent, idx);
+
+      let cmp = 0;
+      if (typeof av === 'number' && typeof bv === 'number') cmp = av - bv;
+      else cmp = av.toString().localeCompare(bv.toString(), 'de', { numeric: true, sensitivity: 'base' });
+
+      if (cmp !== 0) return dir === 'desc' ? -cmp : cmp;
+    }
+    return 0;
+  });
+
+  rows.forEach(r => tbody.appendChild(r));
+  clearAllSortIcons();
+  sortRules.forEach(r => {
+    const idx = columns.indexOf(r.col);
+    if (idx !== -1) setSortIcon(idx, r.dir);
+  });
+})();
+
+
+function looksLikeImage(val){
+  const s = String(val || '').trim().toLowerCase();
+  return /^data:image\//.test(s) || /\.(png|jpe?g|gif|webp|svg)$/.test(s);
+}
+
+function getVisibleDataIndices(){
+  const rows = Array.from(document.querySelectorAll('#myTable tbody tr'));
+  const visible = rows.filter(r => getComputedStyle(r).display !== 'none');
+  return visible.map(r => parseInt(r.dataset.dataIndex, 10)).filter(Number.isFinite);
+}
+
+function buildComparison(indices){
+  const products = (indices && indices.length ? indices : []).map(i => data[i]).filter(Boolean);
+  const tbl = document.getElementById('compareTable');
+  const thead = tbl.querySelector('thead');
+  const tbody = tbl.querySelector('tbody');
+
+  // leeren
+  thead.textContent = '';
+  tbody.textContent = '';
+
+  if (!products.length){
+    const trh = document.createElement('tr');
+    const th = document.createElement('th');
+    th.textContent = 'Keine sichtbaren Datensätze';
+    trh.appendChild(th);
+    thead.appendChild(trh);
+    return;
+  }
+
+  const features = Object.keys(products[0] || {});
+
+  // Kopf
+  const headRow = document.createElement('tr');
+  const corner = document.createElement('th');
+  corner.textContent = '';
+  headRow.appendChild(corner);
+
+  products.forEach((p, idx) => {
+    const th = document.createElement('th');
+    th.textContent = p['Hew Rep Name'] || p['Hewitt Name'] || `#${idx+1}`;
+    th.dataset.colIndex = idx;
+    headRow.appendChild(th);
+  });
+  thead.appendChild(headRow);
+
+  // Body
+  const frag = document.createDocumentFragment();
+  features.forEach(feat => {
+    const tr = document.createElement('tr');
+
+    const rth = document.createElement('th');
+    rth.textContent = feat;
+    rth.style.textAlign = 'left';
+    rth.style.borderRight = '1px solid #eee';
+    tr.appendChild(rth);
+
+    products.forEach((p, colIdx) => {
+      const td = document.createElement('td');
+      const v = p[feat];
+      td.style.padding = '4px 6px';
+      td.dataset.colIndex = colIdx;
+
+      if (v && (isImageColumn(feat) || looksLikeImage(v))) {
+        const url = fixPath(v);
+        const a = document.createElement('a');
+        a.href = url; a.target = '_blank'; a.rel = 'noopener'; a.title = url;
+
+        const img = document.createElement('img');
+        img.className = 'thumb';
+        img.alt = feat;
+        img.loading = 'lazy';
+        img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
+        img.dataset.src = url;
+
+        a.appendChild(img);
+        td.appendChild(a);
+      } else if (feat.includes('PCL') && v) {
+        const pclValue = String(v).padStart(4, '0');
+        const filePath = `../../Pocket/HTML/${pclValue}.htm`;
+        td.innerHTML = `
+          <img border="0" src="../../Pocket/gif/Kreise/${pclValue}.gif" height="24"
+               data-action="playChord" data-arg="1${pclValue}" style="cursor:pointer;">
+          <a href="${filePath}" style="font-size:10px; color:gray;" target="_blank">${pclValue}</a>
+          <img border="0" src="../../Pocket/gif/Score/Scale/${pclValue}.gif" height="24"
+               data-action="playScale" data-arg="1${pclValue}" style="cursor:pointer;">`;
+      } else {
+        td.textContent = (v ?? '').toString();
+      }
+
+      tr.appendChild(td);
+    });
+
+    frag.appendChild(tr);
+  });
+  tbody.appendChild(frag);
+
+  // Optik
+  tbl.querySelectorAll('th, td').forEach(c => c.style.borderBottom = '1px solid #f0f0f0');
+  tbl.querySelectorAll('th').forEach(th => th.style.padding = '6px 8px');
+
+  // Lazy nur für Vergleich
+  const compareRoot = document.getElementById('compare');
+  const io2 = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      const img = e.target;
+      const src = img.dataset.src;
+      if (src) {
+        img.src = src;
+        img.removeAttribute('data-src');
+      }
+      io2.unobserve(img);
+    }
+  }, { root: compareRoot, rootMargin: '300px' });
+  tbl.querySelectorAll('img[data-src]').forEach(img => io2.observe(img));
+}
+
+function rebuildComparisonFromVisible(){
+  const indices = getVisibleDataIndices();
+  buildComparison(indices);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const toggleBtn = document.getElementById('toggleCompareBtn');
+  const compareSection = document.getElementById('compare');
+
+  if (!toggleBtn || !compareSection) {
+    console.warn('Toggle-Button oder Vergleichssektion nicht gefunden!');
+    return;
+  }
+
+  // Initialzustand
+  compareSection.style.displayba = 'none';
+  toggleBtn.textContent = 'Vergleich anzeigen';
+
+  toggleBtn.addEventListener('click', () => {
+    const isHidden = getComputedStyle(compareSection).display === 'none';
+    if (isHidden){
+      compareSection.style.display = '';
+      toggleBtn.textContent = 'Vergleich ausblenden';
+      rebuildComparisonFromVisible(); // frisch aufbauen
+    } else {
+      compareSection.style.display = 'none';
+      toggleBtn.textContent = 'Vergleich anzeigen';
+    }
+  });
+
+  // Änderungen oben spiegeln (Filter+Sort)
+  const tbodyDemo = document.querySelector('#myTable tbody');
+  const mo = new MutationObserver(() => {
+    if (getComputedStyle(compareSection).display !== 'none'){
+      cancelAnimationFrame(mo._raf);
+      mo._raf = requestAnimationFrame(rebuildComparisonFromVisible);
+    }
+  });
+  mo.observe(tbodyDemo, {
+    attributes: true, attributeFilter: ['style', 'class'],
+    childList: true, subtree: false
+  });
+
+  // Wenn oben Kopf zum Sortieren geklickt wird, auch spiegeln
+  document.querySelector('#myTable thead').addEventListener('click', () => {
+    if (getComputedStyle(compareSection).display !== 'none'){
+      requestAnimationFrame(rebuildComparisonFromVisible);
+    }
+  });
+});
+
+</script>
+
+</body>
+</html>
+

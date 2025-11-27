@@ -1,0 +1,258 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>A-Filtertabelle_V0.8.3: 2-ChordPerm</title>
+  <link rel="stylesheet" href="css/main.css"/>
+</head>
+<body>
+  <h1>A-Filtertabelle_V0.8.3: 2-ChordPerm</h1>
+  <p class="backlink">
+    <a href="../Inhalt.html">zurück zum Inhaltsverzeichnis</a>
+  </p>
+
+  <table id="myTable">
+    <thead></thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- Libs (lokal) -->
+  <script src="dist/tablefilter/tablefilter.js"></script>
+  <script src="dist/surikov/WebAudioFontPlayer.js"></script>
+  <script src="dist/surikov/0000_JCLive_sf2_file.js"></script>
+  <script src="js/PlayScript.js"></script>
+
+  <!-- ====== DATENBLOCK: nur columns + rows ====== -->
+  <!-- WICHTIG: rows benutzen jetzt die identifier als Keys -->
+  <script id="data" type="application/json">
+  const data = [
+{ "Hew Rep PCL": "2112","Hew Rep Name": "C Quart","Hewit Name PCL": "2112","Hewitt Name": "C Quart","Betrag": "2","Pitchclass Folge Integer": "5, 0","min": "65","max": "72","span": "7","tension#": "0","friction#": "0","Lilypond": "< f c' >","Noten": "F4C5","Midi": " 65, 72","maxBasePitchFreq": "1","NextIntervalMax": "7","bas0 C": "0","bas1 C#": "0","bas2 D": "0","bas3 D#": "0","bas4 E": "0","bas5 F": "1","bas 6 F#": "0","bas7 G": "0","bas8 G#": "0","bas9 A": "0","bas10 A#": "0","bas11 H": "0","basePitchFreq Signatur": "1","distinct basePitch Count": "1","basePitch inside": "1","basePitch outside": "0","Freq Base Lower": "1","Freq Base Upper": "0","Freq Base Outside": "0","Freq Base Ambigious": "0","Intervallfolge": "i= 7","Score": "score=99999801000000" },
+{ "Hew Rep PCL": "2176","Hew Rep Name": "C gr.Terz","Hewit Name PCL": "2176","Hewitt Name": "C gr.Terz","Betrag": "2","Pitchclass Folge Integer": "0, 4","min": "60","max": "64","span": "4","tension#": "0","friction#": "0","Lilypond": "< c e >","Noten": "C4E4","Midi": " 60, 64","maxBasePitchFreq": "1","NextIntervalMax": "4","bas0 C": "1","bas1 C#": "0","bas2 D": "0","bas3 D#": "0","bas4 E": "0","bas5 F": "0","bas 6 F#": "0","bas7 G": "0","bas8 G#": "0","bas9 A": "0","bas10 A#": "0","bas11 H": "0","basePitchFreq Signatur": "1","distinct basePitch Count": "1","basePitch inside": "1","basePitch outside": "0","Freq Base Lower": "1","Freq Base Upper": "0","Freq Base Outside": "0","Freq Base Ambigious": "0","Intervallfolge": "i= 4","Score": "score=99999801000000" },
+{ "Hew Rep PCL": "2560","Hew Rep Name": "C gr.Sek.","Hewit Name PCL": "2560","Hewitt Name": "C gr.Sek.","Betrag": "2","Pitchclass Folge Integer": "0, 2","min": "60","max": "62","span": "2","tension#": "0","friction#": "0","Lilypond": "< c d >","Noten": "C4D4","Midi": " 60, 62","maxBasePitchFreq": "1","NextIntervalMax": "2","bas0 C": "1","bas1 C#": "0","bas2 D": "0","bas3 D#": "0","bas4 E": "0","bas5 F": "0","bas 6 F#": "0","bas7 G": "0","bas8 G#": "0","bas9 A": "0","bas10 A#": "0","bas11 H": "0","basePitchFreq Signatur": "1","distinct basePitch Count": "1","basePitch inside": "1","basePitch outside": "0","Freq Base Lower": "1","Freq Base Upper": "0","Freq Base Outside": "0","Freq Base Ambigious": "0","Intervallfolge": "i= 2","Score": "score=99999801000000" },
+{ "Hew Rep PCL": "2112","Hew Rep Name": "C Quart","Hewit Name PCL": "2112","Hewitt Name": "C Quart","Betrag": "2","Pitchclass Folge Integer": "0, 5","min": "60","max": "65","span": "5","tension#": "0","friction#": "0","Lilypond": "< c f >","Noten": "C4F4","Midi": " 60, 65","maxBasePitchFreq": "1","NextIntervalMax": "5","bas0 C": "0","bas1 C#": "0","bas2 D": "0","bas3 D#": "0","bas4 E": "0","bas5 F": "1","bas 6 F#": "0","bas7 G": "0","bas8 G#": "0","bas9 A": "0","bas10 A#": "0","bas11 H": "0","basePitchFreq Signatur": "1","distinct basePitch Count": "1","basePitch inside": "1","basePitch outside": "0","Freq Base Lower": "0","Freq Base Upper": "1","Freq Base Outside": "0","Freq Base Ambigious": "0","Intervallfolge": "i= 5","Score": "score=99999800010000" },
+{ "Hew Rep PCL": "2176","Hew Rep Name": "C gr.Terz","Hewit Name PCL": "2176","Hewitt Name": "C gr.Terz","Betrag": "2","Pitchclass Folge Integer": "4, 0","min": "64","max": "72","span": "8","tension#": "0","friction#": "0","Lilypond": "< e c' >","Noten": "E4C5","Midi": " 64, 72","maxBasePitchFreq": "1","NextIntervalMax": "8","bas0 C": "1","bas1 C#": "0","bas2 D": "0","bas3 D#": "0","bas4 E": "0","bas5 F": "0","bas 6 F#": "0","bas7 G": "0","bas8 G#": "0","bas9 A": "0","bas10 A#": "0","bas11 H": "0","basePitchFreq Signatur": "1","distinct basePitch Count": "1","basePitch inside": "1","basePitch outside": "0","Freq Base Lower": "0","Freq Base Upper": "1","Freq Base Outside": "0","Freq Base Ambigious": "0","Intervallfolge": "i= 8","Score": "score=99999800010000" },
+{ "Hew Rep PCL": "2080","Hew Rep Name": "C Tritonus","Hewit Name PCL": "2080","Hewitt Name": "C Tritonus","Betrag": "2","Pitchclass Folge Integer": "0, 6","min": "60","max": "66","span": "6","tension#": "0","friction#": "0","Lilypond": "< c fis >","Noten": "C4F#4","Midi": " 60, 66","maxBasePitchFreq": "1","NextIntervalMax": "6","bas0 C": "0","bas1 C#": "0","bas2 D": "0","bas3 D#": "0","bas4 E": "0","bas5 F": "0","bas 6 F#": "0","bas7 G": "0","bas8 G#": "-1","bas9 A": "0","bas10 A#": "0","bas11 H": "0","basePitchFreq Signatur": "-1","distinct basePitch Count": "1","basePitch inside": "0","basePitch outside": "1","Freq Base Lower": "0","Freq Base Upper": "0","Freq Base Outside": "1","Freq Base Ambigious": "0","Intervallfolge": "i= 6","Score": "score=99999800000100" },
+{ "Hew Rep PCL": "2080","Hew Rep Name": "C Tritonus","Hewit Name PCL": "2080","Hewitt Name": "C Tritonus","Betrag": "2","Pitchclass Folge Integer": "6, 0","min": "66","max": "72","span": "6","tension#": "0","friction#": "0","Lilypond": "< fis c' >","Noten": "F#4C5","Midi": " 66, 72","maxBasePitchFreq": "1","NextIntervalMax": "6","bas0 C": "0","bas1 C#": "0","bas2 D": "-1","bas3 D#": "0","bas4 E": "0","bas5 F": "0","bas 6 F#": "0","bas7 G": "0","bas8 G#": "0","bas9 A": "0","bas10 A#": "0","bas11 H": "0","basePitchFreq Signatur": "-1","distinct basePitch Count": "1","basePitch inside": "0","basePitch outside": "1","Freq Base Lower": "0","Freq Base Upper": "0","Freq Base Outside": "1","Freq Base Ambigious": "0","Intervallfolge": "i= 6","Score": "score=99999800000100" },
+{ "Hew Rep PCL": "2304","Hew Rep Name": "C kl.Terz","Hewit Name PCL": "2304","Hewitt Name": "C kl.Terz","Betrag": "2","Pitchclass Folge Integer": "0, 3","min": "60","max": "63","span": "3","tension#": "0","friction#": "0","Lilypond": "< c dis >","Noten": "C4D#4","Midi": " 60, 63","maxBasePitchFreq": "1","NextIntervalMax": "3","bas0 C": "0","bas1 C#": "0","bas2 D": "0","bas3 D#": "0","bas4 E": "0","bas5 F": "0","bas 6 F#": "0","bas7 G": "0","bas8 G#": "-1","bas9 A": "0","bas10 A#": "0","bas11 H": "0","basePitchFreq Signatur": "-1","distinct basePitch Count": "1","basePitch inside": "0","basePitch outside": "1","Freq Base Lower": "0","Freq Base Upper": "0","Freq Base Outside": "1","Freq Base Ambigious": "0","Intervallfolge": "i= 3","Score": "score=99999800000100" },
+{ "Hew Rep PCL": "2560","Hew Rep Name": "C gr.Sek.","Hewit Name PCL": "2560","Hewitt Name": "C gr.Sek.","Betrag": "2","Pitchclass Folge Integer": "2, 0","min": "62","max": "72","span": "10","tension#": "0","friction#": "0","Lilypond": "< d c' >","Noten": "D4C5","Midi": " 62, 72","maxBasePitchFreq": "1","NextIntervalMax": "10","bas0 C": "0","bas1 C#": "0","bas2 D": "0","bas3 D#": "0","bas4 E": "0","bas5 F": "0","bas 6 F#": "0","bas7 G": "0","bas8 G#": "0","bas9 A": "0","bas10 A#": "-1","bas11 H": "0","basePitchFreq Signatur": "-1","distinct basePitch Count": "1","basePitch inside": "0","basePitch outside": "1","Freq Base Lower": "0","Freq Base Upper": "0","Freq Base Outside": "1","Freq Base Ambigious": "0","Intervallfolge": "i= 10","Score": "score=99999800000100" },
+{ "Hew Rep PCL": "3072","Hew Rep Name": "C kl.Sek.","Hewit Name PCL": "3072","Hewitt Name": "C kl.Sek.","Betrag": "2","Pitchclass Folge Integer": "1, 0","min": "61","max": "72","span": "11","tension#": "1","friction#": "0","Lilypond": "< cis c' >","Noten": "C#4C5","Midi": " 61, 72","maxBasePitchFreq": "0","NextIntervalMax": "11","bas0 C": "0","bas1 C#": "0","bas2 D": "0","bas3 D#": "0","bas4 E": "0","bas5 F": "0","bas 6 F#": "0","bas7 G": "0","bas8 G#": "0","bas9 A": "0","bas10 A#": "0","bas11 H": "0","basePitchFreq Signatur": "","distinct basePitch Count": "0","basePitch inside": "0","basePitch outside": "0","Freq Base Lower": "0","Freq Base Upper": "0","Freq Base Outside": "0","Freq Base Ambigious": "1","Intervallfolge": "i= 11","Score": "score=99989900000001" },
+{ "Hew Rep PCL": "2304","Hew Rep Name": "C kl.Terz","Hewit Name PCL": "2304","Hewitt Name": "C kl.Terz","Betrag": "2","Pitchclass Folge Integer": "3, 0","min": "63","max": "72","span": "9","tension#": "1","friction#": "0","Lilypond": "< dis c' >","Noten": "D#4C5","Midi": " 63, 72","maxBasePitchFreq": "1","NextIntervalMax": "9","bas0 C": "0","bas1 C#": "0","bas2 D": "0","bas3 D#": "0","bas4 E": "0","bas5 F": "0","bas 6 F#": "0","bas7 G": "0","bas8 G#": "-1","bas9 A": "0","bas10 A#": "0","bas11 H": "0","basePitchFreq Signatur": "-1","distinct basePitch Count": "1","basePitch inside": "0","basePitch outside": "1","Freq Base Lower": "0","Freq Base Upper": "0","Freq Base Outside": "1","Freq Base Ambigious": "0","Intervallfolge": "i= 9","Score": "score=99989800000100" },
+{ "Hew Rep PCL": "3072","Hew Rep Name": "C kl.Sek.","Hewit Name PCL": "3072","Hewitt Name": "C kl.Sek.","Betrag": "2","Pitchclass Folge Integer": "0, 1","min": "60","max": "61","span": "1","tension#": "0","friction#": "1","Lilypond": "< c cis >","Noten": "C4C#4","Midi": " 60, 61","maxBasePitchFreq": "0","NextIntervalMax": "1","bas0 C": "0","bas1 C#": "0","bas2 D": "0","bas3 D#": "0","bas4 E": "0","bas5 F": "0","bas 6 F#": "0","bas7 G": "0","bas8 G#": "0","bas9 A": "0","bas10 A#": "0","bas11 H": "0","basePitchFreq Signatur": "","distinct basePitch Count": "0","basePitch inside": "0","basePitch outside": "0","Freq Base Lower": "0","Freq Base Upper": "0","Freq Base Outside": "0","Freq Base Ambigious": "1","Intervallfolge": "i= 1","Score": "score=98999900000001" }
+];
+
+
+  </script>
+  <!-- ====== ENDE DATENBLOCK ====== -->
+
+  <script>
+  // ---------- JSON einlesen ----------
+  const RAW     = JSON.parse(document.getElementById('data').textContent);
+  const COLDEFS = RAW.columns || [];
+
+  // Daten-Keys = identifier (oder name als Fallback)
+  const DATA_KEYS     = COLDEFS.map(c => c.identifier || c.name);
+  // Anzeige-Namen = name
+  const DISPLAY_NAMES = COLDEFS.map(c => c.name);
+
+  const ROWS = RAW.rows || [];
+
+  // Mappings aus Spalten-Meta: auf IDENTIFIER keyen!
+  const RENDERAS = Object.fromEntries(
+    COLDEFS.map(c => [
+      (c.identifier || c.name),
+      String(c.renderAs || 'text').toLowerCase()
+    ])
+  );
+
+  // col_types: sowohl tfType (CamelCase) als auch tftype (lower) akzeptieren
+  const COLTYPES = COLDEFS.map(c => {
+    const tfType = (c.tfType ?? c.tftype ?? 'string').toString().toLowerCase();
+    return tfType === 'number' ? 'number' : 'string';
+  });
+
+  const COLWIDTHS = COLDEFS.map(c => {
+    const w = (c.width || '').toString().trim();
+    return (w && w.toLowerCase() !== 'auto') ? w : '';
+  });
+
+  // ---------- DOM-Grundlagen ----------
+  const table = document.getElementById('myTable');
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+
+  // Lazy Image Loader
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      const img = e.target;
+      const src = img.dataset.src;
+      if (src){
+        img.src = src;
+        img.removeAttribute('data-src');
+      }
+      io.unobserve(img);
+    }
+  }, { root:null, rootMargin:'300px' });
+
+  function padLeft(val, len){
+    const s = String(val ?? '');
+    return s.length >= len ? s : ('0'.repeat(len - s.length) + s);
+  }
+
+  // ---------- Header (Tooltip = description) ----------
+  {
+    const tr = document.createElement('tr');
+    for (const c of COLDEFS){
+      const th = document.createElement('th');
+      th.textContent = c.name;           // Nutzer sieht weiter die Namen
+      if (c.description) th.title = c.description;
+      tr.appendChild(th);
+    }
+    thead.appendChild(tr);
+  }
+
+  // ---------- Body ----------
+  const frag = document.createDocumentFragment();
+  ROWS.forEach((row, i) => {
+    const tr = document.createElement('tr');
+    tr.dataset.dataIndex = i;
+
+    // wir laufen über die Spaltendefs, nicht über die Row-Keys
+    COLDEFS.forEach((c) => {
+      const key = c.identifier || c.name;   // DAS ist in rows
+      const label = c.name;                 // schön lesbarer Name
+      const td = document.createElement('td');
+      const val = row[key];
+      const renderAs = RENDERAS[key];
+
+      switch (renderAs) {
+        case 'image': {
+          if (val){
+            const a = document.createElement('a');
+            a.href = val;
+            a.target = '_blank';
+            a.rel = 'noopener';
+            a.title = val;
+
+            const img = document.createElement('img');
+            img.className = 'thumb';
+            img.alt = label;
+            img.loading = 'lazy';
+            // winziges Platzhalter-GIF
+            img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
+            img.dataset.src = val;
+
+            a.appendChild(img);
+            td.appendChild(a);
+            io.observe(img);
+          }
+          break;
+        }
+
+        case 'midi': {
+          if (val){
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn-play';
+            btn.textContent = '▶︎ Play';
+            btn.setAttribute('data-action','playChord');
+            btn.setAttribute('data-arg', val);
+            td.appendChild(btn);
+          }
+          break;
+        }
+
+        case 'pcl': {
+          if (val !== undefined && val !== null) {
+            const pcl  = padLeft(val, 4);
+            const href = `../../Pocket/HTML/${pcl}.htm`;
+            const a = document.createElement('a');
+            a.href = href;
+            a.textContent = String(val);
+            a.title = href;
+            td.appendChild(a);
+          }
+          break;
+        }
+
+        case 'html': {
+          td.innerHTML = val ?? '';
+          break;
+        }
+
+        default: {
+          td.textContent = (val ?? '').toString();
+        }
+      }
+
+      tr.appendChild(td);
+    });
+
+    frag.appendChild(tr);
+  });
+  tbody.appendChild(frag);
+
+  // ---------- TableFilter mit grid_layout + col_widths/col_types ----------
+  const filtersConfig = {
+    base_path: 'dist/tablefilter/',
+    grid_layout: {
+      width: '100%',
+      height: '70vh',
+      default_col_width: '120px'
+    },
+    alternate_rows: true,
+    btn_reset: true,
+    rows_counter: true,
+    loader: true,
+    status_bar: true,
+    col_types: COLTYPES,
+    col_widths: COLWIDTHS,
+    state: {
+      types: ['hash'],
+      filters: true,
+      sort: true,
+      columns_visibility: true,
+      filters_visibility: true,
+    },
+    extensions: [
+      { name: 'sort' },
+      {
+        name: 'colsVisibility',
+        btn_text: 'Spalten verstecken▼',
+        enable_hover: true,
+        tick_to_hide: true,
+        enable_tick_all: false,
+        btn_close_text: 'Schließen',
+        toolbar_position: 'right'
+      }
+    ]
+  };
+  const tf = new TableFilter('myTable', filtersConfig);
+  tf.init();
+
+  // ---------- Play-Delegation (nutzt PlayScript.js) ----------
+  tbody.addEventListener('click', (ev) => {
+    const el = ev.target.closest('[data-action]');
+    if (!el) return;
+    const action = el.getAttribute('data-action');
+    const arg = el.getAttribute('data-arg');
+    try {
+      if (action === 'playChord')      playChord(isNaN(arg) ? arg : Number(arg));
+      else if (action === 'playScale') playScale(isNaN(arg) ? arg : Number(arg));
+    } catch (e) { console.warn(e); }
+  });
+
+  // ---------- Optional: Validierung ----------
+  const KNOWN_KEYS = new Set(DATA_KEYS);
+  for (const [ri, row] of ROWS.entries()){
+    for (const key of Object.keys(row)){
+      if (!KNOWN_KEYS.has(key)){
+        console.warn(`Row ${ri}: unbekannte Spalte "${key}" – in columns nicht definiert (identifier).`);
+      }
+    }
+  }
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,362 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JSON → Baum/Forest (interaktiv)</title>
+  <style>
+    :root{
+      --bg:#0b0d10; --card:#12161b; --muted:#8aa0b5; --text:#e7edf3;
+      --accent:#6ab0ff; --accent-2:#75e0a7; --border:#1f2630; --warn:#ffb86b;
+    }
+    html,body{height:100%;}
+    body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    h1{font-size:20px;margin:14px 0}
+    .app{max-width:1200px;margin:0 auto;padding:20px}
+
+    .panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+    .controls{display:grid;gap:12px;grid-template-columns:1fr 1fr;align-items:end}
+    .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+    label{font-size:12px;color:var(--muted)}
+    select,button,input[type="text"],input[type="number"]{background:#0e1216;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:8px 10px}
+    select{min-width:180px}
+    button{cursor:pointer}
+    .btn{background:linear-gradient(180deg, #1a2230, #101622); border-color:#263043}
+    .btn:hover{filter:brightness(1.1)}
+    .btn-alt{background:#111821}
+    .btn-danger{background:#2a1412;border-color:#45201b}
+
+    .levels{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{display:flex;align-items:center;gap:6px;background:#0e141b;border:1px solid var(--border);padding:6px 8px;border-radius:999px}
+    .chip small{color:var(--muted)}
+
+    .grid{display:grid;grid-template-columns: 320px 1fr; gap:16px; margin-top:16px}
+
+    /* Tree */
+    .tree{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:10px 12px;overflow:auto;max-height:70vh}
+    .tree details{padding-left:18px}
+    .node{display:flex;align-items:center;gap:8px;padding:3px 0}
+    .key{font-weight:600}
+    .meta{font-size:12px;color:var(--muted)}
+    .badge{background:#0f1721;border:1px solid var(--border);padding:1px 6px;border-radius:999px;font-size:11px}
+    .pill{background:#0f1721;border:1px solid #2c394a;padding:0 6px;border-radius:6px;font-size:11px}
+
+    .sticky-bar{position:sticky;top:0;background:linear-gradient(180deg, rgba(11,13,16,.9), rgba(11,13,16,.7));backdrop-filter:blur(6px);border-bottom:1px solid var(--border);padding:8px 0;margin:-10px -12px 10px}
+    .sticky-bar .row{padding:0 12px}
+
+    .table{border-collapse:collapse;width:100%;font-size:13px}
+    .table th,.table td{border-bottom:1px solid var(--border);padding:6px 8px;vertical-align:top}
+    .muted{color:var(--muted)}
+    .right{margin-left:auto}
+    .sep{height:1px;background:var(--border);margin:6px 0}
+    .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#0a0e13;border:1px solid var(--border);padding:.1rem .35rem;border-radius:6px}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>JSON → Baum/Forest (interaktiv)</h1>
+
+    <div class="panel">
+      <div class="controls">
+        <div>
+          <label>Hierarchie-Ebenen (in Reihenfolge):</label>
+          <div class="row levels" id="levelsRow"></div>
+          <div class="row">
+            <select id="colPicker"></select>
+            <button class="btn" id="btnAdd">Ebene hinzufügen</button>
+            <button class="btn-danger" id="btnClear">Alle Ebenen löschen</button>
+          </div>
+        </div>
+        <div>
+          <div class="row">
+            <div>
+              <label for="labelAttr">Zusatz-Attribut je Knoten</label><br/>
+              <select id="labelAttr"></select>
+            </div>
+            <div>
+              <label for="aggMode">Aggregation</label><br/>
+              <select id="aggMode">
+                <option value="count">Anzahl</option>
+                <option value="unique">Eindeutige Werte</option>
+                <option value="mode">Häufigster Wert</option>
+                <option value="min">Min (numerisch)</option>
+                <option value="max">Max (numerisch)</option>
+              </select>
+            </div>
+            <div>
+              <label for="sortMode">Sortierung je Ebene</label><br/>
+              <select id="sortMode">
+                <option value="alpha">A→Z</option>
+                <option value="count">Anzahl ↓</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <label><input type="checkbox" id="hideEmpty"/> Leere Werte ausblenden</label>
+            <label><input type="checkbox" id="collapseAll"/> Start: alles eingeklappt</label>
+            <span class="right"></span>
+            <button class="btn" id="btnExpandAll">Alle aufklappen</button>
+            <button class="btn" id="btnCollapseAll">Alle zuklappen</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="tree" id="tree">
+        <div class="sticky-bar">
+          <div class="row">
+            <span class="muted">Baum-Vorschau</span>
+            <span class="right muted">Tipp: <span class="kbd">Alt</span> + Klick öffnet kompletten Zweig</span>
+          </div>
+        </div>
+        <div id="treeRoot"></div>
+      </div>
+
+      <div class="panel">
+        <div class="row" style="justify-content:space-between;align-items:center">
+          <div class="muted">Zeilen im ausgewählten Knoten</div>
+          <div>
+            <input id="filterInput" type="text" placeholder="Zeilen filtern…" />
+          </div>
+        </div>
+        <div class="sep"></div>
+        <div id="rowsInfo" class="muted">Noch kein Knoten gewählt.</div>
+        <table class="table" id="rowsTable"></table>
+      </div>
+    </div>
+
+  </div>
+
+<script>
+// ===== Beispiel-Daten vom Nutzer =====
+
+const data = [
+{ "Hew Rep PCL": "2336","Hew Rep Name": "C dim","Hewit Name PCL": "2336","Hewitt Name": "C dim","Betrag von": "3","tritonus auf": "0","Tritonus": "C -F#","Aufl�sung": "B -G ","nach PCL": "273","nach Rep PCL": "2184","nach Name PCL": "2184","nach Name": "C +","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:G#  25:F#, B","Oberton nachher": "24:C#, F , A   23:D#, G , B","Oberton Rang vorher": "30","Oberton Rang nachher": "24","Oberton Rang Verbesserung": "-6","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2336","Hew Rep Name": "C dim","Hewit Name PCL": "2336","Hewitt Name": "C dim","Betrag von": "3","tritonus auf": "6","Tritonus": "F#-C ","Aufl�sung": "F -C#","nach PCL": "1344","nach Rep PCL": "2688","nach Name PCL": "2688","nach Name": "C Ganzton Dreiklang","Betrag nach": "3","Betrag Delta": "0","Oberton vorher": "30:G#  25:F#, B","Oberton nachher": "30:C#  29:D#","Oberton Rang vorher": "30","Oberton Rang nachher": "30","Oberton Rang Verbesserung": "0","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" }
+];
+
+// ===== Hilfen =====
+const columns = Object.keys(data[0]||{}).filter(k=>k!=="");
+
+const byId = id => document.getElementById(id);
+const el = (tag, cls, text) => { const n=document.createElement(tag); if(cls) n.className=cls; if(text!=null) n.textContent=text; return n; };
+const normalizeNumber = (v)=>{const txt=String(v??'').trim(); const norm = txt.replace(/\s/g,'').replace(/\./g,'').replace(',', '.'); return /^-?\d+(\.\d+)?$/.test(norm)? parseFloat(norm): NaN};
+
+// ===== UI: Befüllen der Selects =====
+const colPicker = byId('colPicker');
+const labelAttr = byId('labelAttr');
+const aggMode   = byId('aggMode');
+const sortMode  = byId('sortMode');
+const hideEmpty = byId('hideEmpty');
+const collapseAll = byId('collapseAll');
+const levelsRow= byId('levelsRow');
+const btnAdd   = byId('btnAdd');
+const btnClear = byId('btnClear');
+const filterInput = byId('filterInput');
+
+function fillSelect(sel){
+  sel.innerHTML = '';
+  for(const c of columns){
+    const opt = document.createElement('option');
+    opt.value = opt.textContent = c;
+    sel.appendChild(opt);
+  }
+}
+fillSelect(colPicker);
+fillSelect(labelAttr);
+
+const activeLevels = [];// array of column names in order
+
+function drawLevels(){
+  levelsRow.innerHTML = '';
+  activeLevels.forEach((c, idx)=>{
+    const chip = el('div','chip');
+    chip.append(
+      el('span','key',c),
+      el('small',`Ebene ${idx+1}`)
+    );
+    const up = el('button','btn-alt','↑'); up.title='Nach oben';
+    const down = el('button','btn-alt','↓'); down.title='Nach unten';
+    const rem = el('button','btn-danger','✕'); rem.title='Entfernen';
+    up.onclick=()=>{ if(idx>0){ [activeLevels[idx-1],activeLevels[idx]]=[activeLevels[idx],activeLevels[idx-1]]; render(); }};
+    down.onclick=()=>{ if(idx<activeLevels.length-1){[activeLevels[idx+1],activeLevels[idx]]=[activeLevels[idx],activeLevels[idx+1]]; render(); }};
+    rem.onclick=()=>{ activeLevels.splice(idx,1); render(); };
+    chip.append(up,down,rem);
+    levelsRow.appendChild(chip);
+  });
+}
+
+btnAdd.onclick = ()=>{
+  const v = colPicker.value;
+  if(!v) return;
+  if(activeLevels.includes(v)) return alert('Attribut ist bereits in den Ebenen.');
+  activeLevels.push(v);
+  render();
+};
+btnClear.onclick = ()=>{ activeLevels.length=0; render(); };
+
+[labelAttr, aggMode, sortMode, hideEmpty, collapseAll].forEach(s=> s.addEventListener('change', ()=>render()));
+
+// ===== Gruppierung → Baumstruktur =====
+function buildTree(rows, keys){
+  const root = { key:'ROOT', depth:0, rows, children:new Map(), parent:null };
+  for(const row of rows){
+    let node = root;
+    for(let d=0; d<keys.length; d++){
+      const k = keys[d];
+      let val = row[k];
+      if(hideEmpty.checked && (val==null || String(val).trim()==='')) val = '(leer)';
+      else if(val==null || String(val).trim()==='') val = '(leer)';
+      if(!node.children.has(val)){
+        const child = { key:val, depth:d+1, rows:[], children:new Map(), parent:node };
+        node.children.set(val, child);
+      }
+      node = node.children.get(val);
+      node.rows.push(row);
+    }
+  }
+  return root;
+}
+
+function nodeAggText(node){
+  const attr = labelAttr.value;
+  if(!attr) return '';
+  const values = node.rows.map(r=>r[attr]).filter(v=>v!==undefined);
+  if(values.length===0) return '';
+  const mode = aggMode.value;
+  if(mode==='count') return `${values.length}`;
+  if(mode==='unique'){
+    const uniq = Array.from(new Set(values.map(v=>String(v))));
+    return uniq.slice(0,6).join(', ') + (uniq.length>6? ` … (+${uniq.length-6})`: '');
+  }
+  if(mode==='mode'){
+    const freq = new Map();
+    for(const v of values){ const s=String(v); freq.set(s,(freq.get(s)||0)+1); }
+    const top = Array.from(freq.entries()).sort((a,b)=>b[1]-a[1])[0];
+    return top? `${top[0]} (${top[1]})`: '';
+  }
+  if(mode==='min' || mode==='max'){
+    const nums = values.map(normalizeNumber).filter(n=>!Number.isNaN(n));
+    if(nums.length===0) return '';
+    const n = (mode==='min')? Math.min(...nums): Math.max(...nums);
+    return String(n);
+  }
+  return '';
+}
+
+function sortChildren(map){
+  const arr = Array.from(map.values());
+  if(sortMode.value==='count'){
+    arr.sort((a,b)=> b.rows.length - a.rows.length || String(a.key).localeCompare(String(b.key), 'de'));
+  } else {
+    arr.sort((a,b)=> String(a.key).localeCompare(String(b.key), 'de', {numeric:true, sensitivity:'base'}));
+  }
+  return arr;
+}
+
+// ===== DOM: Baum zeichnen =====
+const treeRoot = byId('treeRoot');
+const rowsTable = byId('rowsTable');
+const rowsInfo  = byId('rowsInfo');
+
+function renderTree(root){
+  treeRoot.innerHTML = '';
+  const levels = activeLevels.length;
+  if(levels===0){
+    treeRoot.append(el('div','muted','Wähle mind. eine Ebene aus.'));
+    return;
+  }
+
+  function makeBranch(node){
+    const details = document.createElement('details');
+    if(!collapseAll.checked && node.depth<2) details.open = true; // Rootkinder auf
+
+    const summary = document.createElement('summary');
+    summary.className = 'node';
+
+    const name = el('span','key', node.key + '');
+    const count = el('span','badge', node.rows.length + '');
+
+    const extra = nodeAggText(node);
+    const extraEl = extra? el('span','meta', `• ${labelAttr.value}: ${extra}`): null;
+
+    summary.append(name, count);
+    if(extraEl) summary.append(extraEl);
+
+    // Klick: Zeilen zeigen; Alt-Klick: gesamten Zweig öffnen
+    summary.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      if(e.altKey){
+        openDeep(details, !details.open);
+      }
+      showRows(node.rows);
+    });
+
+    details.appendChild(summary);
+
+    if(node.children.size>0){
+      for(const child of sortChildren(node.children)){
+        details.appendChild(makeBranch(child));
+      }
+    }
+    return details;
+  }
+
+  for(const child of sortChildren(root.children)){
+    treeRoot.appendChild(makeBranch(child));
+  }
+}
+
+function openDeep(detailsEl, open){
+  detailsEl.open = open;
+  detailsEl.querySelectorAll('details').forEach(d=> d.open = open);
+}
+
+function showRows(rows){
+  rowsInfo.textContent = rows.length+ ' Zeile(n)';
+  const cols = columns;
+  rowsTable.innerHTML = '';
+  const thead = document.createElement('thead');
+  const thr = document.createElement('tr');
+  for(const c of cols){ const th = el('th', '', c); thr.appendChild(th); }
+  thead.appendChild(thr); rowsTable.appendChild(thead);
+  const tbody = document.createElement('tbody');
+  for(const r of rows){
+    const tr = document.createElement('tr');
+    for(const c of cols){ const td = el('td','', String(r[c]??'')); tr.appendChild(td); }
+    tbody.appendChild(tr);
+  }
+  rowsTable.appendChild(tbody);
+}
+
+// Filter für Zeilentabelle
+filterInput.addEventListener('input', ()=>{
+  const q = filterInput.value.toLowerCase();
+  const tbody = rowsTable.querySelector('tbody');
+  if(!tbody) return;
+  for(const tr of tbody.rows){
+    const txt = Array.from(tr.cells).map(td=>td.textContent.toLowerCase()).join(' ');
+    tr.style.display = txt.includes(q)? '': 'none';
+  }
+});
+
+// Expand/Collapse all Buttons
+byId('btnExpandAll').onclick=()=> treeRoot.querySelectorAll('details').forEach(d=> d.open = true);
+byId('btnCollapseAll').onclick=()=> treeRoot.querySelectorAll('details').forEach(d=> d.open = false);
+
+// ===== Gesamtrender =====
+function render(){
+  drawLevels();
+  const root = buildTree(data, activeLevels);
+  renderTree(root);
+}
+
+// Defaults: erste 2 Spalten vorschlagen
+activeLevels.push(columns[0]||'', columns[1]||'');
+labelAttr.value = columns.find(c=>/rang|betrag|name/i.test(c)) || columns[0] || '';
+render();
+</script>
+</body>
+</html>
+

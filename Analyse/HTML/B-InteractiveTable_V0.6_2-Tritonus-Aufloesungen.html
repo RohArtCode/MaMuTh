@@ -1,0 +1,397 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>B-InteractiveTable_V0.6: 2-Tritonus-Aufloesungen</title>
+  <style>
+    :root{
+      --bg:#0b0d10;
+      --panel:#12161b;
+      --text:#ecf1f6;
+      --muted:#8aa0b5;
+      --border:#1f2630;
+      --accent:#6ab0ff;
+      --accent2:#ffd166;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font:14px/1.4 system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    }
+    a{color:var(--muted);}
+    h1{margin:16px 0 4px;font-size:20px;}
+    .app{max-width:1200px;margin:0 auto;padding:16px;}
+    .panel{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:12px 14px;
+      box-shadow:0 6px 24px rgba(0,0,0,.25);
+    }
+
+    /* obere Leiste: Spalten, Zeilen, Button */
+    .topbar{
+      display:flex;
+      gap:10px;
+      align-items:flex-end;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      min-width:140px;
+    }
+    label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+    select,input[type="text"]{
+      background:#0d1116;
+      border:1px solid #242b35;
+      border-radius:10px;
+      padding:6px 8px;
+      color:var(--text);
+      min-height:32px;
+    }
+    button{
+      background:linear-gradient(180deg,#1b2332,#0f141e);
+      border:1px solid #243043;
+      border-radius:10px;
+      padding:7px 14px;
+      color:var(--text);
+      cursor:pointer;
+      min-height:32px;
+    }
+    button:hover{filter:brightness(1.08);}
+
+    /* Anzeigeattribute: eine Zeile 1–4 */
+    .value-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:8px;
+    }
+    .value-row .field{min-width:130px;}
+
+    /* Filter: Spalte/Wert je in einer Zeile */
+    .filter-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:6px;
+    }
+    .filter-row .field{min-width:140px;}
+
+    /* Matrix */
+    #matrixContainer{
+      margin-top:14px;
+      overflow:auto;
+      max-height:70vh;
+    }
+    table.matrix{
+      border-collapse:collapse;
+      width:100%;
+      min-width:400px;
+    }
+    .matrix th,
+    .matrix td{
+      border:1px solid #1d242e;
+      padding:4px 6px;
+      vertical-align:top;
+      background:rgba(7,9,11,.45);
+    }
+    .matrix thead th{
+      background:rgba(12,16,20,.8);
+      position:sticky;
+      top:0;
+      z-index:2;
+    }
+    .matrix tbody th{
+      background:rgba(12,16,20,.65);
+      position:sticky;
+      left:0;
+      z-index:1;
+      text-align:left;
+      min-width:90px;
+    }
+    .cell-pcl span{
+      white-space:nowrap;
+      display:inline-flex;
+      gap:4px;
+      align-items:center;
+    }
+    .backlink{font-size:10px;margin-bottom:10px;}
+    @media (max-width:820px){
+      .topbar{flex-direction:column;align-items:stretch;}
+      .filter-row,.value-row{flex-direction:column;}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>B-InteractiveTable_V0.6: 2-Tritonus-Aufloesungen</h1>
+    <p class="backlink"><a href="./Inhalt.html">zurück zum Inhaltsverzeichnis</a></p>
+
+    <div class="panel">
+      <!-- erste Zeile: Achsen + Button -->
+      <div class="topbar">
+        <div class="field">
+          <label for="xAxis">Spalten (X-Achse)</label>
+          <select id="xAxis" onchange="updateURL()"></select>
+        </div>
+        <div class="field">
+          <label for="yAxis">Zeilen (Y-Achse)</label>
+          <select id="yAxis" onchange="updateURL()"></select>
+        </div>
+        <div class="field" style="min-width:110px;">
+          <label style="visibility:hidden;">.</label>
+          <button id="btnGen" onclick="generateMatrix()">Matrix generieren</button>
+        </div>
+      </div>
+
+      <!-- zweite Zeile: Anzeigeattribute kompakt -->
+      <div class="value-row">
+        <div class="field">
+          <label for="valueColumn1">Anzeigeattribut 1</label>
+          <select id="valueColumn1" onchange="updateURL()"></select>
+        </div>
+        <div class="field">
+          <label for="valueColumn2">Anzeigeattribut 2</label>
+          <select id="valueColumn2" onchange="updateURL()"></select>
+        </div>
+        <div class="field">
+          <label for="valueColumn3">Anzeigeattribut 3</label>
+          <select id="valueColumn3" onchange="updateURL()"></select>
+        </div>
+        <div class="field">
+          <label for="valueColumn4">Anzeigeattribut 4</label>
+          <select id="valueColumn4" onchange="updateURL()"></select>
+        </div>
+      </div>
+
+      <!-- dritte Zeile: beide Filter in EINER Zeile -->
+      <div class="filter-row">
+        <div class="field">
+          <label for="filterColumn1">Filterspalte 1</label>
+          <select id="filterColumn1" onchange="updateURL()"></select>
+        </div>
+        <div class="field">
+          <label for="filterValue1">Filterwert 1</label>
+          <input type="text" id="filterValue1" oninput="updateURL()">
+        </div>
+        <div class="field">
+          <label for="filterColumn2">Filterspalte 2</label>
+          <select id="filterColumn2" onchange="updateURL()"></select>
+        </div>
+        <div class="field">
+          <label for="filterValue2">Filterwert 2</label>
+          <input type="text" id="filterValue2" oninput="updateURL()">
+        </div>
+      </div>
+
+      <div id="matrixContainer"></div>
+    </div>
+  </div>
+
+  <!-- Libs wie in der alten Version -->
+  <script src="dist/tablefilter/tablefilter.js"></script>
+  <script src="https://surikov.github.io/webaudiofont/npm/dist/WebAudioFontPlayer.js"></script>
+  <script src="https://surikov.github.io/webaudiofontdata/sound/0000_JCLive_sf2_file.js"></script>
+  <script src="js/PlayScript.js"></script>
+
+  <!-- ====== DATENBLOCK: 1:1 wie A-Filtertabelle V0.8.3 ====== -->
+  <!-- WICHTIG: bitte so lassen, hier greift dein externes Script -->
+  <script id="data" type="application/json">
+   const data = [
+{ "Hew Rep PCL": "2080","Hew Rep Name": "C Tritonus","Hewit Name PCL": "2080","Hewitt Name": "C Tritonus","Betrag von": "2","tritonus auf": "0","Tritonus": "C -F#","Auflösung": "B -G ","nach PCL": "17","nach Rep PCL": "2176","nach Name PCL": "2176","nach Name": "C gr.Terz","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "19:C , D , F#, G#  15:F , B","Oberton nachher": "22:G   17:A","Oberton Rang vorher": "19","Oberton Rang nachher": "22","Oberton Rang Verbesserung": "3","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" },
+{ "Hew Rep PCL": "2080","Hew Rep Name": "C Tritonus","Hewit Name PCL": "2080","Hewitt Name": "C Tritonus","Betrag von": "2","tritonus auf": "6","Tritonus": "F#-C ","Auflösung": "F -C#","nach PCL": "1088","nach Rep PCL": "2176","nach Name PCL": "2176","nach Name": "C gr.Terz","Betrag nach": "2","Betrag Delta": "0","Oberton vorher": "19:C , D , F#, G#  15:F , B","Oberton nachher": "22:C#  17:D#","Oberton Rang vorher": "19","Oberton Rang nachher": "22","Oberton Rang Verbesserung": "3","Anz. Tritonus vorher": "1","Anz. Tritonus nachher": "0","Anz. Tritonus Delta": "-1" }
+];
+
+
+  </script>
+  <!-- ====== ENDE DATENBLOCK ====== -->
+
+  <script>
+  // JSON wie in A-Filtertabelle lesen
+  const RAW     = JSON.parse(document.getElementById('data').textContent);
+  const COLDEFS = RAW.columns || [];
+  const ROWS    = RAW.rows || [];
+
+  // wir benutzen identifier intern, name als Anzeige
+  const COLUMNS = COLDEFS.map(c => ({
+    id: c.identifier || c.name,
+    label: c.name || c.identifier,
+    renderAs: (c.renderAs || 'text').toLowerCase()
+  }));
+
+  // Helper
+  const $ = id => document.getElementById(id);
+
+  function fillSelect(sel){
+    sel.innerHTML = '<option value=""></option>';
+    for(const c of COLUMNS){
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = c.label;
+      sel.appendChild(opt);
+    }
+  }
+
+  // alle Selects füllen
+  const selectsToFill = [
+    'xAxis','yAxis',
+    'valueColumn1','valueColumn2','valueColumn3','valueColumn4',
+    'filterColumn1','filterColumn2'
+  ];
+  selectsToFill.forEach(id => fillSelect($(id)));
+
+  // URL-Zustand übernehmen
+  function setDropdownValuesFromParams(){
+    const params = new URLSearchParams(window.location.search);
+    const ids = selectsToFill.concat(['filterValue1','filterValue2']);
+    ids.forEach(id => {
+      const el = $(id);
+      if(!el) return;
+      const v = params.get(id);
+      if(v !== null) el.value = v;
+    });
+  }
+  setDropdownValuesFromParams();
+
+  function updateURL(){
+    const params = new URLSearchParams();
+    selectsToFill.forEach(id => {
+      const val = $(id).value;
+      if(val) params.set(id, val);
+    });
+    const fv1 = $('filterValue1').value;
+    const fv2 = $('filterValue2').value;
+    if(fv1) params.set('filterValue1', fv1);
+    if(fv2) params.set('filterValue2', fv2);
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    history.replaceState(null, '', newUrl);
+  }
+
+  function smartSort(arr){
+    return arr.sort((a,b)=>{
+      const na = Number(a), nb = Number(b);
+      if(!Number.isNaN(na) && !Number.isNaN(nb)) return na - nb;
+      return String(a).localeCompare(String(b),'de',{numeric:true,sensitivity:'base'});
+    });
+  }
+
+  function renderCellValue(row, colId){
+    const colMeta = COLUMNS.find(c => c.id === colId);
+    const renderAs = colMeta ? colMeta.renderAs : 'text';
+    const val = row[colId];
+
+    if (renderAs === 'pcl') {
+      const pcl = (val ?? '').toString().trim();
+      if (!pcl) return '';
+      const padded = pcl.padStart(4,'0');
+      const filePath = `././Pocket/HTML/${padded}.htm`;
+      return `<span class="cell-pcl">
+                <a href="${filePath}" target="_blank" style="font-size:10px;color:var(--muted);">${padded}</a>
+                <img src="././Pocket/gif/Kreise/${padded}.gif" height="24" onclick="playChord(1${padded})" style="cursor:pointer;border:0;">
+                <img src="././Pocket/gif/Score/Scale/${padded}.gif" height="24" onclick="playScale(1${padded})" style="cursor:pointer;border:0;">
+              </span>`;
+    }
+    if (renderAs === 'image') {
+      if(!val) return '';
+      return `<img src="${val}" alt="" style="height:28px;max-width:80px;object-fit:contain;">`;
+    }
+    if (renderAs === 'midi') {
+      if(!val) return '';
+      const padded = String(val).padStart(4,'0');
+      return `<img src="././Pocket/gif/Kreise/${padded}.gif" height="24" onclick="playChord('${val}')" style="cursor:pointer;border:0;">`;
+    }
+    if (renderAs === 'html') {
+      return val ?? '';
+    }
+    return `<span style="font-size:11px;">${val ?? ''}</span>`;
+  }
+
+  function generateMatrix(){
+    const xAxis = $('xAxis').value;
+    const yAxis = $('yAxis').value;
+    if(!xAxis || !yAxis){
+      $('matrixContainer').innerHTML = '<p style="color:var(--muted);">Bitte zuerst Spalten- <strong>und</strong> Zeilen-Attribut wählen.</p>';
+      return;
+    }
+    const valueColumns = [
+      $('valueColumn1').value,
+      $('valueColumn2').value,
+      $('valueColumn3').value,
+      $('valueColumn4').value
+    ].filter(Boolean);
+
+    const filterColumn1 = $('filterColumn1').value;
+    const filterValue1  = $('filterValue1').value;
+    const filterColumn2 = $('filterColumn2').value;
+    const filterValue2  = $('filterValue2').value;
+
+    // filtern
+    const filtered = ROWS.filter(row => {
+      let ok = true;
+      if (filterColumn1 && filterValue1){
+        ok = ok && String(row[filterColumn1] ?? '') == filterValue1;
+      }
+      if (filterColumn2 && filterValue2){
+        ok = ok && String(row[filterColumn2] ?? '') == filterValue2;
+      }
+      return ok;
+    });
+
+    if(filtered.length === 0){
+      $('matrixContainer').innerHTML = '<p style="color:var(--muted);">Keine Daten gefunden (Filter zu eng?).</p>';
+      return;
+    }
+
+    const xValues = Array.from(new Set(filtered.map(r => r[xAxis]))).filter(v => v !== undefined);
+    const yValues = Array.from(new Set(filtered.map(r => r[yAxis]))).filter(v => v !== undefined);
+    smartSort(xValues);
+    smartSort(yValues);
+
+    let html = '<table class="matrix"><thead><tr><th></th>';
+    xValues.forEach(x => {
+      html += `<th>${x ?? ''}</th>`;
+    });
+    html += '</tr></thead><tbody>';
+
+    yValues.forEach(yVal => {
+      html += `<tr><th>${yVal ?? ''}</th>`;
+      xValues.forEach(xVal => {
+        const cellRows = filtered.filter(r => r[xAxis] === xVal && r[yAxis] === yVal);
+        const pieces = [];
+        cellRows.forEach(r => {
+          if(valueColumns.length === 0){
+            pieces.push('<span style="font-size:11px;color:var(--muted);">×</span>');
+          } else {
+            const rowParts = valueColumns.map(colId => renderCellValue(r, colId));
+            pieces.push(rowParts.filter(Boolean).join(' | '));
+          }
+        });
+        html += `<td>${pieces.join('<br>')}</td>`;
+      });
+      html += '</tr>';
+    });
+
+    html += '</tbody></table>';
+    $('matrixContainer').innerHTML = html;
+  }
+
+  // als kleinen Komfort: wenn der Nutzer nichts gewählt hat, versuchen wir, erste 2 Spalten zu nehmen
+  (function autoDefaults(){
+    const ids = COLUMNS.map(c=>c.id);
+    if(ids[0] && !$('xAxis').value) $('xAxis').value = ids[0];
+    if(ids[1] && !$('yAxis').value) $('yAxis').value = ids[1];
+  })();
+
+  // gleich mal initial rendern, damit was da ist
+  generateMatrix();
+  </script>
+</body>
+</html>
+

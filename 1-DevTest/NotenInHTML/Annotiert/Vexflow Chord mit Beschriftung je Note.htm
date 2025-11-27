@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>VexFlow: Akkord C-E-G mit GTQ</title>
+</head>
+<body>
+  <h2>Akkord C-E-G mit Beschriftung G-T-Q je Note</h2>
+  <div id="vf"></div>
+
+  <!-- VexFlow laden (wie bei dir) -->
+  <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
+  <script>
+    // VexFlow-Namespace holen
+    const VF = Vex.Flow;
+
+    // Renderer an das DIV hängen (SVG)
+    const div = document.getElementById("vf");
+    const renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
+    renderer.resize(500, 160);
+    const context = renderer.getContext();
+
+    // Notensystem
+    const stave = new VF.Stave(10, 20, 400);
+    stave.addClef("treble").addTimeSignature("4/4");
+    stave.setContext(context).draw();
+
+    // Akkord C-E-G als Viertel
+    const chord = new VF.StaveNote({
+      clef: "treble",
+      keys: ["c/4", "e/4", "g/4"],
+      duration: "q"
+    });
+
+    // Annotationen: G (Grundton), T (Terz), Q (Quinte)
+    // Index 0 = C, 1 = E, 2 = G
+    const annG = new VF.Annotation("G")
+      .setFont("Arial", 12, "")
+      .setTextLine(1);   // alle auf gleicher Höhe
+
+    const annT = new VF.Annotation("T")
+      .setFont("Arial", 12, "")
+      .setTextLine(1);
+
+    const annQ = new VF.Annotation("Q")
+      .setFont("Arial", 12, "")
+      .setTextLine(1);
+
+    // Optional: falls deine Version die Enums hat, sauber zentrieren
+    if (VF.Annotation.Justify && VF.Annotation.Justify.CENTER) {
+      [annG, annT, annQ].forEach(a =>
+        a.setJustification(VF.Annotation.Justify.CENTER)
+      );
+    }
+    if (VF.Annotation.VerticalJustify && VF.Annotation.VerticalJustify.TOP) {
+      [annG, annT, annQ].forEach(a =>
+        a.setVerticalJustification(VF.Annotation.VerticalJustify.TOP)
+      );
+    }
+
+    // Den drei Notenköpfen jeweils eine Annotation zuordnen
+    chord.addAnnotation(0, annG); // C = Grundton (G)
+    chord.addAnnotation(1, annT); // E = Terz (T)
+    chord.addAnnotation(2, annQ); // G = Quinte (Q)
+
+    // Stimme & Formatierung
+    const voice = new VF.Voice({ num_beats: 4, beat_value: 4 });
+    voice.addTickables([chord]);
+
+    new VF.Formatter()
+      .joinVoices([voice])
+      .format([voice], 300);
+
+    voice.draw(context, stave);
+  </script>
+</body>
+</html>
