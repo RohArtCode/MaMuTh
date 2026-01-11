@@ -1,0 +1,212 @@
+<div id="output"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/vexflow@5.0.0/build/cjs/vexflow.js"></script>
+<script>
+function getMidiSetFromUrl(paramName = "midi") {
+  const params = new URLSearchParams(window.location.search);
+
+  // Variante A: ?midi=60,63,67
+  const csv = params.get(paramName);
+  if (csv && csv.trim().length) {
+    const nums = csv
+      .split(/[,\s]+/)               // Komma ODER Leerzeichen
+      .map(s => parseInt(s, 10))
+      .filter(n => Number.isFinite(n));
+    return new Set(nums);
+  }
+
+  // Variante B: ?midi=60&midi=63&midi=67
+  const all = params.getAll(paramName);
+  if (all && all.length) {
+    const nums = all
+      .map(s => parseInt(s, 10))
+      .filter(n => Number.isFinite(n));
+    return new Set(nums);
+  }
+
+  // Fallback
+  return new Set([60, 63, 67]);
+}
+
+function renderOvertonesOneGrandStaff({
+  containerId,
+  chordMidi,                 // Iterable<number>, z.B. new Set([60,63,67])
+  fundamentalFrom = 46,
+  fundamentalTo = 57,
+  harmonics = 11,
+  trebleSplitMidi = 60,
+  measureWidth = 140,        // ggf. größer machen, wenn Akkorde zu eng sind
+  normalStyle = { fillStyle: "#300", strokeStyle: "#0F0" },
+  fadedStyle  = { fillStyle: "#269696", strokeStyle: "#366666" },
+} = {}) {
+
+  const VF = VexFlow;
+  const container = document.getElementById(containerId);
+  if (!container) throw new Error("Container nicht gefunden: " + containerId);
+  container.innerHTML = "";
+  container.style.overflowX = "auto";
+  container.style.border = "1px solid #eee";
+
+  const pc = (m) => ((m % 12) + 12) % 12;
+
+  // eher b-Notennamen (wie dein Beispiel: Bb statt A#)
+  const PC_TO_NAME = ["C","Db","D","Eb","E","F","F#","G","Ab","A","Bb","B"];
+
+  function midiToVFKey(m) {
+    const octave = Math.floor(m / 12) - 1;
+    const name = PC_TO_NAME[pc(m)].toLowerCase();
+    return `${name}/${octave}`;
+  }
+
+  function uniqueSorted(arr) {
+    return Array.from(new Set(arr)).sort((a,b)=>a-b);
+  }
+
+  // 12TET-Näherung: m + 12*log2(k), gerundet
+  function overtoneChordMidi(fundMidi) {
+    const out = [];
+    for (let k = 1; k <= harmonics; k++) {
+      out.push(Math.round(fundMidi + 12 * Math.log2(k)));
+    }
+    return uniqueSorted(out);
+  }
+
+  function splitByClef(midiList) {
+    const bass = [];
+    const treble = [];
+    uniqueSorted(midiList).forEach(m => (m >= trebleSplitMidi ? treble : bass).push(m));
+    return { treble, bass };
+  }
+
+  function makeChordNote({ clef, midiList }) {
+    if (!midiList.length) return new VF.GhostNote({ duration: "w" });
+
+    const keys = midiList.map(midiToVFKey);
+    const note = new VF.StaveNote({ clef, keys, duration: "w" });
+
+    // Accidentals automatisch aus dem key-string ergänzen (z.B. "eb/4" -> "b")
+    keys.forEach((k, i) => {
+      const keyPart = k.split("/")[0];   // "eb"
+      const acc = keyPart.slice(1);      // "b" oder "#" oder "" usw.
+      if (acc) note.addModifier(new VF.Accidental(acc), i);
+    });
+
+    return note;
+  }
+
+  function applyPitchClassHighlight(staveNote, chordPitchClasses) {
+    if (!staveNote || typeof staveNote.getKeys !== "function") return;
+    const keys = staveNote.getKeys();
+
+    keys.forEach((k, i) => {
+      const keyPart = String(k).split("/")[0]; // z.B. "eb"
+      const letter = keyPart[0];               // e
+      const acc = keyPart.slice(1);            // b
+      // PC aus Notenname bestimmen (gleiches Mapping wie PC_TO_NAME: C,Db,D,Eb,E,F,F#,G,Ab,A,Bb,B)
+      const map = { c:0, db:1, d:2, eb:3, e:4, f:5, "f#":6, g:7, ab:8, a:9, bb:10, b:11 };
+      const keyPc = map[(letter + acc).toLowerCase()];
+
+      const style = chordPitchClasses.has(keyPc) ? normalStyle : fadedStyle;
+
+      if (typeof staveNote.setKeyStyle === "function") {
+        staveNote.setKeyStyle(i, style);
+      } else if (staveNote.note_heads?.[i]?.setStyle) {
+        staveNote.note_heads[i].setStyle(style);
+      }
+    });
+  }
+
+  // ----- Akkorde vorbereiten: 1x Eingangsakkord + Obertöne 46..57 -----
+  const chordArr = Array.from(chordMidi || []);
+  const chordPitchClasses = new Set(chordArr.map(pc));
+
+  const chords = [];
+  chords.push(uniqueSorted(chordArr));
+  for (let f = fundamentalFrom; f <= fundamentalTo; f++) chords.push(overtoneChordMidi(f));
+
+  // ----- Renderer / Layout -----
+  const left = 20;
+  const top = 30;
+  const trebleY = top;
+  const bassY = top + 90;
+  const width = left + chords.length * measureWidth + 30;
+  const height = bassY + 180;
+
+  const renderer = new VF.Renderer(container, VF.Renderer.Backends.SVG);
+  renderer.resize(width, height);
+  const context = renderer.getContext();
+
+  // ----- Takte nebeneinander zeichnen -----
+  let x = left;
+
+  for (let i = 0; i < chords.length; i++) {
+    const { treble, bass } = splitByClef(chords[i]);
+
+    const trebleStave = new VF.Stave(x, trebleY, measureWidth);
+    const bassStave   = new VF.Stave(x, bassY, measureWidth);
+
+    if (i === 0) {
+      trebleStave.addClef("treble").addTimeSignature("4/4");
+      bassStave.addClef("bass").addTimeSignature("4/4");
+    } else {
+      // keine doppelte linke Taktlinie in der Mitte
+      trebleStave.setBegBarType(VF.Barline.type.NONE);
+      bassStave.setBegBarType(VF.Barline.type.NONE);
+    }
+
+    trebleStave.setContext(context).draw();
+    bassStave.setContext(context).draw();
+
+    // Akkordnoten
+    const trebleNote = makeChordNote({ clef: "treble", midiList: treble });
+    const bassNote   = makeChordNote({ clef: "bass",   midiList: bass });
+
+    applyPitchClassHighlight(trebleNote, chordPitchClasses);
+    applyPitchClassHighlight(bassNote, chordPitchClasses);
+
+    const trebleVoice = new VF.Voice({ num_beats: 4, beat_value: 4 }).addTickables([trebleNote]);
+    const bassVoice   = new VF.Voice({ num_beats: 4, beat_value: 4 }).addTickables([bassNote]);
+
+    trebleVoice.setStave(trebleStave);
+    bassVoice.setStave(bassStave);
+
+    // gemeinsames Formatieren (damit beide Stimmen im Takt “mittig” sitzen)
+    new VF.Formatter()
+      .joinVoices([trebleVoice])
+      .joinVoices([bassVoice])
+      .format([trebleVoice, bassVoice], measureWidth - 20);
+
+    trebleVoice.draw(context, trebleStave);
+    bassVoice.draw(context, bassStave);
+
+    // Verbindungen / Klammer:
+    if (i === 0) {
+      new VF.StaveConnector(trebleStave, bassStave)
+        .setType(VF.StaveConnector.type.BRACE)
+        .setContext(context).draw();
+      new VF.StaveConnector(trebleStave, bassStave)
+        .setType(VF.StaveConnector.type.SINGLE_LEFT)
+        .setContext(context).draw();
+    }
+    // Taktstrich rechts verbinden (damit Barline durch beide Systeme geht)
+    new VF.StaveConnector(trebleStave, bassStave)
+      .setType(VF.StaveConnector.type.SINGLE_RIGHT)
+      .setContext(context).draw();
+
+    x += measureWidth;
+  }
+}
+
+// Beispiel:
+const chordFromUrl = getMidiSetFromUrl("midi");
+
+renderOvertonesOneGrandStaff({
+  containerId: "output",
+  chordMidi: chordFromUrl, //new Set([60, 63, 67]), // C-moll
+  fundamentalFrom: 36,
+  fundamentalTo: 47,
+  harmonics: 11,
+  measureWidth: 120,
+  fadedStyle: { fillStyle: "#2ADADA", strokeStyle: "#DADADA" },
+});
+</script>

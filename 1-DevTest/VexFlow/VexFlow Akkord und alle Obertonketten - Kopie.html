@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <title>VexFlow Obertöne</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    #output { border: 1px solid #eee; padding: 8px; }
+  </style>
+</head>
+<body>
+  <div id="output"></div>
+
+  <!-- VexFlow (offizielles README empfiehlt, eine Version fest zu pinnen) -->
+  <script src="https://cdn.jsdelivr.net/npm/vexflow@5.0.0/build/cjs/vexflow.js"></script>
+
+  <script>
+    /**
+     * Rendert:
+     *  - 1x den Eingangsakkord
+     *  - dann für fundamentals [fundamentalFrom..fundamentalTo] die Obertonreihe (Harmonische 1..harmonics)
+     *
+     * @param {Object} opts
+     * @param {string} opts.containerId  - id des div containers
+     * @param {Iterable<number>} opts.chordMidi - z.B. [60,63,67] oder new Set([60,63,67])
+     * @param {number} [opts.fundamentalFrom=46]
+     * @param {number} [opts.fundamentalTo=57]
+     * @param {number} [opts.harmonics=11] - wie im Beispiel: bis inkl. 11 (…F# ungefähr)
+     * @param {number} [opts.trebleSplitMidi=60] - ab diesem MIDI kommt die Note in den Violinschlüssel
+     * @param {Object} [opts.normalStyle] - VexFlow style object
+     * @param {Object} [opts.fadedStyle]  - VexFlow style object
+     */
+    function renderOvertonePianoScore(opts) {
+      const {
+        containerId,
+        chordMidi,
+        fundamentalFrom = 46,
+        fundamentalTo = 57,
+        harmonics = 11,
+        trebleSplitMidi = 60,
+        normalStyle = { fillStyle: "#000000", strokeStyle: "#000000" },
+        fadedStyle  = { fillStyle: "#CFCFCF", strokeStyle: "#CFCFCF" },
+      } = opts || {};
+
+      const container = document.getElementById(containerId);
+      if (!container) throw new Error("Container nicht gefunden: " + containerId);
+      container.innerHTML = "";
+
+      if (typeof VexFlow === "undefined") {
+        throw new Error("VexFlow ist nicht geladen. Prüfe das <script src=...vexflow.js>.");
+      }
+
+      // ---------- Helpers ----------
+      const pc = (m) => ((m % 12) + 12) % 12;
+
+      // Bevorzugte Enharmonik: eher b (und nur ein paar #), damit z.B. Bb statt A# rauskommt.
+      // (Du kannst das Mapping beliebig ändern.)
+      const PC_TO_NAME = ["C","Db","D","Eb","E","F","F#","G","Ab","A","Bb","B"];
+      const NAME_TO_PC = {
+        "c":0,"b#":0,
+        "c#":1,"db":1,
+        "d":2,
+        "d#":3,"eb":3,
+        "e":4,"fb":4,
+        "e#":5,"f":5,
+        "f#":6,"gb":6,
+        "g":7,
+        "g#":8,"ab":8,
+        "a":9,
+        "a#":10,"bb":10,
+        "b":11,"cb":11
+      };
+
+      function midiToNoteName(m) {
+        const octave = Math.floor(m / 12) - 1; // MIDI->Scientific Pitch
+        return PC_TO_NAME[pc(m)] + octave;
+      }
+
+      function uniqueSorted(arr) {
+        return Array.from(new Set(arr)).sort((a,b)=>a-b);
+      }
+
+      // Harmonische Reihe in 12TET annähern: midi + 12*log2(k), gerundet
+      function overtoneChordMidi(fundMidi) {
+        const out = [];
+        for (let k = 1; k <= harmonics; k++) {
+          const m = Math.round(fundMidi + 12 * Math.log2(k));
+          out.push(m);
+        }
+        return uniqueSorted(out);
+      }
+
+      function midiListToEasyScoreChordString(midiList) {
+        const names = uniqueSorted(midiList).map(midiToNoteName);
+        // EasyScore chord syntax: "(C4 Eb4 G4)/w"
+        return `(${names.join(" ")})/w`;
+      }
+
+      // Styling pro NoteHead anhand Pitch Class
+      function applyPitchClassHighlight(staveNote, chordPitchClasses) {
+        const keys = (typeof staveNote.getKeys === "function") ? staveNote.getKeys() : (staveNote.keys || []);
+        keys.forEach((k, i) => {
+          const keyName = String(k).split("/")[0].toLowerCase(); // z.B. "bb" aus "bb/4"
+          const keyPc = NAME_TO_PC[keyName];
+          const style = chordPitchClasses.has(keyPc) ? normalStyle : fadedStyle;
+
+          // Bevorzugt: setKeyStyle (falls vorhanden), sonst direkt NoteHead stylen
+          if (typeof staveNote.setKeyStyle === "function") {
+            staveNote.setKeyStyle(i, style);
+          } else if (staveNote.note_heads && staveNote.note_heads[i] && typeof staveNote.note_heads[i].setStyle === "function") {
+            staveNote.note_heads[i].setStyle(style);
+          }
+        });
+      }
+
+      function splitByClef(midiList) {
+        const bass = [];
+        const treble = [];
+        uniqueSorted(midiList).forEach(m => (m >= trebleSplitMidi ? treble : bass).push(m));
+        return { treble, bass };
+      }
+
+      // ---------- Build pitch class set from input chord ----------
+      const chordArr = Array.from(chordMidi || []);
+      const chordPitchClasses = new Set(chordArr.map(pc));
+
+      // ---------- Build rows: first input chord, then fundamentals 46..57 ----------
+      const rows = [];
+      rows.push({ label: "Input", midi: uniqueSorted(chordArr) });
+      for (let f = fundamentalFrom; f <= fundamentalTo; f++) {
+        rows.push({ label: "F" + f, midi: overtoneChordMidi(f) });
+      }
+
+      // ---------- VexFlow layout ----------
+      const width = Math.max(900, container.clientWidth || 900);
+      const systemHeight = 110;        // pro Zeile
+      const height = 30 + rows.length * systemHeight;
+
+      const factory = new VexFlow.Factory({
+        renderer: { elementId: containerId, width, height }
+      });
+      const score = factory.EasyScore();
+
+      const left = 10;
+      const sysWidth = width - 20;
+
+      rows.forEach((row, idx) => {
+        const y = 10 + idx * systemHeight;
+
+        const system = factory.System({
+          x: left,
+          y,
+          width: sysWidth,
+          spaceBetweenStaves: 10
+        });
+
+        const { treble, bass } = splitByClef(row.midi);
+
+        // Treble chord or ghost
+        let trebleTickables;
+        if (treble.length) {
+          const trebleChord = midiListToEasyScoreChordString(treble);
+          const trebleNotes = score.notes(trebleChord, { clef: "treble", stem: "up" });
+          applyPitchClassHighlight(trebleNotes[0], chordPitchClasses);
+          trebleTickables = trebleNotes;
+        } else {
+          trebleTickables = [ new VexFlow.GhostNote("w") ];
+        }
+
+        // Bass chord or ghost
+        let bassTickables;
+        if (bass.length) {
+          const bassChord = midiListToEasyScoreChordString(bass);
+          const bassNotes = score.notes(bassChord, { clef: "bass", stem: "down" });
+          applyPitchClassHighlight(bassNotes[0], chordPitchClasses);
+          bassTickables = bassNotes;
+        } else {
+          bassTickables = [ new VexFlow.GhostNote("w") ];
+        }
+
+        const trebleVoice = score.voice(trebleTickables, { time: "4/4" });
+        const bassVoice   = score.voice(bassTickables,   { time: "4/4" });
+
+        const trebleStave = system.addStave({ voices: [trebleVoice] }).addClef("treble");
+        const bassStave   = system.addStave({ voices: [bassVoice]   }).addClef("bass");
+
+        // Grand staff connectors: linke Linie + Klammer (Brace)
+        // (Bei Factory/System ist addConnector() nur 1 Connector, daher erstellen wir beide via factory.)
+        factory.StaveConnector({ top_stave: trebleStave, bottom_stave: bassStave })
+          .setType(VexFlow.StaveConnector.type.SINGLE_LEFT);
+        factory.StaveConnector({ top_stave: trebleStave, bottom_stave: bassStave })
+          .setType(VexFlow.StaveConnector.type.BRACE);
+      });
+
+      factory.draw();
+    }
+
+    // Beispiel: C-Moll = 60(C4), 63(Eb4), 67(G4)
+    renderOvertonePianoScore({
+      containerId: "output",
+      chordMidi: new Set([60, 63, 67]),
+      fundamentalFrom: 46,
+      fundamentalTo: 57,
+      harmonics: 11,
+      trebleSplitMidi: 60,
+      // optional: noch „stärker“ abdunkeln/aufhellen:
+      normalStyle: { fillStyle: "#000000", strokeStyle: "#000000" },
+      fadedStyle:  { fillStyle: "#D8D8D8", strokeStyle: "#D8D8D8" }
+    });
+  </script>
+</body>
+</html>
